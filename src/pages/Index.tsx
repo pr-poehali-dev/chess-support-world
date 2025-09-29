@@ -21,7 +21,7 @@ const Index = () => {
           <div className="flex items-center justify-between h-24">
             <div className="flex items-center gap-3">
               <img 
-                src="https://cdn.poehali.dev/files/c8bb0d3f-5d90-41d-9d7a-9232853e0511.png" 
+                src="https://cdn.poehali.dev/files/c8bb0d3f-5d90-41d2-9d7a-9232853e0511.png" 
                 alt="Мир Шахмат" 
                 className="h-20 w-auto"
               />
@@ -174,7 +174,7 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-6">
             <img 
-              src="https://cdn.poehali.dev/files/c8bb0d3f-5d90-41d-9d7a-9232853e0511.png" 
+              src="https://cdn.poehali.dev/files/c8bb0d3f-5d90-41d2-9d7a-9232853e0511.png" 
               alt="Мир Шахмат" 
               className="h-16 w-auto"
             />
