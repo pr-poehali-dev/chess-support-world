@@ -116,14 +116,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             (result['user_id'],)
         )
         
-        cur.execute(
-            """
-            DELETE FROM t_p91748136_chess_support_world.verification_tokens
-            WHERE user_id = %s
-            """,
-            (result['user_id'],)
-        )
-        
         conn.commit()
         cur.close()
         conn.close()
