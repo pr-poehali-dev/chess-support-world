@@ -1,0 +1,33 @@
+{
+  "tests": [
+    {
+      "name": "Register new user",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "email": "test@example.com",
+        "password": "test123456",
+        "full_name": "Test User"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Register with missing email",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "password": "test123456"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

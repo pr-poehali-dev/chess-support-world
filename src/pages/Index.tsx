@@ -2,16 +2,18 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import AuthForm from '@/components/AuthForm';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
+  const [user, setUser] = useState<any>(null);
 
   const menuItems = [
     { id: 'home', label: 'Главная', icon: 'Home' },
     { id: 'tournaments', label: 'Турниры', icon: 'Trophy' },
     { id: 'results', label: 'Результаты', icon: 'Award' },
     { id: 'awards', label: 'Награды', icon: 'Medal' },
-    { id: 'auth', label: 'Вход', icon: 'LogIn' }
+    { id: 'auth', label: user ? user.full_name || 'Профиль' : 'Вход', icon: user ? 'User' : 'LogIn' }
   ];
 
   return (
@@ -154,19 +156,11 @@ const Index = () => {
         )}
 
         {activeSection === 'auth' && (
-          <div className="animate-fade-in max-w-md mx-auto py-12">
-            <Card className="p-8 bg-white">
-              <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Icon name="LogIn" size={32} className="text-blue-600" />
-              </div>
-              <h2 className="text-3xl font-bold text-center mb-4 text-gray-900">Вход / Регистрация</h2>
-              <p className="text-center text-gray-600 mb-6">
-                Раздел находится в разработке. Здесь будет форма входа и регистрации участников.
-              </p>
-              <Button className="w-full bg-secondary hover:bg-secondary/90 text-black" size="lg">
-                Скоро появится
-              </Button>
-            </Card>
+          <div className="animate-fade-in py-12">
+            <AuthForm onSuccess={(userData) => {
+              setUser(userData);
+              setActiveSection('home');
+            }} />
           </div>
         )}
       </main>
