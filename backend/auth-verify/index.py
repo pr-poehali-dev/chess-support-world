@@ -97,7 +97,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        if datetime.now(timezone.utc) > result['expires_at']:
+        expires_at = result['expires_at']
+        if isinstance(expires_at, str):
+            expires_at = datetime.fromisoformat(expires_at)
+        
+        current_time = datetime.now()
+        if current_time > expires_at:
             cur.close()
             conn.close()
             return {
