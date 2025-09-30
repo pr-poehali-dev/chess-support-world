@@ -1,12 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import AuthForm from '@/components/AuthForm';
+import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const verifyToken = params.get('verify');
+    
+    if (verifyToken) {
+      fetch(`https://functions.poehali.dev/7f5b6427-1db5-4cce-b41c-6fafdb571e1e?token=${verifyToken}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            toast({
+              title: "Email подтверждён!",
+              description: "Теперь вы можете войти в систему",
+            });
+            window.history.replaceState({}, '', '/');
+          } else {
+            toast({
+              title: "Ошибка",
+              description: data.error || "Не удалось подтвердить email",
+              variant: "destructive"
+            });
+          }
+        })
+        .catch(() => {
+          toast({
+            title: "Ошибка",
+            description: "Не удалось подтвердить email",
+            variant: "destructive"
+          });
+        });
+    }
+  }, []);
 
   const menuItems = [
     { id: 'home', label: 'Главная', icon: 'Home' },
