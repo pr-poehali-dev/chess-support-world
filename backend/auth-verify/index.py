@@ -6,7 +6,7 @@ Returns: Success message or error
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any
 
 try:
@@ -97,7 +97,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        if datetime.now() > result['expires_at']:
+        if datetime.now(timezone.utc) > result['expires_at']:
             cur.close()
             conn.close()
             return {
