@@ -14,9 +14,19 @@ const Index = () => {
     const verifyToken = params.get('verify');
     
     if (verifyToken) {
+      console.log('Verifying token:', verifyToken);
       fetch(`https://functions.poehali.dev/7f5b6427-1db5-4cce-b41c-6fafdb571e1e?token=${verifyToken}`)
-        .then(res => res.json())
+        .then(async res => {
+          console.log('Response status:', res.status);
+          const text = await res.text();
+          console.log('Response text:', text);
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${text}`);
+          }
+          return JSON.parse(text);
+        })
         .then(data => {
+          console.log('Response data:', data);
           if (data.success) {
             toast({
               title: "Email подтверждён!",
@@ -31,10 +41,11 @@ const Index = () => {
             });
           }
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('Verification error:', error);
           toast({
             title: "Ошибка",
-            description: "Не удалось подтвердить email",
+            description: error.message || "Не удалось подтвердить email",
             variant: "destructive"
           });
         });
