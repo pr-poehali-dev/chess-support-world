@@ -164,10 +164,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 msg.attach(MIMEText(html_content, 'html'))
                 
-                with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
-                    server.starttls()
-                    server.login(smtp_user, smtp_password)
-                    server.send_message(msg)
+                if smtp_port == 465:
+                    with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=10) as server:
+                        server.login(smtp_user, smtp_password)
+                        server.send_message(msg)
+                else:
+                    with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
+                        server.starttls()
+                        server.login(smtp_user, smtp_password)
+                        server.send_message(msg)
                 
             except Exception as e:
                 print(f"Email sending failed: {e}")
