@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -6,10 +7,16 @@ import AuthForm from '@/components/AuthForm';
 import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('home');
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
     const params = new URLSearchParams(window.location.search);
     const verifyToken = params.get('verify');
     
@@ -57,7 +64,7 @@ const Index = () => {
     { id: 'tournaments', label: 'Турниры', icon: 'Trophy' },
     { id: 'results', label: 'Результаты', icon: 'Award' },
     { id: 'awards', label: 'Награды', icon: 'Medal' },
-    { id: 'auth', label: user ? user.full_name || 'Профиль' : 'Вход', icon: user ? 'User' : 'LogIn' }
+    { id: 'auth', label: user ? user.full_name || 'Профиль' : 'Вход', icon: user ? 'User' : 'LogIn', onClick: user ? () => navigate('/profile') : undefined }
   ];
 
   return (
@@ -78,7 +85,7 @@ const Index = () => {
                 <Button
                   key={item.id}
                   variant={activeSection === item.id ? 'default' : 'ghost'}
-                  onClick={() => setActiveSection(item.id)}
+                  onClick={() => item.onClick ? item.onClick() : setActiveSection(item.id)}
                   className={`gap-2 transition-all ${
                     activeSection === item.id 
                       ? 'bg-secondary text-black hover:bg-secondary/90' 

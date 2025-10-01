@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {
+      "name": "Update profile without token",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "full_name": "Test User",
+        "email": "test@example.com"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "success": false,
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
