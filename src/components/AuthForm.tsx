@@ -13,6 +13,14 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [middleName, setMiddleName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [fsrId, setFsrId] = useState('');
+  const [educationInstitution, setEducationInstitution] = useState('');
+  const [coach, setCoach] = useState('');
+  const [cityCountry, setCityCountry] = useState('');
+  const [representativePhone, setRepresentativePhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [verifying, setVerifying] = useState(false);
@@ -52,7 +60,19 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
         const response = await fetch(func2url['auth-register'], {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, full_name: fullName })
+          body: JSON.stringify({ 
+            email, 
+            password, 
+            full_name: fullName,
+            last_name: lastName,
+            middle_name: middleName,
+            birth_date: birthDate,
+            fsr_id: fsrId,
+            education_institution: educationInstitution,
+            coach,
+            city_country: cityCountry,
+            representative_phone: representativePhone
+          })
         });
 
         const data = await response.json();
@@ -62,6 +82,14 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
           setEmail('');
           setPassword('');
           setFullName('');
+          setLastName('');
+          setMiddleName('');
+          setBirthDate('');
+          setFsrId('');
+          setEducationInstitution('');
+          setCoach('');
+          setCityCountry('');
+          setRepresentativePhone('');
           setTimeout(() => setMode('login'), 3000);
         } else {
           setMessage({ type: 'error', text: data.error || 'Ошибка регистрации' });
@@ -127,18 +155,126 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {mode === 'register' && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Имя
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Введите ваше имя"
-            />
-          </div>
+          <>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Имя <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Введите ваше имя"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Фамилия <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Введите вашу фамилию"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Отчество
+              </label>
+              <input
+                type="text"
+                value={middleName}
+                onChange={(e) => setMiddleName(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Введите ваше отчество"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Дата рождения <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ID ФШР
+              </label>
+              <input
+                type="text"
+                value={fsrId}
+                onChange={(e) => setFsrId(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Введите ваш ID ФШР"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Учебное учреждение
+              </label>
+              <input
+                type="text"
+                value={educationInstitution}
+                onChange={(e) => setEducationInstitution(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Название учебного учреждения"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Тренер
+              </label>
+              <input
+                type="text"
+                value={coach}
+                onChange={(e) => setCoach(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="ФИО тренера"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Город/Страна
+              </label>
+              <input
+                type="text"
+                value={cityCountry}
+                onChange={(e) => setCityCountry(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Город, Страна"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Номер телефона представителя
+              </label>
+              <input
+                type="tel"
+                value={representativePhone}
+                onChange={(e) => setRepresentativePhone(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="+7 (999) 123-45-67"
+              />
+            </div>
+          </>
         )}
 
         <div>

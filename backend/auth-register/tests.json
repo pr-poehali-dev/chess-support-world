@@ -5,9 +5,11 @@
       "method": "POST",
       "path": "/",
       "body": {
-        "email": "test@example.com",
+        "email": "newuser@example.com",
         "password": "test123456",
-        "full_name": "Test User"
+        "full_name": "Test User",
+        "last_name": "Testov",
+        "birth_date": "2000-01-01"
       },
       "expectedStatus": 200,
       "expectedBody": {

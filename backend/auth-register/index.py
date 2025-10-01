@@ -49,12 +49,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         email = body_data.get('email', '').strip().lower()
         password = body_data.get('password', '')
         full_name = body_data.get('full_name', '').strip()
+        last_name = body_data.get('last_name', '').strip()
+        middle_name = body_data.get('middle_name', '').strip()
+        birth_date = body_data.get('birth_date', '').strip()
+        fsr_id = body_data.get('fsr_id', '').strip()
+        education_institution = body_data.get('education_institution', '').strip()
+        coach = body_data.get('coach', '').strip()
+        city_country = body_data.get('city_country', '').strip()
+        representative_phone = body_data.get('representative_phone', '').strip()
         
-        if not email or not password:
+        if not email or not password or not full_name or not last_name or not birth_date:
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Email и пароль обязательны'}),
+                'body': json.dumps({'error': 'Email, пароль, имя, фамилия и дата рождения обязательны'}),
                 'isBase64Encoded': False
             }
         
@@ -98,11 +106,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         cur.execute(
             """
-            INSERT INTO t_p91748136_chess_support_world.users (email, password_hash, full_name, is_verified)
-            VALUES (%s, %s, %s, FALSE)
+            INSERT INTO t_p91748136_chess_support_world.users 
+            (email, password_hash, full_name, last_name, middle_name, birth_date, 
+             fsr_id, education_institution, coach, city_country, representative_phone, is_verified)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, FALSE)
             RETURNING id
             """,
-            (email, password_hash, full_name)
+            (email, password_hash, full_name, last_name, middle_name, birth_date or None,
+             fsr_id or None, education_institution or None, coach or None, 
+             city_country or None, representative_phone or None)
         )
         user_id = cur.fetchone()['id']
         
