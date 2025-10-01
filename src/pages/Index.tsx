@@ -25,7 +25,6 @@ const Index = () => {
       setActiveSection(section);
     }
 
-    const params = new URLSearchParams(window.location.search);
     const verifyToken = params.get('verify');
     
     if (verifyToken) {
