@@ -124,6 +124,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         token = create_simple_jwt(user['id'], user['email'], jwt_secret)
         
+        conn = psycopg2.connect(database_url)
+        conn.autocommit = True
+        cur = conn.cursor()
+        
+        token_escaped = token.replace("'", "''")
+        cur.execute(f"INSERT INTO auth_tokens (user_id, token) VALUES ({user['id']}, '{token_escaped}')")
+        
+        cur.close()
+        conn.close()
+        
         return {
             'statusCode': 200,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
