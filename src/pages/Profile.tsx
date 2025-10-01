@@ -25,31 +25,62 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    const userData = localStorage.getItem('user');
+    const loadUserData = async () => {
+      const token = localStorage.getItem('auth_token');
 
-    if (!token || !userData) {
-      toast({
-        title: "Требуется авторизация",
-        description: "Войдите в систему для доступа к профилю",
-        variant: "destructive"
-      });
-      navigate('/');
-      return;
-    }
+      if (!token) {
+        toast({
+          title: "Требуется авторизация",
+          description: "Войдите в систему для доступа к профилю",
+          variant: "destructive"
+        });
+        navigate('/');
+        return;
+      }
 
-    const parsedUser = JSON.parse(userData);
-    setUser(parsedUser);
-    setFullName(parsedUser.full_name || '');
-    setLastName(parsedUser.last_name || '');
-    setMiddleName(parsedUser.middle_name || '');
-    setBirthDate(parsedUser.birth_date || '');
-    setFsrId(parsedUser.fsr_id || '');
-    setEducationInstitution(parsedUser.education_institution || '');
-    setCoach(parsedUser.coach || '');
-    setCityCountry(parsedUser.city_country || '');
-    setRepresentativePhone(parsedUser.representative_phone || '');
-    setEmail(parsedUser.email || '');
+      try {
+        const response = await fetch(func2url['profile-get'], {
+          method: 'GET',
+          headers: {
+            'X-Auth-Token': token
+          }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          const userData = data.user;
+          setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
+          setFullName(userData.full_name || '');
+          setLastName(userData.last_name || '');
+          setMiddleName(userData.middle_name || '');
+          setBirthDate(userData.birth_date || '');
+          setFsrId(userData.fsr_id || '');
+          setEducationInstitution(userData.education_institution || '');
+          setCoach(userData.coach || '');
+          setCityCountry(userData.city_country || '');
+          setRepresentativePhone(userData.representative_phone || '');
+          setEmail(userData.email || '');
+        } else {
+          toast({
+            title: "Ошибка",
+            description: "Не удалось загрузить данные профиля",
+            variant: "destructive"
+          });
+          navigate('/');
+        }
+      } catch (error) {
+        toast({
+          title: "Ошибка",
+          description: "Ошибка соединения с сервером",
+          variant: "destructive"
+        });
+        navigate('/');
+      }
+    };
+
+    loadUserData();
   }, [navigate]);
 
 
@@ -83,11 +114,20 @@ const Profile = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        const updatedUser = { ...user, full_name: fullName, last_name: lastName, middle_name: middleName,
-          birth_date: birthDate, fsr_id: fsrId, education_institution: educationInstitution,
-          coach, city_country: cityCountry, representative_phone: representativePhone, email };
+        const updatedUser = data.user;
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        setFullName(updatedUser.full_name || '');
+        setLastName(updatedUser.last_name || '');
+        setMiddleName(updatedUser.middle_name || '');
+        setBirthDate(updatedUser.birth_date || '');
+        setFsrId(updatedUser.fsr_id || '');
+        setEducationInstitution(updatedUser.education_institution || '');
+        setCoach(updatedUser.coach || '');
+        setCityCountry(updatedUser.city_country || '');
+        setRepresentativePhone(updatedUser.representative_phone || '');
+        setEmail(updatedUser.email || '');
         
         toast({
           title: "Профиль обновлен",
