@@ -23,6 +23,8 @@ const Index = () => {
     const section = params.get('section');
     if (section) {
       setActiveSection(section);
+    } else {
+      setActiveSection('home');
     }
 
     const verifyToken = params.get('verify');
@@ -64,7 +66,7 @@ const Index = () => {
           });
         });
     }
-  }, []);
+  }, [location.search]);
 
 
 
