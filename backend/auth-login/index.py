@@ -95,7 +95,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         cur.execute(
             """
-            SELECT id, email, full_name, is_verified
+            SELECT id, email, full_name, is_verified, created_at
             FROM t_p91748136_chess_support_world.users
             WHERE email = %s AND password_hash = %s
             """,
@@ -143,7 +143,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'user': {
                     'id': user['id'],
                     'email': user['email'],
-                    'full_name': user['full_name']
+                    'full_name': user['full_name'],
+                    'is_verified': user['is_verified'],
+                    'created_at': user['created_at'].isoformat() if user.get('created_at') else None
                 }
             }),
             'isBase64Encoded': False
