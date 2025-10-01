@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+import Header from '@/components/Header';
 import func2url from '../../backend/func2url.json';
 
 const Profile = () => {
@@ -51,15 +52,7 @@ const Profile = () => {
     setEmail(parsedUser.email || '');
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
-    toast({
-      title: "Выход выполнен",
-      description: "Вы успешно вышли из системы"
-    });
-    navigate('/');
-  };
+
 
   const handleSave = async () => {
     setLoading(true);
@@ -125,29 +118,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-20">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
-              className="gap-2"
-            >
-              <Icon name="ArrowLeft" size={18} />
-              На главную
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={handleLogout}
-              className="gap-2"
-            >
-              <Icon name="LogOut" size={18} />
-              Выйти
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Header user={user} onUserChange={setUser} />
 
       <main className="container mx-auto px-4 py-12">
         <Card className="max-w-2xl mx-auto p-8 bg-white">
