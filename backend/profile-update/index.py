@@ -60,12 +60,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     dsn = os.environ.get('DATABASE_URL')
     conn = psycopg2.connect(dsn)
+    conn.autocommit = True
     cursor = conn.cursor()
     
-    cursor.execute(
-        "SELECT user_id FROM auth_tokens WHERE token = %s",
-        (token,)
-    )
+    token_escaped = token.replace("'", "''")
+    cursor.execute(f"SELECT user_id FROM auth_tokens WHERE token = '{token_escaped}'")
     result = cursor.fetchone()
     
     if not result:
@@ -80,10 +79,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     user_id = result[0]
     
-    cursor.execute(
-        "SELECT email FROM users WHERE email = %s AND id != %s",
-        (email, user_id)
-    )
+    email_escaped = email.replace("'", "''")
+    cursor.execute(f"SELECT email FROM users WHERE email = '{email_escaped}' AND id != {user_id}")
     if cursor.fetchone():
         cursor.close()
         conn.close()
@@ -93,6 +90,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'success': False, 'error': 'Email уже используется'}),
             'isBase64Encoded': False
         }
+    
+    full_name_escaped = full_name.replace("'", "''")
     
     if password:
         if len(password) < 6:
@@ -106,22 +105,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        password_hash_escaped = password_hash.replace("'", "''")
         cursor.execute(
-            "UPDATE users SET full_name = %s, email = %s, password_hash = %s WHERE id = %s",
-            (full_name, email, password_hash, user_id)
+            f"UPDATE users SET full_name = '{full_name_escaped}', email = '{email_escaped}', password_hash = '{password_hash_escaped}' WHERE id = {user_id}"
         )
     else:
         cursor.execute(
-            "UPDATE users SET full_name = %s, email = %s WHERE id = %s",
-            (full_name, email, user_id)
+            f"UPDATE users SET full_name = '{full_name_escaped}', email = '{email_escaped}' WHERE id = {user_id}"
         )
     
-    conn.commit()
-    
-    cursor.execute(
-        "SELECT id, email, full_name, is_verified, created_at FROM users WHERE id = %s",
-        (user_id,)
-    )
+    cursor.execute(f"SELECT id, email, full_name, is_verified, created_at FROM users WHERE id = {user_id}")
     user_row = cursor.fetchone()
     
     cursor.close()
