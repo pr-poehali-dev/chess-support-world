@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -10,12 +10,23 @@ const Index = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('home');
   const [user, setUser] = useState<any>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
 
     const params = new URLSearchParams(window.location.search);
     const verifyToken = params.get('verify');
@@ -63,9 +74,20 @@ const Index = () => {
     { id: 'home', label: 'Главная', icon: 'Home' },
     { id: 'tournaments', label: 'Турниры', icon: 'Trophy' },
     { id: 'results', label: 'Результаты', icon: 'Award' },
-    { id: 'awards', label: 'Награды', icon: 'Medal' },
-    { id: 'auth', label: user ? user.full_name || 'Профиль' : 'Вход', icon: user ? 'User' : 'LogIn', onClick: user ? () => navigate('/profile') : undefined }
+    { id: 'awards', label: 'Награды', icon: 'Medal' }
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setUserMenuOpen(false);
+    setActiveSection('home');
+    toast({
+      title: "Выход выполнен",
+      description: "Вы успешно вышли из системы"
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -85,7 +107,7 @@ const Index = () => {
                 <Button
                   key={item.id}
                   variant={activeSection === item.id ? 'default' : 'ghost'}
-                  onClick={() => item.onClick ? item.onClick() : setActiveSection(item.id)}
+                  onClick={() => setActiveSection(item.id)}
                   className={`gap-2 transition-all ${
                     activeSection === item.id 
                       ? 'bg-secondary text-black hover:bg-secondary/90' 
@@ -96,6 +118,53 @@ const Index = () => {
                   <span className="font-medium">{item.label}</span>
                 </Button>
               ))}
+              
+              {user ? (
+                <div className="relative" ref={userMenuRef}>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="gap-2 hover:bg-gray-100"
+                  >
+                    <Icon name="User" size={18} />
+                    <span className="font-medium">{user.full_name || 'Профиль'}</span>
+                    <Icon name="ChevronDown" size={16} className={`transition-transform ${
+                      userMenuOpen ? 'rotate-180' : ''
+                    }`} />
+                  </Button>
+                  
+                  {userMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
+                      <button
+                        onClick={() => {
+                          navigate('/profile');
+                          setUserMenuOpen(false);
+                        }}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
+                      >
+                        <Icon name="User" size={16} />
+                        Профиль
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-red-600"
+                      >
+                        <Icon name="LogOut" size={16} />
+                        Выход
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Button
+                  variant="ghost"
+                  onClick={() => setActiveSection('auth')}
+                  className="gap-2 hover:bg-gray-100"
+                >
+                  <Icon name="LogIn" size={18} />
+                  <span className="font-medium">Вход</span>
+                </Button>
+              )}
             </nav>
 
             <button className="md:hidden p-2 hover:bg-gray-100 rounded">
