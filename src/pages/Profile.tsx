@@ -251,7 +251,17 @@ const Profile = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               ) : (
-                <p className="text-lg text-gray-900">{user.birth_date ? new Date(user.birth_date).toLocaleDateString('ru-RU') : 'Не указано'}</p>
+                <p className="text-lg text-gray-900">
+                  {user.birth_date ? (
+                    <>
+                      {new Date(user.birth_date).toLocaleDateString('ru-RU')}
+                      {' '}
+                      <span className="text-gray-600">
+                        ({Math.floor((new Date().getTime() - new Date(user.birth_date).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} лет)
+                      </span>
+                    </>
+                  ) : 'Не указано'}
+                </p>
               )}
             </div>
 
