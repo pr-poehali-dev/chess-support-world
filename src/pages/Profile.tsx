@@ -51,7 +51,6 @@ const Profile = () => {
         if (response.ok && data.success) {
           const userData = data.user;
           setUser(userData);
-          localStorage.setItem('user', JSON.stringify(userData));
           setFullName(userData.full_name || '');
           setLastName(userData.last_name || '');
           setMiddleName(userData.middle_name || '');
@@ -116,7 +115,6 @@ const Profile = () => {
       if (response.ok && data.success) {
         const updatedUser = data.user;
         setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
         
         setFullName(updatedUser.full_name || '');
         setLastName(updatedUser.last_name || '');
