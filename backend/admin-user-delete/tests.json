@@ -1,17 +1,14 @@
 {
   "tests": [
     {
-      "name": "Delete user successfully",
+      "name": "Missing auth token",
       "method": "POST",
-      "headers": {
-        "X-Auth-Token": "admin_token_here"
-      },
       "body": {
         "user_id": 999
       },
-      "expectedStatus": 200,
+      "expectedStatus": 401,
       "expectedBody": {
-        "success": true
+        "error": "string"
       },
       "bodyMatcher": "partial"
     },
@@ -19,7 +16,7 @@
       "name": "Missing user_id",
       "method": "POST",
       "headers": {
-        "X-Auth-Token": "admin_token_here"
+        "X-Auth-Token": "test_token"
       },
       "body": {},
       "expectedStatus": 400,

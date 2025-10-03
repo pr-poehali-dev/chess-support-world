@@ -75,12 +75,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn.autocommit = True
     cursor = conn.cursor()
     
-    cursor.execute(
-        "SELECT id, is_admin FROM users WHERE token = '" + auth_token + "'"
-    )
-    admin_user = cursor.fetchone()
+    safe_token = auth_token.replace("'", "''")
+    cursor.execute(f"SELECT user_id FROM auth_tokens WHERE token = '{safe_token}'")
+    token_result = cursor.fetchone()
     
-    if not admin_user or not admin_user[1]:
+    if not token_result:
+        cursor.close()
+        conn.close()
+        return {
+            'statusCode': 401,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({'error': 'Invalid token'})
+        }
+    
+    admin_user_id = token_result[0]
+    
+    cursor.execute(f"SELECT is_admin FROM users WHERE id = {admin_user_id}")
+    admin_check = cursor.fetchone()
+    
+    if not admin_check or not admin_check[0]:
         cursor.close()
         conn.close()
         return {
@@ -92,9 +108,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Admin access required'})
         }
     
-    cursor.execute(
-        "DELETE FROM users WHERE id = " + str(user_id_to_delete)
-    )
+    safe_user_id = int(user_id_to_delete)
+    cursor.execute(f"DELETE FROM users WHERE id = {safe_user_id}")
     
     cursor.close()
     conn.close()
