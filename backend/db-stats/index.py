@@ -42,11 +42,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     conn = psycopg2.connect(dsn)
+    conn.autocommit = True
     cur = conn.cursor()
     
-    schema = 't_p91748136_chess_support_world'
-    
-    cur.execute(f"SELECT user_id FROM {schema}.auth_tokens WHERE token = %s AND expires_at > NOW()", (auth_token,))
+    token_escaped = auth_token.replace("'", "''")
+    cur.execute(f"SELECT user_id FROM auth_tokens WHERE token = '{token_escaped}' AND expires_at > NOW()")
     token_row = cur.fetchone()
     
     if not token_row:
@@ -60,7 +60,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     user_id = token_row[0]
     
-    cur.execute(f"SELECT is_admin FROM {schema}.users WHERE id = %s", (user_id,))
+    cur.execute(f"SELECT is_admin FROM users WHERE id = {user_id}")
     user_row = cur.fetchone()
     
     if not user_row or not user_row[0]:
@@ -76,7 +76,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     tables = ['users', 'auth_tokens', 'email_verifications', 'verification_tokens']
     for table in tables:
-        cur.execute(f"SELECT COUNT(*) FROM {schema}.{table}")
+        cur.execute(f"SELECT COUNT(*) FROM {table}")
         count_row = cur.fetchone()
         stats[table] = count_row[0] if count_row else 0
     
