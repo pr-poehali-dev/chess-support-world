@@ -34,7 +34,8 @@ const AdminUsers = () => {
   const [saving, setSaving] = useState(false);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [ageFilter, setAgeFilter] = useState<string>("all");
+  const [minAge, setMinAge] = useState<string>("");
+  const [maxAge, setMaxAge] = useState<string>("");
 
   const loadUsers = async () => {
     const token = localStorage.getItem("auth_token");
@@ -90,26 +91,18 @@ const AdminUsers = () => {
   };
 
   const filteredUsers = users.filter((user) => {
-    if (ageFilter === "all") return true;
     const age = calculateAge(user.birth_date);
     
-    switch (ageFilter) {
-      case "0-10":
-        return age >= 0 && age <= 10;
-      case "11-15":
-        return age >= 11 && age <= 15;
-      case "16-18":
-        return age >= 16 && age <= 18;
-      case "19-25":
-        return age >= 19 && age <= 25;
-      case "26+":
-        return age >= 26;
-      case "no-date":
-        return !user.birth_date;
-      default:
-        return true;
-    }
+    const min = minAge ? parseInt(minAge) : 0;
+    const max = maxAge ? parseInt(maxAge) : 200;
+    
+    return age >= min && age <= max;
   });
+
+  const resetFilters = () => {
+    setMinAge("");
+    setMaxAge("");
+  };
 
   const handleDeleteUser = async () => {
     if (!deletingUser) return;
@@ -244,63 +237,53 @@ const AdminUsers = () => {
           </Button>
         </div>
 
-        <div className="mb-6 flex gap-2 flex-wrap">
-          <Button
-            onClick={() => setAgeFilter("all")}
-            variant={ageFilter === "all" ? "default" : "outline"}
-            size="sm"
-            className={ageFilter === "all" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
-          >
-            Все возрасты
-          </Button>
-          <Button
-            onClick={() => setAgeFilter("0-10")}
-            variant={ageFilter === "0-10" ? "default" : "outline"}
-            size="sm"
-            className={ageFilter === "0-10" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
-          >
-            0-10 лет
-          </Button>
-          <Button
-            onClick={() => setAgeFilter("11-15")}
-            variant={ageFilter === "11-15" ? "default" : "outline"}
-            size="sm"
-            className={ageFilter === "11-15" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
-          >
-            11-15 лет
-          </Button>
-          <Button
-            onClick={() => setAgeFilter("16-18")}
-            variant={ageFilter === "16-18" ? "default" : "outline"}
-            size="sm"
-            className={ageFilter === "16-18" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
-          >
-            16-18 лет
-          </Button>
-          <Button
-            onClick={() => setAgeFilter("19-25")}
-            variant={ageFilter === "19-25" ? "default" : "outline"}
-            size="sm"
-            className={ageFilter === "19-25" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
-          >
-            19-25 лет
-          </Button>
-          <Button
-            onClick={() => setAgeFilter("26+")}
-            variant={ageFilter === "26+" ? "default" : "outline"}
-            size="sm"
-            className={ageFilter === "26+" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
-          >
-            26+ лет
-          </Button>
-          <Button
-            onClick={() => setAgeFilter("no-date")}
-            variant={ageFilter === "no-date" ? "default" : "outline"}
-            size="sm"
-            className={ageFilter === "no-date" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
-          >
-            Без даты рождения
-          </Button>
+        <div className="mb-6 bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-white/10">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <label className="text-white/80 text-sm font-medium">
+                Возраст от:
+              </label>
+              <input
+                type="number"
+                value={minAge}
+                onChange={(e) => setMinAge(e.target.value)}
+                placeholder="0"
+                min="0"
+                max="100"
+                className="w-20 px-3 py-1.5 bg-chess-dark/50 border border-white/20 rounded-md text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-chess-gold/50"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-white/80 text-sm font-medium">
+                до:
+              </label>
+              <input
+                type="number"
+                value={maxAge}
+                onChange={(e) => setMaxAge(e.target.value)}
+                placeholder="100"
+                min="0"
+                max="100"
+                className="w-20 px-3 py-1.5 bg-chess-dark/50 border border-white/20 rounded-md text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-chess-gold/50"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-white/60 text-sm">
+                {minAge || maxAge ? `(${minAge || '0'}-${maxAge || '100'} лет)` : 'Все возрасты'}
+              </span>
+            </div>
+            {(minAge || maxAge) && (
+              <Button
+                onClick={resetFilters}
+                variant="outline"
+                size="sm"
+                className="border-white/30 text-white hover:bg-white/10"
+              >
+                <Icon name="X" size={14} className="mr-1" />
+                Сбросить
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="grid gap-4">
