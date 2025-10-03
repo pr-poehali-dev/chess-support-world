@@ -284,104 +284,146 @@ const Profile = () => {
             </div>
           </div>
 
+          <div className="space-y-4">
+            {/* Личные данные */}
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+              <h3 className="text-sm font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                <Icon name="User" size={16} />
+                Личные данные
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Фамилия <span className="text-red-500">*</span>
+                  </label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                      placeholder="Введите вашу фамилию"
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-900">{user.last_name || 'Не указано'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Имя <span className="text-red-500">*</span>
+                  </label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                      placeholder="Введите ваше имя"
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-900">{user.full_name || 'Не указано'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Отчество
+                  </label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={middleName}
+                      onChange={(e) => setMiddleName(e.target.value)}
+                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                      placeholder="Введите ваше отчество"
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-900">{user.middle_name || 'Не указано'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Дата рождения <span className="text-red-500">*</span>
+                  </label>
+                  {editing ? (
+                    <input
+                      type="date"
+                      value={birthDate}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                      required
+                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-900">
+                      {user.birth_date ? (
+                        <>
+                          {new Date(user.birth_date).toLocaleDateString('ru-RU')}
+                          {' '}
+                          <span className="text-gray-600 text-xs">
+                            ({Math.floor((new Date().getTime() - new Date(user.birth_date).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} лет)
+                          </span>
+                        </>
+                      ) : 'Не указано'}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Шахматная информация */}
+            <div className="bg-amber-50 p-4 rounded-lg border border-amber-100">
+              <h3 className="text-sm font-semibold text-amber-900 mb-3 flex items-center gap-2">
+                <Icon name="Trophy" size={16} />
+                Шахматная информация
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    ID ФШР
+                  </label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={fsrId}
+                      onChange={(e) => setFsrId(e.target.value)}
+                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                      placeholder="Введите ваш ID ФШР"
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-900">{user.fsr_id || 'Не указано'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    Тренер
+                  </label>
+                  {editing ? (
+                    <input
+                  type="text"
+                  value={coach}
+                  onChange={(e) => setCoach(e.target.value)}
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                  placeholder="ФИО тренера"
+                />
+              ) : (
+                <p className="text-sm text-gray-900">{user.coach || 'Не указано'}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Образование и контакты */}
+        <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+          <h3 className="text-sm font-semibold text-green-900 mb-3 flex items-center gap-2">
+            <Icon name="GraduationCap" size={16} />
+            Образование и контакты
+          </h3>
           <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Фамилия <span className="text-red-500">*</span>
-              </label>
-              {editing ? (
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  required
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Введите вашу фамилию"
-                />
-              ) : (
-                <p className="text-sm text-gray-900">{user.last_name || 'Не указано'}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Имя <span className="text-red-500">*</span>
-              </label>
-              {editing ? (
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Введите ваше имя"
-                />
-              ) : (
-                <p className="text-sm text-gray-900">{user.full_name || 'Не указано'}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Отчество
-              </label>
-              {editing ? (
-                <input
-                  type="text"
-                  value={middleName}
-                  onChange={(e) => setMiddleName(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Введите ваше отчество"
-                />
-              ) : (
-                <p className="text-sm text-gray-900">{user.middle_name || 'Не указано'}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Дата рождения <span className="text-red-500">*</span>
-              </label>
-              {editing ? (
-                <input
-                  type="date"
-                  value={birthDate}
-                  onChange={(e) => setBirthDate(e.target.value)}
-                  required
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              ) : (
-                <p className="text-sm text-gray-900">
-                  {user.birth_date ? (
-                    <>
-                      {new Date(user.birth_date).toLocaleDateString('ru-RU')}
-                      {' '}
-                      <span className="text-gray-600 text-xs">
-                        ({Math.floor((new Date().getTime() - new Date(user.birth_date).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} лет)
-                      </span>
-                    </>
-                  ) : 'Не указано'}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                ID ФШР
-              </label>
-              {editing ? (
-                <input
-                  type="text"
-                  value={fsrId}
-                  onChange={(e) => setFsrId(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Введите ваш ID ФШР"
-                />
-              ) : (
-                <p className="text-sm text-gray-900">{user.fsr_id || 'Не указано'}</p>
-              )}
-            </div>
-
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">
                 Город/Страна
@@ -391,7 +433,7 @@ const Profile = () => {
                   type="text"
                   value={cityCountry}
                   onChange={(e) => setCityCountry(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   placeholder="Город, Страна"
                 />
               ) : (
@@ -408,28 +450,11 @@ const Profile = () => {
                   type="text"
                   value={educationInstitution}
                   onChange={(e) => setEducationInstitution(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   placeholder="Название учебного учреждения"
                 />
               ) : (
                 <p className="text-sm text-gray-900">{user.education_institution || 'Не указано'}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Тренер
-              </label>
-              {editing ? (
-                <input
-                  type="text"
-                  value={coach}
-                  onChange={(e) => setCoach(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="ФИО тренера"
-                />
-              ) : (
-                <p className="text-sm text-gray-900">{user.coach || 'Не указано'}</p>
               )}
             </div>
 
@@ -442,14 +467,23 @@ const Profile = () => {
                   type="tel"
                   value={representativePhone}
                   onChange={(e) => setRepresentativePhone(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   placeholder="+7 (999) 123-45-67"
                 />
               ) : (
                 <p className="text-sm text-gray-900">{user.representative_phone || 'Не указано'}</p>
               )}
             </div>
+          </div>
+        </div>
 
+        {/* Аккаунт */}
+        <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
+          <h3 className="text-sm font-semibold text-purple-900 mb-3 flex items-center gap-2">
+            <Icon name="Lock" size={16} />
+            Безопасность аккаунта
+          </h3>
+          <div className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">
                 Email
@@ -459,7 +493,7 @@ const Profile = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   placeholder="your@email.com"
                 />
               ) : (
@@ -484,18 +518,27 @@ const Profile = () => {
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                   placeholder="Минимум 6 символов"
                   minLength={6}
                 />
               </div>
             )}
+          </div>
+        </div>
 
+        {/* Системная информация */}
+        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <Icon name="Info" size={16} />
+            Системная информация
+          </h3>
+          <div className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">
                 ID пользователя
               </label>
-              <p className="text-xs text-gray-500 font-mono bg-gray-100 p-1.5 rounded">
+              <p className="text-xs text-gray-500 font-mono bg-white p-1.5 rounded border border-gray-200">
                 {user.id}
               </p>
             </div>
@@ -512,6 +555,8 @@ const Profile = () => {
                 })}
               </p>
             </div>
+          </div>
+        </div>
 
             {user?.is_admin && (
               <div className="pt-4">
