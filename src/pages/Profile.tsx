@@ -23,6 +23,8 @@ const Profile = () => {
   const [representativePhone, setRepresentativePhone] = useState('');
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -61,6 +63,7 @@ const Profile = () => {
           setCityCountry(userData.city_country || '');
           setRepresentativePhone(userData.representative_phone || '');
           setEmail(userData.email || '');
+          setAvatar(userData.avatar || null);
         } else {
           toast({
             title: "Ошибка",
@@ -88,6 +91,16 @@ const Profile = () => {
     setLoading(true);
     
     try {
+      let avatarBase64 = avatar;
+      
+      if (avatarFile) {
+        avatarBase64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(avatarFile);
+        });
+      }
+      
       const token = localStorage.getItem('auth_token');
       const response = await fetch(func2url['profile-update'], {
         method: 'POST',
@@ -106,7 +119,8 @@ const Profile = () => {
           city_country: cityCountry,
           representative_phone: representativePhone,
           email,
-          password: newPassword || undefined
+          password: newPassword || undefined,
+          avatar: avatarBase64
         })
       });
 
@@ -126,6 +140,7 @@ const Profile = () => {
         setCityCountry(updatedUser.city_country || '');
         setRepresentativePhone(updatedUser.representative_phone || '');
         setEmail(updatedUser.email || '');
+        setAvatar(updatedUser.avatar || null);
         
         toast({
           title: "Профиль обновлен",
@@ -170,8 +185,65 @@ const Profile = () => {
               >
                 <Icon name="ArrowLeft" size={20} />
               </Button>
-              <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center">
-                <Icon name="User" size={40} className="text-blue-600" />
+              <div className="relative group">
+                <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center overflow-hidden">
+                  {avatar || avatarFile ? (
+                    <img 
+                      src={avatarFile ? URL.createObjectURL(avatarFile) : avatar!} 
+                      alt="Avatar" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Icon name="User" size={40} className="text-blue-600" />
+                  )}
+                </div>
+                <div className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity gap-2">
+                  <button
+                    onClick={() => document.getElementById('avatar-upload')?.click()}
+                    className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                  >
+                    <Icon name="Camera" size={20} className="text-white" />
+                  </button>
+                  {(avatar || avatarFile) && (
+                    <button
+                      onClick={() => {
+                        setAvatar(null);
+                        setAvatarFile(null);
+                        toast({
+                          title: "Аватар удалён",
+                          description: "Сохраните изменения, чтобы применить"
+                        });
+                      }}
+                      className="p-2 bg-red-500/70 hover:bg-red-500/90 rounded-lg transition-colors"
+                    >
+                      <Icon name="Trash2" size={20} className="text-white" />
+                    </button>
+                  )}
+                </div>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size > 5 * 1024 * 1024) {
+                        toast({
+                          title: "Файл слишком большой",
+                          description: "Максимальный размер: 5 МБ",
+                          variant: "destructive"
+                        });
+                        return;
+                      }
+                      setAvatarFile(file);
+                      toast({
+                        title: "Фото выбрано",
+                        description: "Сохраните изменения, чтобы обновить аватар"
+                      });
+                    }
+                  }}
+                  className="hidden"
+                />
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Личный кабинет</h1>
@@ -466,6 +538,8 @@ const Profile = () => {
                     setRepresentativePhone(user.representative_phone || '');
                     setEmail(user.email || '');
                     setNewPassword('');
+                    setAvatar(user.avatar || null);
+                    setAvatarFile(null);
                   }}
                   disabled={loading}
                   className="flex-1"

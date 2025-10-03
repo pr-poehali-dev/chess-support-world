@@ -91,7 +91,13 @@ const Header = ({ user, onUserChange }: HeaderProps) => {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="gap-2 hover:bg-gray-100"
                 >
-                  <Icon name="User" size={18} />
+                  <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <Icon name="User" size={14} />
+                    )}
+                  </div>
                   <span className="font-medium">{user.full_name || 'Профиль'}</span>
                   <Icon name="ChevronDown" size={16} className={`transition-transform ${
                     userMenuOpen ? 'rotate-180' : ''

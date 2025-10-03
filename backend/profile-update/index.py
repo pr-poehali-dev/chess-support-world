@@ -57,6 +57,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     representative_phone = body_data.get('representative_phone', '').strip()
     email = body_data.get('email', '').strip().lower()
     password = body_data.get('password', '').strip()
+    avatar = body_data.get('avatar', '').strip()
     
     if not full_name or not last_name or not birth_date or not email:
         return {
@@ -121,23 +122,43 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         password_hash_escaped = password_hash.replace("'", "''")
-        cursor.execute(
-            f"UPDATE users SET full_name = '{full_name_escaped}', last_name = '{last_name_escaped}', "
-            f"middle_name = '{middle_name_escaped}', birth_date = '{birth_date}', fsr_id = '{fsr_id_escaped}', "
-            f"education_institution = '{education_institution_escaped}', coach = '{coach_escaped}', "
-            f"city_country = '{city_country_escaped}', representative_phone = '{representative_phone_escaped}', "
-            f"email = '{email_escaped}', password_hash = '{password_hash_escaped}' WHERE id = {user_id}"
-        )
+        avatar_escaped = avatar.replace("'", "''") if avatar else ''
+        if avatar:
+            cursor.execute(
+                f"UPDATE users SET full_name = '{full_name_escaped}', last_name = '{last_name_escaped}', "
+                f"middle_name = '{middle_name_escaped}', birth_date = '{birth_date}', fsr_id = '{fsr_id_escaped}', "
+                f"education_institution = '{education_institution_escaped}', coach = '{coach_escaped}', "
+                f"city_country = '{city_country_escaped}', representative_phone = '{representative_phone_escaped}', "
+                f"email = '{email_escaped}', password_hash = '{password_hash_escaped}', avatar = '{avatar_escaped}' WHERE id = {user_id}"
+            )
+        else:
+            cursor.execute(
+                f"UPDATE users SET full_name = '{full_name_escaped}', last_name = '{last_name_escaped}', "
+                f"middle_name = '{middle_name_escaped}', birth_date = '{birth_date}', fsr_id = '{fsr_id_escaped}', "
+                f"education_institution = '{education_institution_escaped}', coach = '{coach_escaped}', "
+                f"city_country = '{city_country_escaped}', representative_phone = '{representative_phone_escaped}', "
+                f"email = '{email_escaped}', password_hash = '{password_hash_escaped}' WHERE id = {user_id}"
+            )
     else:
-        cursor.execute(
-            f"UPDATE users SET full_name = '{full_name_escaped}', last_name = '{last_name_escaped}', "
-            f"middle_name = '{middle_name_escaped}', birth_date = '{birth_date}', fsr_id = '{fsr_id_escaped}', "
-            f"education_institution = '{education_institution_escaped}', coach = '{coach_escaped}', "
-            f"city_country = '{city_country_escaped}', representative_phone = '{representative_phone_escaped}', "
-            f"email = '{email_escaped}' WHERE id = {user_id}"
-        )
+        avatar_escaped = avatar.replace("'", "''") if avatar else ''
+        if avatar:
+            cursor.execute(
+                f"UPDATE users SET full_name = '{full_name_escaped}', last_name = '{last_name_escaped}', "
+                f"middle_name = '{middle_name_escaped}', birth_date = '{birth_date}', fsr_id = '{fsr_id_escaped}', "
+                f"education_institution = '{education_institution_escaped}', coach = '{coach_escaped}', "
+                f"city_country = '{city_country_escaped}', representative_phone = '{representative_phone_escaped}', "
+                f"email = '{email_escaped}', avatar = '{avatar_escaped}' WHERE id = {user_id}"
+            )
+        else:
+            cursor.execute(
+                f"UPDATE users SET full_name = '{full_name_escaped}', last_name = '{last_name_escaped}', "
+                f"middle_name = '{middle_name_escaped}', birth_date = '{birth_date}', fsr_id = '{fsr_id_escaped}', "
+                f"education_institution = '{education_institution_escaped}', coach = '{coach_escaped}', "
+                f"city_country = '{city_country_escaped}', representative_phone = '{representative_phone_escaped}', "
+                f"email = '{email_escaped}' WHERE id = {user_id}"
+            )
     
-    cursor.execute(f"SELECT id, email, full_name, last_name, middle_name, birth_date, fsr_id, education_institution, coach, city_country, representative_phone, is_verified, created_at FROM users WHERE id = {user_id}")
+    cursor.execute(f"SELECT id, email, full_name, last_name, middle_name, birth_date, fsr_id, education_institution, coach, city_country, representative_phone, is_verified, created_at, avatar FROM users WHERE id = {user_id}")
     user_row = cursor.fetchone()
     
     cursor.close()
@@ -156,7 +177,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'city_country': user_row[9],
         'representative_phone': user_row[10],
         'is_verified': user_row[11],
-        'created_at': user_row[12].isoformat() if user_row[12] else None
+        'created_at': user_row[12].isoformat() if user_row[12] else None,
+        'avatar': user_row[13]
     }
     
     return {
