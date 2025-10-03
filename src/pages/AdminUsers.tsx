@@ -169,104 +169,105 @@ const AdminUsers = () => {
           </Button>
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid gap-4">
           {users.map((user) => (
             <Card
               key={user.id}
-              className="p-0 bg-white border-2 border-gray-200 hover:border-chess-gold/60 transition-all shadow-lg"
+              className="p-0 bg-white border-2 border-gray-200 hover:border-chess-gold/60 transition-all shadow-md"
             >
-              <div className="bg-chess-gold/10 px-6 py-4 border-b-2 border-gray-200 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-chess-gold/30 flex items-center justify-center">
-                    <Icon name="User" size={24} className="text-chess-dark" />
+              <div className="bg-chess-gold/10 px-4 py-2.5 border-b-2 border-gray-200 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-full bg-chess-gold/30 flex items-center justify-center">
+                    <Icon name="User" size={18} className="text-chess-dark" />
                   </div>
                   <div>
-                    <p className="font-bold text-lg text-chess-dark">{user.email}</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="font-bold text-base text-chess-dark">{user.email}</p>
+                    <p className="text-xs text-gray-600">
                       ID: {user.id} • Регистрация:{" "}
                       {new Date(user.created_at).toLocaleDateString("ru-RU")}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex gap-1.5">
                     {user.is_verified && (
-                      <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">
+                      <span className="px-2.5 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">
                         ✓ Подтвержден
                       </span>
                     )}
                     {user.is_admin && (
-                      <span className="px-3 py-1 bg-chess-gold text-chess-dark text-sm font-medium rounded-full">
+                      <span className="px-2.5 py-0.5 bg-chess-gold text-chess-dark text-xs font-medium rounded-full">
                         ★ Админ
                       </span>
                     )}
                   </div>
                   <Button
                     onClick={() => setEditingUser(user)}
-                    className="bg-chess-dark hover:bg-chess-dark/80"
+                    size="sm"
+                    className="bg-chess-gold hover:bg-chess-gold/80 text-chess-dark"
                   >
-                    <Icon name="Edit" size={16} className="mr-2" />
+                    <Icon name="Edit" size={14} className="mr-1.5" />
                     Редактировать
                   </Button>
                 </div>
               </div>
               
-              <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-1">
+              <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-0.5">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     ФИО
                   </p>
-                  <p className="font-semibold text-chess-dark">
+                  <p className="text-sm font-semibold text-chess-dark">
                     {user.full_name} {user.last_name} {user.middle_name || ""}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Дата рождения
                   </p>
-                  <p className="font-semibold text-chess-dark">
+                  <p className="text-sm font-semibold text-chess-dark">
                     {user.birth_date
                       ? new Date(user.birth_date).toLocaleDateString("ru-RU")
                       : "Не указана"}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     ID ФШР
                   </p>
-                  <p className="font-semibold text-chess-dark">
+                  <p className="text-sm font-semibold text-chess-dark">
                     {user.fsr_id || "Не указан"}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Учебное заведение
                   </p>
-                  <p className="font-semibold text-chess-dark">
+                  <p className="text-sm font-semibold text-chess-dark">
                     {user.education_institution || "Не указано"}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Тренер
                   </p>
-                  <p className="font-semibold text-chess-dark">
+                  <p className="text-sm font-semibold text-chess-dark">
                     {user.coach || "Не указан"}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Город/Страна
                   </p>
-                  <p className="font-semibold text-chess-dark">
+                  <p className="text-sm font-semibold text-chess-dark">
                     {user.city_country || "Не указано"}
                   </p>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     Телефон представителя
                   </p>
-                  <p className="font-semibold text-chess-dark">
+                  <p className="text-sm font-semibold text-chess-dark">
                     {user.representative_phone || "Не указан"}
                   </p>
                 </div>
