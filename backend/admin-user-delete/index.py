@@ -109,6 +109,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     safe_user_id = int(user_id_to_delete)
+    
+    cursor.execute(f"DELETE FROM auth_tokens WHERE user_id = {safe_user_id}")
+    cursor.execute(f"DELETE FROM email_verifications WHERE user_id = {safe_user_id}")
+    cursor.execute(f"DELETE FROM verification_tokens WHERE user_id = {safe_user_id}")
     cursor.execute(f"DELETE FROM users WHERE id = {safe_user_id}")
     
     cursor.close()
