@@ -182,47 +182,45 @@ const Profile = () => {
             )}
           </div>
 
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Фамилия <span className="text-red-500">*</span>
-                </label>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Введите вашу фамилию"
-                  />
-                ) : (
-                  <p className="text-lg text-gray-900">{user.last_name || 'Не указано'}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Имя <span className="text-red-500">*</span>
-                </label>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Введите ваше имя"
-                  />
-                ) : (
-                  <p className="text-lg text-gray-900">{user.full_name || 'Не указано'}</p>
-                )}
-              </div>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Фамилия <span className="text-red-500">*</span>
+              </label>
+              {editing ? (
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Введите вашу фамилию"
+                />
+              ) : (
+                <p className="text-sm text-gray-900">{user.last_name || 'Не указано'}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Имя <span className="text-red-500">*</span>
+              </label>
+              {editing ? (
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Введите ваше имя"
+                />
+              ) : (
+                <p className="text-sm text-gray-900">{user.full_name || 'Не указано'}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 Отчество
               </label>
               {editing ? (
@@ -230,16 +228,16 @@ const Profile = () => {
                   type="text"
                   value={middleName}
                   onChange={(e) => setMiddleName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Введите ваше отчество"
                 />
               ) : (
-                <p className="text-lg text-gray-900">{user.middle_name || 'Не указано'}</p>
+                <p className="text-sm text-gray-900">{user.middle_name || 'Не указано'}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 Дата рождения <span className="text-red-500">*</span>
               </label>
               {editing ? (
@@ -248,15 +246,15 @@ const Profile = () => {
                   value={birthDate}
                   onChange={(e) => setBirthDate(e.target.value)}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               ) : (
-                <p className="text-lg text-gray-900">
+                <p className="text-sm text-gray-900">
                   {user.birth_date ? (
                     <>
                       {new Date(user.birth_date).toLocaleDateString('ru-RU')}
                       {' '}
-                      <span className="text-gray-600">
+                      <span className="text-gray-600 text-xs">
                         ({Math.floor((new Date().getTime() - new Date(user.birth_date).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} лет)
                       </span>
                     </>
@@ -265,44 +263,42 @@ const Profile = () => {
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ID ФШР
-                </label>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={fsrId}
-                    onChange={(e) => setFsrId(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Введите ваш ID ФШР"
-                  />
-                ) : (
-                  <p className="text-lg text-gray-900">{user.fsr_id || 'Не указано'}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Город/Страна
-                </label>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={cityCountry}
-                    onChange={(e) => setCityCountry(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Город, Страна"
-                  />
-                ) : (
-                  <p className="text-lg text-gray-900">{user.city_country || 'Не указано'}</p>
-                )}
-              </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                ID ФШР
+              </label>
+              {editing ? (
+                <input
+                  type="text"
+                  value={fsrId}
+                  onChange={(e) => setFsrId(e.target.value)}
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Введите ваш ID ФШР"
+                />
+              ) : (
+                <p className="text-sm text-gray-900">{user.fsr_id || 'Не указано'}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Город/Страна
+              </label>
+              {editing ? (
+                <input
+                  type="text"
+                  value={cityCountry}
+                  onChange={(e) => setCityCountry(e.target.value)}
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Город, Страна"
+                />
+              ) : (
+                <p className="text-sm text-gray-900">{user.city_country || 'Не указано'}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 Учебное учреждение
               </label>
               {editing ? (
@@ -310,16 +306,16 @@ const Profile = () => {
                   type="text"
                   value={educationInstitution}
                   onChange={(e) => setEducationInstitution(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Название учебного учреждения"
                 />
               ) : (
-                <p className="text-lg text-gray-900">{user.education_institution || 'Не указано'}</p>
+                <p className="text-sm text-gray-900">{user.education_institution || 'Не указано'}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 Тренер
               </label>
               {editing ? (
@@ -327,16 +323,16 @@ const Profile = () => {
                   type="text"
                   value={coach}
                   onChange={(e) => setCoach(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="ФИО тренера"
                 />
               ) : (
-                <p className="text-lg text-gray-900">{user.coach || 'Не указано'}</p>
+                <p className="text-sm text-gray-900">{user.coach || 'Не указано'}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 Номер телефона представителя
               </label>
               {editing ? (
@@ -344,16 +340,16 @@ const Profile = () => {
                   type="tel"
                   value={representativePhone}
                   onChange={(e) => setRepresentativePhone(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="+7 (999) 123-45-67"
                 />
               ) : (
-                <p className="text-lg text-gray-900">{user.representative_phone || 'Не указано'}</p>
+                <p className="text-sm text-gray-900">{user.representative_phone || 'Не указано'}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 Email
               </label>
               {editing ? (
@@ -361,15 +357,15 @@ const Profile = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="your@email.com"
                 />
               ) : (
                 <div className="flex items-center gap-2">
-                  <p className="text-lg text-gray-900">{user.email}</p>
+                  <p className="text-sm text-gray-900">{user.email}</p>
                   {user.is_verified && (
-                    <div className="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
-                      <Icon name="CheckCircle" size={14} />
+                    <div className="flex items-center gap-1 bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full text-xs">
+                      <Icon name="CheckCircle" size={12} />
                       Подтверждён
                     </div>
                   )}
@@ -379,14 +375,14 @@ const Profile = () => {
 
             {editing && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs font-medium text-gray-600 mb-1">
                   Новый пароль (оставьте пустым, если не хотите менять)
                 </label>
                 <input
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Минимум 6 символов"
                   minLength={6}
                 />
@@ -394,19 +390,19 @@ const Profile = () => {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 ID пользователя
               </label>
-              <p className="text-sm text-gray-500 font-mono bg-gray-100 p-2 rounded">
+              <p className="text-xs text-gray-500 font-mono bg-gray-100 p-1.5 rounded">
                 {user.id}
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 Дата регистрации
               </label>
-              <p className="text-lg text-gray-900">
+              <p className="text-sm text-gray-900">
                 {new Date(user.created_at).toLocaleDateString('ru-RU', {
                   year: 'numeric',
                   month: 'long',
