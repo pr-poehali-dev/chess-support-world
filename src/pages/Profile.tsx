@@ -162,6 +162,14 @@ const Profile = () => {
         <Card className="max-w-2xl mx-auto p-8 bg-white">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
+              <Button
+                onClick={() => navigate('/')}
+                variant="outline"
+                size="icon"
+                className="shrink-0"
+              >
+                <Icon name="ArrowLeft" size={20} />
+              </Button>
               <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center">
                 <Icon name="User" size={40} className="text-blue-600" />
               </div>
