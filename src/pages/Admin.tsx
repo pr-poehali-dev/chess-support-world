@@ -13,7 +13,7 @@ const Admin = () => {
 
   useEffect(() => {
     const checkAdminAccess = async () => {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("auth_token");
 
       if (!token) {
         toast({
