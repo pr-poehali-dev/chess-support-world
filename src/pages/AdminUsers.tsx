@@ -34,6 +34,7 @@ const AdminUsers = () => {
   const [saving, setSaving] = useState(false);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [ageFilter, setAgeFilter] = useState<string>("all");
 
   const loadUsers = async () => {
     const token = localStorage.getItem("auth_token");
@@ -75,6 +76,40 @@ const AdminUsers = () => {
   useEffect(() => {
     loadUsers();
   }, []);
+
+  const calculateAge = (birthDate: string): number => {
+    if (!birthDate) return 0;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const filteredUsers = users.filter((user) => {
+    if (ageFilter === "all") return true;
+    const age = calculateAge(user.birth_date);
+    
+    switch (ageFilter) {
+      case "0-10":
+        return age >= 0 && age <= 10;
+      case "11-15":
+        return age >= 11 && age <= 15;
+      case "16-18":
+        return age >= 16 && age <= 18;
+      case "19-25":
+        return age >= 19 && age <= 25;
+      case "26+":
+        return age >= 26;
+      case "no-date":
+        return !user.birth_date;
+      default:
+        return true;
+    }
+  });
 
   const handleDeleteUser = async () => {
     if (!deletingUser) return;
@@ -196,7 +231,7 @@ const AdminUsers = () => {
               Управление пользователями
             </h1>
             <p className="text-white/80">
-              Всего пользователей: {users.length}
+              Показано: {filteredUsers.length} из {users.length}
             </p>
           </div>
           <Button
@@ -209,15 +244,82 @@ const AdminUsers = () => {
           </Button>
         </div>
 
+        <div className="mb-6 flex gap-2 flex-wrap">
+          <Button
+            onClick={() => setAgeFilter("all")}
+            variant={ageFilter === "all" ? "default" : "outline"}
+            size="sm"
+            className={ageFilter === "all" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
+          >
+            Все возрасты
+          </Button>
+          <Button
+            onClick={() => setAgeFilter("0-10")}
+            variant={ageFilter === "0-10" ? "default" : "outline"}
+            size="sm"
+            className={ageFilter === "0-10" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
+          >
+            0-10 лет
+          </Button>
+          <Button
+            onClick={() => setAgeFilter("11-15")}
+            variant={ageFilter === "11-15" ? "default" : "outline"}
+            size="sm"
+            className={ageFilter === "11-15" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
+          >
+            11-15 лет
+          </Button>
+          <Button
+            onClick={() => setAgeFilter("16-18")}
+            variant={ageFilter === "16-18" ? "default" : "outline"}
+            size="sm"
+            className={ageFilter === "16-18" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
+          >
+            16-18 лет
+          </Button>
+          <Button
+            onClick={() => setAgeFilter("19-25")}
+            variant={ageFilter === "19-25" ? "default" : "outline"}
+            size="sm"
+            className={ageFilter === "19-25" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
+          >
+            19-25 лет
+          </Button>
+          <Button
+            onClick={() => setAgeFilter("26+")}
+            variant={ageFilter === "26+" ? "default" : "outline"}
+            size="sm"
+            className={ageFilter === "26+" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
+          >
+            26+ лет
+          </Button>
+          <Button
+            onClick={() => setAgeFilter("no-date")}
+            variant={ageFilter === "no-date" ? "default" : "outline"}
+            size="sm"
+            className={ageFilter === "no-date" ? "bg-chess-gold text-chess-dark" : "border-white/30 text-white hover:bg-white/10"}
+          >
+            Без даты рождения
+          </Button>
+        </div>
+
         <div className="grid gap-4">
-          {users.map((user) => (
-            <UserCard
-              key={user.id}
-              user={user}
-              onEdit={setEditingUser}
-              onDelete={setDeletingUser}
-            />
-          ))}
+          {filteredUsers.length === 0 ? (
+            <div className="text-center py-12">
+              <Icon name="UserX" size={48} className="mx-auto text-white/50 mb-4" />
+              <p className="text-white/70 text-lg">Пользователи не найдены</p>
+              <p className="text-white/50 text-sm mt-2">Попробуйте изменить фильтр</p>
+            </div>
+          ) : (
+            filteredUsers.map((user) => (
+              <UserCard
+                key={user.id}
+                user={user}
+                onEdit={setEditingUser}
+                onDelete={setDeletingUser}
+              />
+            ))
+          )}
         </div>
       </div>
 
