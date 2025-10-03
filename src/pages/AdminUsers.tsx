@@ -36,6 +36,7 @@ const AdminUsers = () => {
   const [deleting, setDeleting] = useState(false);
   const [minAge, setMinAge] = useState<string>("");
   const [maxAge, setMaxAge] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const loadUsers = async () => {
     const token = localStorage.getItem("auth_token");
@@ -96,12 +97,23 @@ const AdminUsers = () => {
     const min = minAge ? parseInt(minAge) : 0;
     const max = maxAge ? parseInt(maxAge) : 200;
     
-    return age >= min && age <= max;
+    const ageMatch = age >= min && age <= max;
+    
+    if (!searchQuery) return ageMatch;
+    
+    const query = searchQuery.toLowerCase();
+    const searchMatch = 
+      user.full_name?.toLowerCase().includes(query) ||
+      user.last_name?.toLowerCase().includes(query) ||
+      user.email?.toLowerCase().includes(query);
+    
+    return ageMatch && searchMatch;
   });
 
   const resetFilters = () => {
     setMinAge("");
     setMaxAge("");
+    setSearchQuery("");
   };
 
   const handleDeleteUser = async () => {
@@ -238,6 +250,18 @@ const AdminUsers = () => {
         </div>
 
         <div className="mb-6 bg-chess-gold/10 backdrop-blur-sm p-4 rounded-lg border border-chess-gold/30">
+          <div className="mb-4">
+            <div className="relative">
+              <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-chess-gold/70" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Поиск по фамилии, имени или почте..."
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-chess-gold/50 rounded-md text-chess-dark font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-chess-gold"
+              />
+            </div>
+          </div>
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <label className="text-chess-gold text-sm font-semibold">
@@ -272,7 +296,7 @@ const AdminUsers = () => {
                 {minAge || maxAge ? `(${minAge || '0'}-${maxAge || '100'} лет)` : 'Все возрасты'}
               </span>
             </div>
-            {(minAge || maxAge) && (
+            {(minAge || maxAge || searchQuery) && (
               <Button
                 onClick={resetFilters}
                 variant="outline"
