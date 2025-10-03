@@ -82,10 +82,10 @@ const Admin = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">
+            <h1 className="text-4xl font-bold text-chess-gold mb-2">
               Панель администратора
             </h1>
-            <p className="text-gray-400">
+            <p className="text-white/80">
               Управление системой «Мир Шахмат»
             </p>
           </div>
@@ -100,96 +100,96 @@ const Admin = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="p-6 bg-chess-dark/50 border-chess-gold/20 hover:border-chess-gold/40 transition-colors">
+          <Card className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-chess-gold/10 rounded-lg">
-                <Icon name="Users" size={24} className="text-chess-gold" />
+              <div className="p-3 bg-chess-gold/20 rounded-lg">
+                <Icon name="Users" size={24} className="text-chess-dark" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-white mb-2">
+                <h3 className="text-xl font-semibold text-chess-dark mb-2">
                   Пользователи
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-600 text-sm">
                   Управление учетными записями
                 </p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-chess-dark/50 border-chess-gold/20 hover:border-chess-gold/40 transition-colors">
+          <Card className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-chess-gold/10 rounded-lg">
-                <Icon name="Calendar" size={24} className="text-chess-gold" />
+              <div className="p-3 bg-chess-gold/20 rounded-lg">
+                <Icon name="Calendar" size={24} className="text-chess-dark" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-white mb-2">
+                <h3 className="text-xl font-semibold text-chess-dark mb-2">
                   Турниры
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-600 text-sm">
                   Создание и редактирование турниров
                 </p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-chess-dark/50 border-chess-gold/20 hover:border-chess-gold/40 transition-colors">
+          <Card className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-chess-gold/10 rounded-lg">
-                <Icon name="FileText" size={24} className="text-chess-gold" />
+              <div className="p-3 bg-chess-gold/20 rounded-lg">
+                <Icon name="FileText" size={24} className="text-chess-dark" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-white mb-2">
+                <h3 className="text-xl font-semibold text-chess-dark mb-2">
                   Отчеты
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-600 text-sm">
                   Статистика и аналитика
                 </p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-chess-dark/50 border-chess-gold/20 hover:border-chess-gold/40 transition-colors">
+          <Card className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-chess-gold/10 rounded-lg">
-                <Icon name="Settings" size={24} className="text-chess-gold" />
+              <div className="p-3 bg-chess-gold/20 rounded-lg">
+                <Icon name="Settings" size={24} className="text-chess-dark" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-white mb-2">
+                <h3 className="text-xl font-semibold text-chess-dark mb-2">
                   Настройки
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-600 text-sm">
                   Конфигурация системы
                 </p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-chess-dark/50 border-chess-gold/20 hover:border-chess-gold/40 transition-colors">
+          <Card className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-chess-gold/10 rounded-lg">
-                <Icon name="Bell" size={24} className="text-chess-gold" />
+              <div className="p-3 bg-chess-gold/20 rounded-lg">
+                <Icon name="Bell" size={24} className="text-chess-dark" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-white mb-2">
+                <h3 className="text-xl font-semibold text-chess-dark mb-2">
                   Уведомления
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-600 text-sm">
                   Рассылки и объявления
                 </p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-chess-dark/50 border-chess-gold/20 hover:border-chess-gold/40 transition-colors">
+          <Card className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-chess-gold/10 rounded-lg">
-                <Icon name="Database" size={24} className="text-chess-gold" />
+              <div className="p-3 bg-chess-gold/20 rounded-lg">
+                <Icon name="Database" size={24} className="text-chess-dark" />
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-white mb-2">
+                <h3 className="text-xl font-semibold text-chess-dark mb-2">
                   База данных
                 </h3>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-600 text-sm">
                   Резервное копирование
                 </p>
               </div>
