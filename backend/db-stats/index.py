@@ -45,6 +45,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn.autocommit = True
     cur = conn.cursor()
     
+    cur.execute("SET search_path TO t_p91748136_chess_support_world, public")
+    
     token_escaped = auth_token.replace("'", "''")
     cur.execute(f"SELECT user_id FROM auth_tokens WHERE token = '{token_escaped}' AND expires_at > NOW()")
     token_row = cur.fetchone()
