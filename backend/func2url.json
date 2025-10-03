@@ -1,4 +1,5 @@
 {
+  "admin-user-delete": "https://functions.poehali.dev/f1ba8d21-6a74-43c6-9b19-38fb8ef68b9a",
   "admin-users": "https://functions.poehali.dev/3f935536-bf55-40d4-a802-ceca76ba3331",
   "admin-user-update": "https://functions.poehali.dev/e3bb522a-1538-45a8-839b-a0a2ae114930",
   "profile-get": "https://functions.poehali.dev/eca2e5eb-f266-4d23-85b9-37172d2bc017",

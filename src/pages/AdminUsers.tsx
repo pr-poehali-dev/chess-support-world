@@ -39,6 +39,8 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deletingUser, setDeletingUser] = useState<User | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadUsers = async () => {
     const token = localStorage.getItem("auth_token");
@@ -80,6 +82,51 @@ const AdminUsers = () => {
   useEffect(() => {
     loadUsers();
   }, []);
+
+  const handleDeleteUser = async () => {
+    if (!deletingUser) return;
+
+    setDeleting(true);
+    const token = localStorage.getItem("auth_token");
+
+    try {
+      const response = await fetch(func2url["admin-user-delete"], {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Token": token!,
+        },
+        body: JSON.stringify({
+          user_id: deletingUser.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Успешно",
+          description: "Пользователь удален",
+        });
+        setDeletingUser(null);
+        await loadUsers();
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.error || "Не удалось удалить пользователя",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить пользователя",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handleSaveUser = async () => {
     if (!editingUser) return;
@@ -201,14 +248,24 @@ const AdminUsers = () => {
                       </span>
                     )}
                   </div>
-                  <Button
-                    onClick={() => setEditingUser(user)}
-                    size="sm"
-                    className="bg-chess-gold hover:bg-chess-gold/80 text-chess-dark"
-                  >
-                    <Icon name="Edit" size={14} className="mr-1.5" />
-                    Редактировать
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => setEditingUser(user)}
+                      size="sm"
+                      className="bg-chess-gold hover:bg-chess-gold/80 text-chess-dark"
+                    >
+                      <Icon name="Edit" size={14} className="mr-1.5" />
+                      Редактировать
+                    </Button>
+                    <Button
+                      onClick={() => setDeletingUser(user)}
+                      size="sm"
+                      variant="destructive"
+                    >
+                      <Icon name="Trash2" size={14} className="mr-1.5" />
+                      Удалить
+                    </Button>
+                  </div>
                 </div>
               </div>
               
@@ -437,6 +494,54 @@ const AdminUsers = () => {
                   variant="outline"
                   onClick={() => setEditingUser(null)}
                   disabled={saving}
+                  className="flex-1"
+                >
+                  Отмена
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!deletingUser} onOpenChange={() => setDeletingUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Удаление пользователя</DialogTitle>
+          </DialogHeader>
+          {deletingUser && (
+            <div className="space-y-4">
+              <p className="text-gray-700">
+                Вы уверены, что хотите удалить пользователя{" "}
+                <strong>{deletingUser.email}</strong>?
+              </p>
+              <p className="text-sm text-red-600">
+                Это действие нельзя отменить. Все данные пользователя будут удалены.
+              </p>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={handleDeleteUser}
+                  disabled={deleting}
+                  variant="destructive"
+                  className="flex-1"
+                >
+                  {deleting ? (
+                    <>
+                      <Icon name="Loader2" className="animate-spin mr-2" size={16} />
+                      Удаление...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="Trash2" className="mr-2" size={16} />
+                      Удалить
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setDeletingUser(null)}
+                  disabled={deleting}
                   className="flex-1"
                 >
                   Отмена
