@@ -415,6 +415,18 @@ const Profile = () => {
               </p>
             </div>
 
+            {user?.is_admin && (
+              <div className="pt-4">
+                <Button
+                  onClick={() => navigate('/admin')}
+                  className="w-full bg-chess-gold text-black hover:bg-yellow-500 gap-2"
+                >
+                  <Icon name="Shield" size={18} />
+                  Панель администратора
+                </Button>
+              </div>
+            )}
+
             {editing && (
               <div className="flex gap-3 pt-4">
                 <Button 
