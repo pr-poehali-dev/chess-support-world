@@ -186,24 +186,6 @@ const Profile = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Имя <span className="text-red-500">*</span>
-                </label>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Введите ваше имя"
-                  />
-                ) : (
-                  <p className="text-lg text-gray-900">{user.full_name || 'Не указано'}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Фамилия <span className="text-red-500">*</span>
                 </label>
                 {editing ? (
@@ -217,6 +199,24 @@ const Profile = () => {
                   />
                 ) : (
                   <p className="text-lg text-gray-900">{user.last_name || 'Не указано'}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Имя <span className="text-red-500">*</span>
+                </label>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Введите ваше имя"
+                  />
+                ) : (
+                  <p className="text-lg text-gray-900">{user.full_name || 'Не указано'}</p>
                 )}
               </div>
             </div>

@@ -158,20 +158,6 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
           <>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Имя <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Введите ваше имя"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Фамилия <span className="text-red-500">*</span>
               </label>
               <input
@@ -181,6 +167,20 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Введите вашу фамилию"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Имя <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Введите ваше имя"
               />
             </div>
             
