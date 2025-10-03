@@ -139,9 +139,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         smtp_password = os.environ.get('SMTP_PASSWORD')
         frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
         
+        print(f"SMTP Config: host={smtp_host}, port={smtp_port}, user={smtp_user}, has_password={bool(smtp_password)}")
+        
         if smtp_host and smtp_user and smtp_password:
             try:
                 verification_link = f"{frontend_url}/?verify={verification_token}"
+                print(f"Preparing email to {email} with link: {verification_link}")
                 
                 msg = MIMEMultipart('alternative')
                 msg['Subject'] = 'Подтверждение регистрации - Мир Шахмат'
@@ -176,18 +179,30 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 msg.attach(MIMEText(html_content, 'html'))
                 
+                print(f"Connecting to SMTP server {smtp_host}:{smtp_port}")
                 if smtp_port == 465:
                     with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=10) as server:
+                        print("Connected via SSL, logging in...")
                         server.login(smtp_user, smtp_password)
+                        print("Logged in, sending message...")
                         server.send_message(msg)
+                        print("Email sent successfully!")
                 else:
                     with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as server:
+                        print("Connected, starting TLS...")
                         server.starttls()
+                        print("TLS started, logging in...")
                         server.login(smtp_user, smtp_password)
+                        print("Logged in, sending message...")
                         server.send_message(msg)
+                        print("Email sent successfully!")
                 
             except Exception as e:
-                print(f"Email sending failed: {e}")
+                print(f"Email sending FAILED: {type(e).__name__}: {str(e)}")
+                import traceback
+                print(f"Traceback: {traceback.format_exc()}")
+        else:
+            print(f"SMTP not configured properly - missing credentials")
         
         return {
             'statusCode': 200,
