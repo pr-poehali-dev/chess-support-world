@@ -237,10 +237,10 @@ const AdminUsers = () => {
           </Button>
         </div>
 
-        <div className="mb-6 bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-white/10">
+        <div className="mb-6 bg-chess-gold/10 backdrop-blur-sm p-4 rounded-lg border border-chess-gold/30">
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
-              <label className="text-white/80 text-sm font-medium">
+              <label className="text-chess-gold text-sm font-semibold">
                 Возраст от:
               </label>
               <input
@@ -250,11 +250,11 @@ const AdminUsers = () => {
                 placeholder="0"
                 min="0"
                 max="100"
-                className="w-20 px-3 py-1.5 bg-chess-dark/50 border border-white/20 rounded-md text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-chess-gold/50"
+                className="w-20 px-3 py-1.5 bg-white border border-chess-gold/50 rounded-md text-chess-dark font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-chess-gold"
               />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-white/80 text-sm font-medium">
+              <label className="text-chess-gold text-sm font-semibold">
                 до:
               </label>
               <input
@@ -264,11 +264,11 @@ const AdminUsers = () => {
                 placeholder="100"
                 min="0"
                 max="100"
-                className="w-20 px-3 py-1.5 bg-chess-dark/50 border border-white/20 rounded-md text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-chess-gold/50"
+                className="w-20 px-3 py-1.5 bg-white border border-chess-gold/50 rounded-md text-chess-dark font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-chess-gold"
               />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-white/60 text-sm">
+              <span className="text-white text-sm font-medium">
                 {minAge || maxAge ? `(${minAge || '0'}-${maxAge || '100'} лет)` : 'Все возрасты'}
               </span>
             </div>
@@ -277,7 +277,7 @@ const AdminUsers = () => {
                 onClick={resetFilters}
                 variant="outline"
                 size="sm"
-                className="border-white/30 text-white hover:bg-white/10"
+                className="border-chess-gold text-chess-gold hover:bg-chess-gold/20"
               >
                 <Icon name="X" size={14} className="mr-1" />
                 Сбросить
