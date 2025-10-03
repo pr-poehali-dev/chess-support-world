@@ -149,6 +149,7 @@ const Profile = () => {
         
         setEditing(false);
         setNewPassword('');
+        setAvatarFile(null);
       } else {
         toast({
           title: "Ошибка",
@@ -251,15 +252,36 @@ const Profile = () => {
               </div>
             </div>
 
-            {!editing && (
-              <Button 
-                onClick={() => setEditing(true)}
-                className="gap-2"
-              >
-                <Icon name="Edit" size={18} />
-                Редактировать
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {!editing && (
+                <Button 
+                  onClick={() => setEditing(true)}
+                  className="gap-2"
+                >
+                  <Icon name="Edit" size={18} />
+                  Редактировать
+                </Button>
+              )}
+              {(editing || avatarFile) && (
+                <Button 
+                  onClick={handleSave}
+                  disabled={loading}
+                  className="gap-2 bg-green-600 hover:bg-green-700"
+                >
+                  {loading ? (
+                    <>
+                      <Icon name="Loader2" className="animate-spin" size={18} />
+                      Сохранение...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="Save" size={18} />
+                      Сохранить
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -504,25 +526,7 @@ const Profile = () => {
             )}
 
             {editing && (
-              <div className="flex gap-3 pt-4">
-                <Button 
-                  onClick={handleSave}
-                  disabled={loading}
-                  className="flex-1 gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <Icon name="Loader2" className="animate-spin" size={18} />
-                      Сохранение...
-                    </>
-                  ) : (
-                    <>
-                      <Icon name="Save" size={18} />
-                      Сохранить
-                    </>
-                  )}
-                </Button>
-                
+              <div className="pt-4">
                 <Button 
                   variant="outline"
                   onClick={() => {
@@ -542,9 +546,10 @@ const Profile = () => {
                     setAvatarFile(null);
                   }}
                   disabled={loading}
-                  className="flex-1"
+                  className="w-full"
                 >
-                  Отмена
+                  <Icon name="X" size={18} className="mr-2" />
+                  Отменить изменения
                 </Button>
               </div>
             )}
