@@ -1,6 +1,7 @@
 import json
 import os
 import psycopg2
+from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -42,13 +43,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     conn = psycopg2.connect(dsn)
-    conn.autocommit = True
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
     
-    schema = 't_p91748136_chess_support_world'
-    
-    token_escaped = auth_token.replace("'", "''")
-    cur.execute(f"SELECT user_id FROM {schema}.auth_tokens WHERE token = '{token_escaped}' AND expires_at > NOW()")
+    cur.execute(
+        """
+        SELECT user_id FROM t_p91748136_chess_support_world.auth_tokens
+        WHERE token = %s AND expires_at > NOW()
+        """,
+        (auth_token,)
+    )
     token_row = cur.fetchone()
     
     if not token_row:
@@ -60,12 +63,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'success': False, 'error': 'Недействительный токен'})
         }
     
-    user_id = token_row[0]
+    user_id = token_row['user_id']
     
-    cur.execute(f"SELECT is_admin FROM {schema}.users WHERE id = {user_id}")
+    cur.execute(
+        """
+        SELECT is_admin FROM t_p91748136_chess_support_world.users
+        WHERE id = %s
+        """,
+        (user_id,)
+    )
     user_row = cur.fetchone()
     
-    if not user_row or not user_row[0]:
+    if not user_row or not user_row['is_admin']:
         cur.close()
         conn.close()
         return {
@@ -78,9 +87,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     tables = ['users', 'auth_tokens', 'email_verifications', 'verification_tokens']
     for table in tables:
-        cur.execute(f"SELECT COUNT(*) FROM {schema}.{table}")
+        cur.execute(f"SELECT COUNT(*) FROM t_p91748136_chess_support_world.{table}")
         count_row = cur.fetchone()
-        stats[table] = count_row[0] if count_row else 0
+        stats[table] = count_row['count'] if count_row else 0
     
     cur.close()
     conn.close()
