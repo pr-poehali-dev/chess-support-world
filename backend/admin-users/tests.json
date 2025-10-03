@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Get users without token",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401
+    },
+    {
+      "name": "Get users with invalid token",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-Auth-Token": "invalid-token"
+      },
+      "expectedStatus": 401
+    }
+  ]
+}

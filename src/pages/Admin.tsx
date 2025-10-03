@@ -100,7 +100,10 @@ const Admin = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer">
+          <Card 
+            className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer"
+            onClick={() => navigate('/admin/users')}
+          >
             <div className="flex items-start gap-4">
               <div className="p-3 bg-chess-gold/20 rounded-lg">
                 <Icon name="Users" size={24} className="text-chess-dark" />

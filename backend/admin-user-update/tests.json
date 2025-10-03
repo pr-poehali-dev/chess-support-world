@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Update user without token",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "user_id": 1,
+        "full_name": "Test User"
+      },
+      "expectedStatus": 401
+    },
+    {
+      "name": "Update user without user_id",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Auth-Token": "test-token"
+      },
+      "body": {
+        "full_name": "Test User"
+      },
+      "expectedStatus": 400
+    }
+  ]
+}
