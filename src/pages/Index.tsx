@@ -93,15 +93,17 @@ const Index = () => {
                   <Icon name="Trophy" size={20} />
                   Турниры
                 </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline"
-                  onClick={() => setActiveSection('auth')}
-                  className="gap-2"
-                >
-                  <Icon name="LogIn" size={20} />
-                  Регистрация
-                </Button>
+                {!user && (
+                  <Button 
+                    size="lg" 
+                    variant="outline"
+                    onClick={() => setActiveSection('auth')}
+                    className="gap-2"
+                  >
+                    <Icon name="LogIn" size={20} />
+                    Регистрация
+                  </Button>
+                )}
               </div>
             </section>
 
