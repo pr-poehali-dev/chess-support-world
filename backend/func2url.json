@@ -1,4 +1,7 @@
 {
+  "game-create": "https://functions.poehali.dev/25b46937-6efd-4eb4-893a-2898656e82f3",
+  "game-get": "https://functions.poehali.dev/7cdaaced-a780-4853-8559-0c013d6a3af2",
+  "game-move": "https://functions.poehali.dev/668c7b6f-f978-482a-a965-3f91c86ebea3",
   "news-get": "https://functions.poehali.dev/3b2af78a-d7e9-4e97-9f99-5f06bcaf9560",
   "news-manage": "https://functions.poehali.dev/6ed83f3f-f0d8-4f62-9683-b62115f997be",
   "db-stats": "https://functions.poehali.dev/aeab7801-bfaa-47b9-afe9-34c3995d7c1d",

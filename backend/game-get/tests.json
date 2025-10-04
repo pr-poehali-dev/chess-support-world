@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Get game without game_id",
+      "method": "GET",
+      "expectedStatus": 400
+    },
+    {
+      "name": "Get game with OPTIONS",
+      "method": "OPTIONS",
+      "expectedStatus": 200
+    }
+  ]
+}

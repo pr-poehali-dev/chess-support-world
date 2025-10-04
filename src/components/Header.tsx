@@ -31,7 +31,8 @@ const Header = ({ user, onUserChange, onTopUpClick }: HeaderProps) => {
     { id: 'home', label: 'Главная', icon: 'Home', path: '/' },
     { id: 'tournaments', label: 'Турниры', icon: 'Trophy', path: '/?section=tournaments' },
     { id: 'results', label: 'Результаты', icon: 'Award', path: '/?section=results' },
-    { id: 'awards', label: 'Награды', icon: 'Medal', path: '/?section=awards' }
+    { id: 'awards', label: 'Награды', icon: 'Medal', path: '/?section=awards' },
+    { id: 'online-chess', label: 'Онлайн-игра', icon: 'Gamepad2', path: '/online-chess' }
   ];
 
   const handleLogout = () => {
@@ -50,6 +51,7 @@ const Header = ({ user, onUserChange, onTopUpClick }: HeaderProps) => {
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/' && !location.search;
+    if (path === '/online-chess') return location.pathname.startsWith('/online-chess');
     return location.pathname + location.search === path;
   };
 

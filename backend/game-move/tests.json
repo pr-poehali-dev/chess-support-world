@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "Make move without user",
+      "method": "POST",
+      "body": {
+        "game_id": "test-id",
+        "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "current_turn": "w"
+      },
+      "expectedStatus": 401
+    },
+    {
+      "name": "Make move without game_id",
+      "method": "POST",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "body": {
+        "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+      },
+      "expectedStatus": 400
+    }
+  ]
+}

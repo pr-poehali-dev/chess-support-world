@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "Create game without user",
+      "method": "POST",
+      "expectedStatus": 401
+    },
+    {
+      "name": "Create game with user",
+      "method": "POST",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "game_id": "string",
+        "join_url": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
