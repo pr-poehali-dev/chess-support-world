@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Chess } from 'chess.js';
-import Chessboard from 'chessboardjsx';
+import SimpleChessboard from '@/components/SimpleChessboard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -91,7 +91,7 @@ export default function OnlineChess() {
     }
   };
 
-  const makeMove = ({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string }) => {
+  const makeMove = (from: string, to: string) => {
     if (!gameState || !currentUser) return;
 
     const isPlayerTurn = 
@@ -104,8 +104,8 @@ export default function OnlineChess() {
     
     try {
       const move = gameCopy.move({
-        from: sourceSquare,
-        to: targetSquare,
+        from,
+        to,
         promotion: 'q'
       });
 
@@ -174,12 +174,11 @@ export default function OnlineChess() {
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="grid gap-6 md:grid-cols-[1fr_300px]">
         <Card>
-          <CardContent className="p-6">
-            <Chessboard
+          <CardContent className="p-6 flex justify-center">
+            <SimpleChessboard
               position={game.fen()}
-              onDrop={makeMove}
+              onMove={makeMove}
               orientation={playerColor || 'white'}
-              width={500}
             />
           </CardContent>
         </Card>
