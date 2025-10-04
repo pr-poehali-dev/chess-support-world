@@ -108,10 +108,23 @@ const Header = ({ user, onUserChange }: HeaderProps) => {
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border py-1 z-50">
                     <div className="px-4 py-3 border-b bg-gradient-to-r from-green-50 to-emerald-50">
                       <div className="text-xs text-gray-600 mb-1">Баланс</div>
-                      <div className="text-lg font-bold text-green-700 flex items-center gap-1">
+                      <div className="text-lg font-bold text-green-700 flex items-center gap-1 mb-2">
                         <Icon name="Wallet" size={16} />
                         {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(user.balance || 0)}
                       </div>
+                      <button
+                        onClick={() => {
+                          toast({
+                            title: "Скоро будет доступно",
+                            description: "Функция пополнения баланса в разработке"
+                          });
+                          setUserMenuOpen(false);
+                        }}
+                        className="w-full px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium flex items-center justify-center gap-1.5 transition-colors"
+                      >
+                        <Icon name="Plus" size={14} />
+                        Пополнить
+                      </button>
                     </div>
                     <button
                       onClick={() => {
