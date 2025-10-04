@@ -285,7 +285,7 @@ const Profile = () => {
           </div>
 
           <div className="mb-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-sm font-medium text-gray-600 mb-1">Баланс</h3>
                 <p className="text-3xl font-bold text-green-700">
@@ -296,6 +296,18 @@ const Profile = () => {
                 <Icon name="Wallet" size={24} className="text-green-600" />
               </div>
             </div>
+            <Button
+              onClick={() => {
+                toast({
+                  title: "Скоро будет доступно",
+                  description: "Функция пополнения баланса в разработке"
+                });
+              }}
+              className="w-full bg-green-600 hover:bg-green-700 gap-2"
+            >
+              <Icon name="Plus" size={18} />
+              Пополнить баланс
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
