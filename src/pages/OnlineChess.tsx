@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Chess } from 'chess.js';
+import Chessboard from 'chessboardjsx';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import SimpleChessboard from '@/components/SimpleChessboard';
 
 const BACKEND_URLS = {
   gameCreate: 'https://functions.poehali.dev/25b46937-6efd-4eb4-893a-2898656e82f3',
@@ -91,7 +91,7 @@ export default function OnlineChess() {
     }
   };
 
-  const makeMove = (from: string, to: string) => {
+  const makeMove = ({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string }) => {
     if (!gameState || !currentUser) return;
 
     const isPlayerTurn = 
@@ -104,8 +104,8 @@ export default function OnlineChess() {
     
     try {
       const move = gameCopy.move({
-        from,
-        to,
+        from: sourceSquare,
+        to: targetSquare,
         promotion: 'q'
       });
 
@@ -174,11 +174,12 @@ export default function OnlineChess() {
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="grid gap-6 md:grid-cols-[1fr_300px]">
         <Card>
-          <CardContent className="p-6 flex justify-center">
-            <SimpleChessboard
+          <CardContent className="p-6">
+            <Chessboard
               position={game.fen()}
-              onMove={makeMove}
+              onDrop={makeMove}
               orientation={playerColor || 'white'}
+              width={500}
             />
           </CardContent>
         </Card>
