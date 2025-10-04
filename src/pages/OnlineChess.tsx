@@ -17,7 +17,14 @@ export default function OnlineChess() {
   const navigate = useNavigate();
   const [game, setGame] = useState(new Chess());
   const [gameState, setGameState] = useState<any>(null);
-  const [currentUser] = useState(() => localStorage.getItem('user_id'));
+  const [currentUser] = useState(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      return user.id?.toString();
+    }
+    return null;
+  });
   const [playerColor, setPlayerColor] = useState<'white' | 'black' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
