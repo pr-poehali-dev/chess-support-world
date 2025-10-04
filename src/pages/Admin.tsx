@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/hooks/use-toast";
+import NewsManager from "@/components/NewsManager";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const Admin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showDatabase, setShowDatabase] = useState(false);
+  const [showNews, setShowNews] = useState(false);
   const [dbStats, setDbStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(false);
 
@@ -170,17 +172,20 @@ const Admin = () => {
             </div>
           </Card>
 
-          <Card className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer">
+          <Card 
+            className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer"
+            onClick={() => setShowNews(!showNews)}
+          >
             <div className="flex items-start gap-4">
               <div className="p-3 bg-chess-gold/20 rounded-lg">
-                <Icon name="Bell" size={24} className="text-chess-dark" />
+                <Icon name="Newspaper" size={24} className="text-chess-dark" />
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-chess-dark mb-2">
-                  Уведомления
+                  Новости
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  Рассылки и объявления
+                  Управление новостями на главной
                 </p>
               </div>
             </div>
@@ -223,6 +228,12 @@ const Admin = () => {
             </div>
           </Card>
         </div>
+
+        {showNews && (
+          <Card className="mt-6 p-6 bg-white/95 border-chess-gold/30">
+            <NewsManager />
+          </Card>
+        )}
 
         {showDatabase && (
           <Card className="mt-6 p-6 bg-white/95 border-chess-gold/30">

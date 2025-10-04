@@ -12,6 +12,7 @@ const Index = () => {
   const location = useLocation();
   const [activeSection, setActiveSection] = useState('home');
   const [user, setUser] = useState<any>(null);
+  const [news, setNews] = useState<any[]>([]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -26,6 +27,15 @@ const Index = () => {
     } else {
       setActiveSection('home');
     }
+
+    fetch('https://functions.poehali.dev/3b2af78a-d7e9-4e97-9f99-5f06bcaf9560')
+      .then(res => res.json())
+      .then(data => {
+        if (data.news) {
+          setNews(data.news);
+        }
+      })
+      .catch(err => console.error('Failed to load news:', err));
 
     const verifyToken = params.get('verify');
     
@@ -108,43 +118,32 @@ const Index = () => {
             </section>
 
             <section className="max-w-6xl mx-auto py-8">
-              <div className="mb-10">
-                <h2 className="text-3xl font-bold mb-6 text-gray-900 flex items-center gap-3">
-                  <Icon name="Newspaper" size={32} className="text-blue-600" />
-                  Новости
-                </h2>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <Card className="p-6 bg-white hover:shadow-lg transition-all">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Icon name="Trophy" size={24} className="text-yellow-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-500 mb-1">15 октября 2024</div>
-                        <h4 className="text-lg font-bold mb-2 text-gray-900">Блиц-марафон — новый турнир!</h4>
-                        <p className="text-gray-600 text-sm">
-                          Приглашаем юных шахматистов на блиц-турнир. Призовой фонд 10 000₽
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-
-                  <Card className="p-6 bg-white hover:shadow-lg transition-all">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Icon name="Medal" size={24} className="text-green-600" />
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-500 mb-1">10 октября 2024</div>
-                        <h4 className="text-lg font-bold mb-2 text-gray-900">Поздравляем победителей!</h4>
-                        <p className="text-gray-600 text-sm">
-                          Подведены итоги осеннего турнира. Смотрите результаты в разделе "Награды"
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
+              {news.length > 0 && (
+                <div className="mb-10">
+                  <h2 className="text-3xl font-bold mb-6 text-gray-900 flex items-center gap-3">
+                    <Icon name="Newspaper" size={32} className="text-blue-600" />
+                    Новости
+                  </h2>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {news.map((item) => (
+                      <Card key={item.id} className="p-6 bg-white hover:shadow-lg transition-all">
+                        <div className="flex items-start gap-4">
+                          <div className={`w-12 h-12 bg-${item.iconColor}-100 rounded-lg flex items-center justify-center flex-shrink-0`}>
+                            <Icon name={item.iconName} size={24} className={`text-${item.iconColor}-600`} />
+                          </div>
+                          <div>
+                            <div className="text-sm text-gray-500 mb-1">
+                              {new Date(item.publishedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </div>
+                            <h4 className="text-lg font-bold mb-2 text-gray-900">{item.title}</h4>
+                            <p className="text-gray-600 text-sm">{item.content}</p>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6 hover:shadow-lg transition-all bg-white">

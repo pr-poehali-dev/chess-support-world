@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Create news article",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "body": {
+        "title": "Test News",
+        "content": "Test content",
+        "iconName": "Trophy",
+        "iconColor": "yellow"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "success": true,
+        "id": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
