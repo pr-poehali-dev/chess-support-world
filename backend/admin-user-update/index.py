@@ -135,6 +135,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if 'is_admin' in body_data:
         update_fields.append(f"is_admin = {str(body_data['is_admin']).lower()}")
     
+    if 'balance' in body_data:
+        balance = body_data['balance']
+        update_fields.append(f"balance = {balance}")
+    
     if not update_fields:
         cursor.close()
         conn.close()

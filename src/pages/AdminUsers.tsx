@@ -23,6 +23,7 @@ interface User {
   is_verified: boolean;
   is_admin: boolean;
   created_at: string;
+  balance?: number;
 }
 
 const AdminUsers = () => {
@@ -187,6 +188,7 @@ const AdminUsers = () => {
           representative_phone: editingUser.representative_phone,
           is_verified: editingUser.is_verified,
           is_admin: editingUser.is_admin,
+          balance: editingUser.balance,
         }),
       });
 

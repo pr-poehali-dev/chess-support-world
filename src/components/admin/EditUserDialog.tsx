@@ -25,6 +25,7 @@ interface User {
   is_verified: boolean;
   is_admin: boolean;
   created_at: string;
+  balance?: number;
 }
 
 interface EditUserDialogProps {
@@ -154,6 +155,21 @@ const EditUserDialog = ({
                     onChange({
                       ...user,
                       representative_phone: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <Label>Баланс (₽)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={user.balance || 0}
+                  onChange={(e) =>
+                    onChange({
+                      ...user,
+                      balance: parseFloat(e.target.value) || 0,
                     })
                   }
                 />
