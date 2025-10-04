@@ -65,7 +65,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     user_id = result[0]
     
-    cursor.execute(f"SELECT id, email, full_name, last_name, middle_name, birth_date, fsr_id, education_institution, coach, city_country, representative_phone, is_verified, created_at, is_admin, avatar FROM users WHERE id = {user_id}")
+    cursor.execute(f"SELECT id, email, full_name, last_name, middle_name, birth_date, fsr_id, education_institution, coach, city_country, representative_phone, is_verified, created_at, is_admin, avatar, balance FROM users WHERE id = {user_id}")
     user_row = cursor.fetchone()
     
     cursor.close()
@@ -94,7 +94,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'is_verified': user_row[11],
         'created_at': user_row[12].isoformat() if user_row[12] else None,
         'is_admin': user_row[13] or False,
-        'avatar': user_row[14]
+        'avatar': user_row[14],
+        'balance': float(user_row[15]) if user_row[15] is not None else 0.0
     }
     
     return {

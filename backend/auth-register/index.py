@@ -108,8 +108,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             """
             INSERT INTO t_p91748136_chess_support_world.users 
             (email, password_hash, full_name, last_name, middle_name, birth_date, 
-             fsr_id, education_institution, coach, city_country, representative_phone, is_verified)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, FALSE)
+             fsr_id, education_institution, coach, city_country, representative_phone, is_verified, balance)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, FALSE, 0.00)
             RETURNING id
             """,
             (email, password_hash, full_name, last_name, middle_name, birth_date or None,

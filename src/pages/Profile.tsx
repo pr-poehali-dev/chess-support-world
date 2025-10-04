@@ -284,6 +284,20 @@ const Profile = () => {
             </div>
           </div>
 
+          <div className="mb-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-gray-600 mb-1">Баланс</h3>
+                <p className="text-3xl font-bold text-green-700">
+                  {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(user.balance || 0)}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Icon name="Wallet" size={24} className="text-green-600" />
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Личные данные */}
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">

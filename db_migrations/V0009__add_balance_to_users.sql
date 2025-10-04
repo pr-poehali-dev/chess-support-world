@@ -1,0 +1,4 @@
+ALTER TABLE users 
+ADD COLUMN balance NUMERIC(10, 2) DEFAULT 0.00 NOT NULL;
+
+UPDATE users SET balance = 0.00 WHERE balance IS NULL;
