@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Chess } from 'chess.js';
-import { Chessboard } from 'react-chessboard';
+import Chessboard from 'chessboardjsx';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -91,14 +91,14 @@ export default function OnlineChess() {
     }
   };
 
-  const makeMove = async (sourceSquare: string, targetSquare: string) => {
-    if (!gameState || !currentUser) return false;
+  const makeMove = ({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string }) => {
+    if (!gameState || !currentUser) return;
 
     const isPlayerTurn = 
       (playerColor === 'white' && gameState.current_turn === 'w') ||
       (playerColor === 'black' && gameState.current_turn === 'b');
 
-    if (!isPlayerTurn) return false;
+    if (!isPlayerTurn) return;
 
     const gameCopy = new Chess(game.fen());
     
@@ -109,7 +109,7 @@ export default function OnlineChess() {
         promotion: 'q'
       });
 
-      if (move === null) return false;
+      if (move === null) return;
 
       setGame(gameCopy);
 
@@ -123,7 +123,7 @@ export default function OnlineChess() {
         status = 'draw';
       }
 
-      await fetch(BACKEND_URLS.gameMove, {
+      fetch(BACKEND_URLS.gameMove, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,11 +138,8 @@ export default function OnlineChess() {
           winner
         })
       });
-
-      return true;
     } catch (error) {
       console.error('Invalid move:', error);
-      return false;
     }
   };
 
@@ -180,12 +177,9 @@ export default function OnlineChess() {
           <CardContent className="p-6">
             <Chessboard
               position={game.fen()}
-              onPieceDrop={makeMove}
-              boardOrientation={playerColor || 'white'}
-              customBoardStyle={{
-                borderRadius: '8px',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-              }}
+              onDrop={makeMove}
+              orientation={playerColor || 'white'}
+              width={500}
             />
           </CardContent>
         </Card>
