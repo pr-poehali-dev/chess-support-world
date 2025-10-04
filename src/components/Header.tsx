@@ -7,9 +7,10 @@ import { toast } from '@/hooks/use-toast';
 interface HeaderProps {
   user: any;
   onUserChange?: (user: any) => void;
+  onTopUpClick?: () => void;
 }
 
-const Header = ({ user, onUserChange }: HeaderProps) => {
+const Header = ({ user, onUserChange, onTopUpClick }: HeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -114,11 +115,10 @@ const Header = ({ user, onUserChange }: HeaderProps) => {
                       </div>
                       <button
                         onClick={() => {
-                          toast({
-                            title: "Скоро будет доступно",
-                            description: "Функция пополнения баланса в разработке"
-                          });
                           setUserMenuOpen(false);
+                          if (onTopUpClick) {
+                            onTopUpClick();
+                          }
                         }}
                         className="w-full px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium flex items-center justify-center gap-1.5 transition-colors"
                       >
