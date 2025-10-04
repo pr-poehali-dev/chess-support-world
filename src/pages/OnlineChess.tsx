@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Chess } from 'chess.js';
-import SimpleChessboard from '@/components/SimpleChessboard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import SimpleChessboard from '@/components/SimpleChessboard';
 
 const BACKEND_URLS = {
   gameCreate: 'https://functions.poehali.dev/25b46937-6efd-4eb4-893a-2898656e82f3',
