@@ -6,6 +6,12 @@ import Icon from '@/components/ui/icon';
 import AuthForm from '@/components/AuthForm';
 import Header from '@/components/Header';
 import { toast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -13,6 +19,8 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [user, setUser] = useState<any>(null);
   const [news, setNews] = useState<any[]>([]);
+  const [selectedNews, setSelectedNews] = useState<any>(null);
+  const [newsDialogOpen, setNewsDialogOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -126,17 +134,38 @@ const Index = () => {
                   </h2>
                   <div className="grid md:grid-cols-2 gap-6">
                     {news.map((item) => (
-                      <Card key={item.id} className="p-6 bg-white hover:shadow-lg transition-all">
+                      <Card key={item.id} className="p-6 bg-white hover:shadow-lg transition-all overflow-hidden">
+                        {item.imageUrl && (
+                          <div className="-m-6 mb-4">
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="w-full h-48 object-cover"
+                            />
+                          </div>
+                        )}
                         <div className="flex items-start gap-4">
                           <div className={`w-12 h-12 bg-${item.iconColor}-100 rounded-lg flex items-center justify-center flex-shrink-0`}>
                             <Icon name={item.iconName} size={24} className={`text-${item.iconColor}-600`} />
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <div className="text-sm text-gray-500 mb-1">
                               {new Date(item.publishedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </div>
                             <h4 className="text-lg font-bold mb-2 text-gray-900">{item.title}</h4>
-                            <p className="text-gray-600 text-sm">{item.content}</p>
+                            <p className="text-gray-600 text-sm mb-3">{item.preview}</p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedNews(item);
+                                setNewsDialogOpen(true);
+                              }}
+                              className="gap-2"
+                            >
+                              Подробнее
+                              <Icon name="ArrowRight" size={16} />
+                            </Button>
                           </div>
                         </div>
                       </Card>
@@ -225,6 +254,45 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      <Dialog open={newsDialogOpen} onOpenChange={setNewsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          {selectedNews && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl">{selectedNews.title}</DialogTitle>
+              </DialogHeader>
+              
+              {selectedNews.imageUrl && (
+                <div className="-mx-6 -mt-4 mb-4">
+                  <img
+                    src={selectedNews.imageUrl}
+                    alt={selectedNews.title}
+                    className="w-full h-64 object-cover"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 text-sm text-gray-500">
+                  <div className={`w-10 h-10 bg-${selectedNews.iconColor}-100 rounded-lg flex items-center justify-center`}>
+                    <Icon name={selectedNews.iconName} size={20} className={`text-${selectedNews.iconColor}-600`} />
+                  </div>
+                  <span>
+                    {new Date(selectedNews.publishedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </span>
+                </div>
+
+                <div className="prose prose-gray max-w-none">
+                  <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {selectedNews.content}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <footer className="border-t bg-white py-8 mt-20">
         <div className="container mx-auto px-4 text-center">

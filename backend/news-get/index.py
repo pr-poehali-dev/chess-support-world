@@ -47,7 +47,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cursor = conn.cursor()
     
     cursor.execute('''
-        SELECT id, title, content, icon_name, icon_color, published_date, created_at
+        SELECT id, title, preview, content, image_url, icon_name, icon_color, published_date, created_at
         FROM news
         WHERE is_published = true
         ORDER BY published_date DESC, created_at DESC
@@ -61,11 +61,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         news_list.append({
             'id': row[0],
             'title': row[1],
-            'content': row[2],
-            'iconName': row[3],
-            'iconColor': row[4],
-            'publishedDate': row[5].isoformat() if row[5] else None,
-            'createdAt': row[6].isoformat() if row[6] else None
+            'preview': row[2],
+            'content': row[3],
+            'imageUrl': row[4],
+            'iconName': row[5],
+            'iconColor': row[6],
+            'publishedDate': row[7].isoformat() if row[7] else None,
+            'createdAt': row[8].isoformat() if row[8] else None
         })
     
     cursor.close()

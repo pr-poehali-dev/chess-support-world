@@ -61,7 +61,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if method == 'GET':
         cursor.execute('''
-            SELECT id, title, content, icon_name, icon_color, published_date, is_published, created_at
+            SELECT id, title, preview, content, image_url, icon_name, icon_color, published_date, is_published, created_at
             FROM news
             ORDER BY created_at DESC
         ''')
@@ -72,12 +72,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             news_list.append({
                 'id': row[0],
                 'title': row[1],
-                'content': row[2],
-                'iconName': row[3],
-                'iconColor': row[4],
-                'publishedDate': row[5].isoformat() if row[5] else None,
-                'isPublished': row[6],
-                'createdAt': row[7].isoformat() if row[7] else None
+                'preview': row[2],
+                'content': row[3],
+                'imageUrl': row[4],
+                'iconName': row[5],
+                'iconColor': row[6],
+                'publishedDate': row[7].isoformat() if row[7] else None,
+                'isPublished': row[8],
+                'createdAt': row[9].isoformat() if row[9] else None
             })
         
         cursor.close()
@@ -92,7 +94,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if method == 'POST':
         body_data = json.loads(event.get('body', '{}'))
         title = body_data.get('title', '')
+        preview = body_data.get('preview', '')
         content = body_data.get('content', '')
+        image_url = body_data.get('imageUrl', '')
         icon_name = body_data.get('iconName', 'Newspaper')
         icon_color = body_data.get('iconColor', 'blue')
         published_date = body_data.get('publishedDate', datetime.now().date().isoformat())
@@ -108,10 +112,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         cursor.execute('''
-            INSERT INTO news (title, content, icon_name, icon_color, published_date, is_published)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO news (title, preview, content, image_url, icon_name, icon_color, published_date, is_published)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
-        ''', (title, content, icon_name, icon_color, published_date, is_published))
+        ''', (title, preview, content, image_url, icon_name, icon_color, published_date, is_published))
         
         news_id = cursor.fetchone()[0]
         conn.commit()
@@ -138,7 +142,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         title = body_data.get('title')
+        preview = body_data.get('preview')
         content = body_data.get('content')
+        image_url = body_data.get('imageUrl')
         icon_name = body_data.get('iconName')
         icon_color = body_data.get('iconColor')
         published_date = body_data.get('publishedDate')
@@ -147,14 +153,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cursor.execute('''
             UPDATE news
             SET title = COALESCE(%s, title),
+                preview = COALESCE(%s, preview),
                 content = COALESCE(%s, content),
+                image_url = COALESCE(%s, image_url),
                 icon_name = COALESCE(%s, icon_name),
                 icon_color = COALESCE(%s, icon_color),
                 published_date = COALESCE(%s, published_date),
                 is_published = COALESCE(%s, is_published),
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = %s
-        ''', (title, content, icon_name, icon_color, published_date, is_published, news_id))
+        ''', (title, preview, content, image_url, icon_name, icon_color, published_date, is_published, news_id))
         
         conn.commit()
         cursor.close()

@@ -23,7 +23,9 @@ import {
 interface NewsItem {
   id: number;
   title: string;
+  preview: string;
   content: string;
+  imageUrl?: string;
   iconName: string;
   iconColor: string;
   publishedDate: string;
@@ -38,12 +40,15 @@ const NewsManager = () => {
   const [editingNews, setEditingNews] = useState<NewsItem | null>(null);
   const [formData, setFormData] = useState({
     title: '',
+    preview: '',
     content: '',
+    imageUrl: '',
     iconName: 'Newspaper',
     iconColor: 'blue',
     publishedDate: new Date().toISOString().split('T')[0],
     isPublished: true,
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const iconOptions = [
     { value: 'Newspaper', label: 'Газета' },
@@ -140,7 +145,9 @@ const NewsManager = () => {
         setEditingNews(null);
         setFormData({
           title: '',
+          preview: '',
           content: '',
+          imageUrl: '',
           iconName: 'Newspaper',
           iconColor: 'blue',
           publishedDate: new Date().toISOString().split('T')[0],
@@ -204,7 +211,9 @@ const NewsManager = () => {
     setEditingNews(item);
     setFormData({
       title: item.title,
+      preview: item.preview,
       content: item.content,
+      imageUrl: item.imageUrl || '',
       iconName: item.iconName,
       iconColor: item.iconColor,
       publishedDate: item.publishedDate,
@@ -217,13 +226,61 @@ const NewsManager = () => {
     setEditingNews(null);
     setFormData({
       title: '',
+      preview: '',
       content: '',
+      imageUrl: '',
       iconName: 'Newspaper',
       iconColor: 'blue',
       publishedDate: new Date().toISOString().split('T')[0],
       isPublished: true,
     });
     setDialogOpen(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'Ошибка',
+        description: 'Файл слишком большой (максимум 5 МБ)',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
+
+      const response = await fetch('https://cdn.poehali.dev/upload', {
+        method: 'POST',
+        body: formDataUpload,
+      });
+
+      const data = await response.json();
+
+      if (data.url) {
+        setFormData({ ...formData, imageUrl: data.url });
+        toast({
+          title: 'Успешно',
+          description: 'Изображение загружено',
+        });
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить изображение',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   if (loading) {
@@ -258,7 +315,7 @@ const NewsManager = () => {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h3 className="font-bold text-lg">{item.title}</h3>
-                    <p className="text-gray-600 text-sm mt-1">{item.content}</p>
+                    <p className="text-gray-600 text-sm mt-1">{item.preview}</p>
                     <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
                       <span>{new Date(item.publishedDate).toLocaleDateString('ru-RU')}</span>
                       <span className={item.isPublished ? 'text-green-600' : 'text-red-600'}>
@@ -315,13 +372,58 @@ const NewsManager = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Содержание</label>
+              <label className="text-sm font-medium mb-2 block">Превью (краткое описание)</label>
+              <Textarea
+                value={formData.preview}
+                onChange={(e) => setFormData({ ...formData, preview: e.target.value })}
+                placeholder="Краткий текст для главной страницы"
+                rows={2}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Полное содержание</label>
               <Textarea
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder="Текст новости"
-                rows={4}
+                placeholder="Полный текст новости"
+                rows={6}
               />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Изображение</label>
+              <div className="space-y-2">
+                {formData.imageUrl && (
+                  <div className="relative w-full h-40 rounded-lg overflow-hidden border">
+                    <img
+                      src={formData.imageUrl}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="absolute top-2 right-2"
+                      onClick={() => setFormData({ ...formData, imageUrl: '' })}
+                    >
+                      <Icon name="X" size={16} />
+                    </Button>
+                  </div>
+                )}
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploadingImage}
+                />
+                {uploadingImage && (
+                  <p className="text-sm text-gray-500 flex items-center gap-2">
+                    <Icon name="Loader2" size={16} className="animate-spin" />
+                    Загрузка...
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
