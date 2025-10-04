@@ -107,36 +107,76 @@ const Index = () => {
               </div>
             </section>
 
-            <section className="grid md:grid-cols-3 gap-6 py-8 max-w-6xl mx-auto">
-              <Card className="p-6 hover:shadow-lg transition-all bg-white">
-                <div className="w-14 h-14 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
-                  <Icon name="Trophy" size={28} className="text-yellow-600" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3 text-gray-900">Турниры</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Регулярные шахматные турниры для детей разных возрастных категорий
-                </p>
-              </Card>
+            <section className="max-w-6xl mx-auto py-8">
+              <div className="mb-10">
+                <h2 className="text-3xl font-bold mb-6 text-gray-900 flex items-center gap-3">
+                  <Icon name="Newspaper" size={32} className="text-blue-600" />
+                  Новости
+                </h2>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Card className="p-6 bg-white hover:shadow-lg transition-all">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Icon name="Trophy" size={24} className="text-yellow-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500 mb-1">15 октября 2024</div>
+                        <h4 className="text-lg font-bold mb-2 text-gray-900">Блиц-марафон — новый турнир!</h4>
+                        <p className="text-gray-600 text-sm">
+                          Приглашаем юных шахматистов на блиц-турнир. Призовой фонд 10 000₽
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
 
-              <Card className="p-6 hover:shadow-lg transition-all bg-white">
-                <div className="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                  <Icon name="Award" size={28} className="text-blue-600" />
+                  <Card className="p-6 bg-white hover:shadow-lg transition-all">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Icon name="Medal" size={24} className="text-green-600" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500 mb-1">10 октября 2024</div>
+                        <h4 className="text-lg font-bold mb-2 text-gray-900">Поздравляем победителей!</h4>
+                        <p className="text-gray-600 text-sm">
+                          Подведены итоги осеннего турнира. Смотрите результаты в разделе "Награды"
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
                 </div>
-                <h3 className="text-2xl font-bold mb-3 text-gray-900">Результаты</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Отслеживайте результаты соревнований и рейтинги игроков
-                </p>
-              </Card>
+              </div>
 
-              <Card className="p-6 hover:shadow-lg transition-all bg-white">
-                <div className="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                  <Icon name="Medal" size={28} className="text-green-600" />
-                </div>
-                <h3 className="text-2xl font-bold mb-3 text-gray-900">Награды</h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Галерея достижений и награды наших юных шахматистов
-                </p>
-              </Card>
+              <div className="grid md:grid-cols-3 gap-6">
+                <Card className="p-6 hover:shadow-lg transition-all bg-white">
+                  <div className="w-14 h-14 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                    <Icon name="Trophy" size={28} className="text-yellow-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-3 text-gray-900">Турниры</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Регулярные шахматные турниры для детей разных возрастных категорий
+                  </p>
+                </Card>
+
+                <Card className="p-6 hover:shadow-lg transition-all bg-white">
+                  <div className="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <Icon name="Award" size={28} className="text-blue-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-3 text-gray-900">Результаты</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Отслеживайте результаты соревнований и рейтинги игроков
+                  </p>
+                </Card>
+
+                <Card className="p-6 hover:shadow-lg transition-all bg-white">
+                  <div className="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                    <Icon name="Medal" size={28} className="text-green-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-3 text-gray-900">Награды</h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Галерея достижений и награды наших юных шахматистов
+                  </p>
+                </Card>
+              </div>
             </section>
           </div>
         )}
