@@ -105,7 +105,14 @@ const Header = ({ user, onUserChange }: HeaderProps) => {
                 </Button>
                 
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border py-1 z-50">
+                    <div className="px-4 py-3 border-b bg-gradient-to-r from-green-50 to-emerald-50">
+                      <div className="text-xs text-gray-600 mb-1">Баланс</div>
+                      <div className="text-lg font-bold text-green-700 flex items-center gap-1">
+                        <Icon name="Wallet" size={16} />
+                        {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(user.balance || 0)}
+                      </div>
+                    </div>
                     <button
                       onClick={() => {
                         navigate('/profile');
