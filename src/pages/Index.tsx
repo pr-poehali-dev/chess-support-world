@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import AuthForm from '@/components/AuthForm';
 import Header from '@/components/Header';
+import FsrRatingSearch from '@/components/FsrRatingSearch';
 import { toast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -175,6 +176,10 @@ const Index = () => {
                   </div>
                 </div>
               )}
+
+              <div className="mb-8">
+                <FsrRatingSearch />
+              </div>
 
               <div className="grid md:grid-cols-3 gap-6">
                 <Card className="p-6 hover:shadow-lg transition-all bg-white">

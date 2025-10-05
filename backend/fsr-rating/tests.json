@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "Get player rating by FSR ID",
+      "method": "GET",
+      "path": "/?fsr_id=430453",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "fsr_id": "string",
+        "name": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing FSR ID parameter",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
