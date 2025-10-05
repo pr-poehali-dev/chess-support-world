@@ -3,7 +3,7 @@
     {
       "name": "Get player rating by FSR ID",
       "method": "GET",
-      "path": "/?fsr_id=430453",
+      "path": "/?fsr_id=24278677",
       "expectedStatus": 200,
       "expectedBody": {
         "fsr_id": "string",

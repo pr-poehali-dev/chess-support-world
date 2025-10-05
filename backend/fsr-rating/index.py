@@ -1,17 +1,8 @@
 import json
-import urllib.request
-import urllib.parse
+import requests
 from typing import Dict, Any, Optional
-from dataclasses import dataclass
-
-@dataclass
-class PlayerRating:
-    fsr_id: str
-    name: str
-    fide_id: Optional[str]
-    rating_rapid: Optional[int]
-    rating_blitz: Optional[int]
-    rating_classic: Optional[int]
+from bs4 import BeautifulSoup
+import re
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -57,39 +48,65 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'fsr_id parameter is required'})
         }
     
-    # Получаем HTML страницу профиля
-    page_url = f'https://ratings.ruchess.ru/people/{fsr_id}'
+    # Поиск игрока по ID
+    search_url = 'https://ratings.ruchess.ru/people'
     
-    req = urllib.request.Request(
-        page_url,
-        headers={'User-Agent': 'Mozilla/5.0'}
+    response = requests.get(
+        search_url,
+        params={'q': fsr_id},
+        headers={'User-Agent': 'Mozilla/5.0'},
+        timeout=10
     )
     
-    response = urllib.request.urlopen(req, timeout=10)
-    html = response.read().decode('utf-8')
+    soup = BeautifulSoup(response.text, 'html.parser')
     
-    # Парсим данные из HTML
-    import re
+    # Ищем таблицу
+    name = 'Неизвестно'
+    rating_rapid = None
+    rating_blitz = None
+    rating_classic = None
+    fide_id = None
     
-    # Извлекаем имя
-    name_match = re.search(r'<h1[^>]*>([^<]+)</h1>', html)
-    name = name_match.group(1).strip() if name_match else 'Неизвестно'
+    # Ищем таблицу с результатами
+    tables = soup.find_all('table')
+    for table in tables:
+        rows = table.find_all('tr')
+        for row in rows:
+            cells = row.find_all('td')
+            if len(cells) >= 5:
+                # Проверяем, что это строка с данными игрока
+                first_cell = cells[0].get_text(strip=True)
+                if first_cell.isdigit() or fsr_id in first_cell:
+                    # cells[1] - имя, cells[2-4] - рейтинги
+                    name = cells[1].get_text(strip=True) if len(cells) > 1 else name
+                    
+                    if len(cells) > 2:
+                        classic_text = cells[2].get_text(strip=True)
+                        if classic_text and classic_text.isdigit():
+                            rating_classic = int(classic_text)
+                    
+                    if len(cells) > 3:
+                        rapid_text = cells[3].get_text(strip=True)
+                        if rapid_text and rapid_text.isdigit():
+                            rating_rapid = int(rapid_text)
+                    
+                    if len(cells) > 4:
+                        blitz_text = cells[4].get_text(strip=True)
+                        if blitz_text and blitz_text.isdigit():
+                            rating_blitz = int(blitz_text)
+                    
+                    break
     
-    # Извлекаем рейтинги
-    def extract_rating(pattern: str) -> Optional[int]:
-        match = re.search(pattern, html)
-        if match:
-            rating_str = match.group(1).strip()
-            return int(rating_str) if rating_str.isdigit() else None
-        return None
-    
-    rating_rapid = extract_rating(r'Рапид[^<]*</td>\s*<td[^>]*>(\d+)')
-    rating_blitz = extract_rating(r'Блиц[^<]*</td>\s*<td[^>]*>(\d+)')
-    rating_classic = extract_rating(r'Классика[^<]*</td>\s*<td[^>]*>(\d+)')
-    
-    # Извлекаем FIDE ID
-    fide_match = re.search(r'ФИДЕ ID[^<]*</td>\s*<td[^>]*>(\d+)', html)
-    fide_id = fide_match.group(1) if fide_match else None
+    # Если не нашли в таблице, значит игрок не найден
+    if name == 'Неизвестно':
+        return {
+            'statusCode': 404,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({'error': 'Игрок не найден'}, ensure_ascii=False)
+        }
     
     result = {
         'fsr_id': fsr_id,
