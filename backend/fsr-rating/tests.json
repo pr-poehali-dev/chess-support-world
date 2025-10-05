@@ -1,12 +1,11 @@
 {
   "tests": [
     {
-      "name": "Get player rating by FSR ID",
+      "name": "Get player rating by name",
       "method": "GET",
-      "path": "/?fsr_id=24278677",
+      "path": "/?name=Непомнящий",
       "expectedStatus": 200,
       "expectedBody": {
-        "fsr_id": "string",
         "name": "string"
       },
       "bodyMatcher": "partial"
