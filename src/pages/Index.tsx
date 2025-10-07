@@ -38,8 +38,28 @@ const Index = () => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
+    const token = localStorage.getItem('auth_token');
+    
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+      
+      // Загружаем актуальные данные пользователя с сервера
+      if (token) {
+        fetch('https://functions.poehali.dev/eca2e5eb-f266-4d23-85b9-37172d2bc017', {
+          method: 'GET',
+          headers: {
+            'X-Auth-Token': token
+          }
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success && data.user) {
+              setUser(data.user);
+              localStorage.setItem('user', JSON.stringify(data.user));
+            }
+          })
+          .catch(err => console.error('Failed to load user data:', err));
+      }
     }
 
     const params = new URLSearchParams(location.search);
