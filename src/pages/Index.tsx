@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import AuthForm from '@/components/AuthForm';
 import Header from '@/components/Header';
 import FsrRatingSearch from '@/components/FsrRatingSearch';
+import TournamentParticipantsModal from '@/components/TournamentParticipantsModal';
 import { toast } from '@/hooks/use-toast';
 import {
   Dialog,
@@ -26,6 +27,9 @@ const Index = () => {
   const [topUpModalOpen, setTopUpModalOpen] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
   const [registrationStatuses, setRegistrationStatuses] = useState<Record<number, boolean>>({});
+  const [participantsModalOpen, setParticipantsModalOpen] = useState(false);
+  const [selectedTournamentId, setSelectedTournamentId] = useState<number | null>(null);
+  const [selectedTournamentName, setSelectedTournamentName] = useState('');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -442,8 +446,8 @@ const Index = () => {
                           </div>
                         </div>
 
-                        {tournament.status === 'registration_open' && (
-                          <div>
+                        <div className="flex gap-2 flex-wrap">
+                          {tournament.status === 'registration_open' && (
                             <Button 
                               onClick={() => handleTournamentRegistration(tournament.id)}
                               className={`gap-2 ${
@@ -455,8 +459,21 @@ const Index = () => {
                               <Icon name={registrationStatuses[tournament.id] ? "UserX" : "UserPlus"} size={18} />
                               {registrationStatuses[tournament.id] ? 'Отменить участие' : 'Записаться'}
                             </Button>
-                          </div>
-                        )}
+                          )}
+                          
+                          <Button 
+                            onClick={() => {
+                              setSelectedTournamentId(tournament.id);
+                              setSelectedTournamentName(tournament.name);
+                              setParticipantsModalOpen(true);
+                            }}
+                            variant="outline"
+                            className="gap-2"
+                          >
+                            <Icon name="Users" size={18} />
+                            Список участников
+                          </Button>
+                        </div>
                       </div>
                     </Card>
                   );
@@ -628,6 +645,15 @@ const Index = () => {
             </p>
           </div>
         </div>
+      )}
+
+      {selectedTournamentId && (
+        <TournamentParticipantsModal
+          open={participantsModalOpen}
+          onOpenChange={setParticipantsModalOpen}
+          tournamentId={selectedTournamentId}
+          tournamentName={selectedTournamentName}
+        />
       )}
     </div>
   );
