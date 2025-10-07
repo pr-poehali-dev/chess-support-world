@@ -30,6 +30,11 @@ const Index = () => {
   const [participantsModalOpen, setParticipantsModalOpen] = useState(false);
   const [selectedTournamentId, setSelectedTournamentId] = useState<number | null>(null);
   const [selectedTournamentName, setSelectedTournamentName] = useState('');
+  const [insufficientBalanceModal, setInsufficientBalanceModal] = useState<{
+    open: boolean;
+    required: number;
+    current: number;
+  }>({ open: false, required: 0, current: 0 });
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -236,21 +241,10 @@ const Index = () => {
           }
         } else {
           if (data.error === 'Insufficient balance') {
-            const errorMsg = `Недостаточно средств. Необходимо ${data.required} ₽, на балансе ${data.current} ₽`;
-            
-            toast({
-              title: "Ошибка",
-              description: errorMsg,
-              variant: "destructive",
-              action: (
-                <Button 
-                  onClick={() => setTopUpModalOpen(true)}
-                  size="sm"
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Пополнить
-                </Button>
-              )
+            setInsufficientBalanceModal({
+              open: true,
+              required: data.required || 0,
+              current: data.current || 0
             });
           } else {
             toast({
@@ -717,6 +711,68 @@ const Index = () => {
           tournamentId={selectedTournamentId}
           tournamentName={selectedTournamentName}
         />
+      )}
+
+      {insufficientBalanceModal.open && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-xl max-w-md w-full p-8 shadow-2xl animate-scale-in">
+            <div className="text-center mb-6">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Icon name="AlertCircle" size={40} className="text-red-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Недостаточно средств
+              </h2>
+              <p className="text-gray-600">
+                Для участия в турнире необходимо пополнить баланс
+              </p>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-6 mb-6 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Необходимо:</span>
+                <span className="text-xl font-bold text-gray-900">
+                  {insufficientBalanceModal.required} ₽
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">На балансе:</span>
+                <span className="text-xl font-bold text-red-600">
+                  {insufficientBalanceModal.current} ₽
+                </span>
+              </div>
+              <div className="border-t border-gray-200 pt-3 mt-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700 font-medium">Не хватает:</span>
+                  <span className="text-2xl font-bold text-orange-600">
+                    {(insufficientBalanceModal.required - insufficientBalanceModal.current).toFixed(2)} ₽
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => {
+                  setInsufficientBalanceModal({ open: false, required: 0, current: 0 });
+                  setTopUpAmount((insufficientBalanceModal.required - insufficientBalanceModal.current).toFixed(0));
+                  setTopUpModalOpen(true);
+                }}
+                className="flex-1 bg-green-600 hover:bg-green-700 gap-2 py-6 text-lg"
+              >
+                <Icon name="Wallet" size={20} />
+                Пополнить баланс
+              </Button>
+              <Button
+                onClick={() => setInsufficientBalanceModal({ open: false, required: 0, current: 0 })}
+                variant="outline"
+                className="px-6"
+              >
+                <Icon name="X" size={20} />
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
