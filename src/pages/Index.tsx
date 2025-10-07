@@ -524,6 +524,16 @@ const Index = () => {
                         </div>
 
                         <div className="flex gap-2 flex-wrap">
+                          {tournament.status === 'in_progress' && (
+                            <Button 
+                              onClick={() => navigate(`/tournament/${tournament.id}`)}
+                              className="gap-2 bg-green-600 hover:bg-green-700"
+                            >
+                              <Icon name="Play" size={18} />
+                              Турнирный зал
+                            </Button>
+                          )}
+                          
                           {tournament.status === 'registration_open' && (
                             <Button 
                               onClick={() => handleTournamentRegistration(tournament.id)}
