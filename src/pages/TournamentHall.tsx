@@ -30,12 +30,21 @@ interface Tournament {
   total_rounds: number;
 }
 
+interface Participant {
+  id: number;
+  first_name: string;
+  last_name: string;
+  birth_date: string | null;
+  isOnline?: boolean;
+}
+
 const TournamentHall = () => {
   const { tournamentId } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [games, setGames] = useState<Game[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [currentRound, setCurrentRound] = useState(1);
   const [filterStatus, setFilterStatus] = useState<'all' | 'my_games' | 'in_progress' | 'completed'>('all');
@@ -57,7 +66,7 @@ const TournamentHall = () => {
     }
 
     loadTournamentData();
-    loadGames();
+    loadParticipants();
   }, [tournamentId]);
 
   const loadTournamentData = async () => {
@@ -77,49 +86,26 @@ const TournamentHall = () => {
     }
   };
 
-  const loadGames = async () => {
-    const mockGames: Game[] = [
-      {
-        id: 1,
-        tournament_id: Number(tournamentId),
-        round: 1,
-        table_number: 1,
-        white_player_id: 1,
-        white_player_name: "Иванов Иван",
-        black_player_id: 2,
-        black_player_name: "Петров Петр",
-        status: 'in_progress',
-        current_position: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-        white_time_remaining: 1800,
-        black_time_remaining: 1750
-      },
-      {
-        id: 2,
-        tournament_id: Number(tournamentId),
-        round: 1,
-        table_number: 2,
-        white_player_id: 3,
-        white_player_name: "Сидоров Сергей",
-        black_player_id: 4,
-        black_player_name: "Козлов Алексей",
-        status: 'completed',
-        result: '1-0',
-        current_position: 'r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4'
-      },
-      {
-        id: 3,
-        tournament_id: Number(tournamentId),
-        round: 1,
-        table_number: 3,
-        white_player_id: 5,
-        white_player_name: "Морозов Дмитрий",
-        black_player_id: 6,
-        black_player_name: "Новиков Андрей",
-        status: 'waiting',
+  const loadParticipants = async () => {
+    try {
+      const response = await fetch(`https://functions.poehali.dev/7ad7f893-7862-4ac9-b4a7-c9c4bf8cd97b?tournament_id=${tournamentId}`);
+      const data = await response.json();
+      
+      if (data.participants) {
+        const participantsWithStatus = data.participants.map((p: Participant) => ({
+          ...p,
+          isOnline: Math.random() > 0.5
+        }));
+        setParticipants(participantsWithStatus);
       }
-    ];
-    
-    setGames(mockGames);
+    } catch (error) {
+      console.error('Failed to load participants:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить список участников",
+        variant: "destructive"
+      });
+    }
   };
 
   const formatTime = (seconds?: number) => {
@@ -147,24 +133,7 @@ const TournamentHall = () => {
     }
   };
 
-  const filteredGames = games.filter(game => {
-    if (game.round !== currentRound) return false;
-    
-    switch (filterStatus) {
-      case 'my_games':
-        return user && (game.white_player_id === user.id || game.black_player_id === user.id);
-      case 'in_progress':
-        return game.status === 'in_progress';
-      case 'completed':
-        return game.status === 'completed';
-      default:
-        return true;
-    }
-  });
-
-  const isMyGame = (game: Game) => {
-    return user && (game.white_player_id === user.id || game.black_player_id === user.id);
-  };
+  const onlineCount = participants.filter(p => p.isOnline).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -191,215 +160,72 @@ const TournamentHall = () => {
               </p>
             </div>
             
-            <div className="flex gap-2">
-              <Button variant="outline" className="gap-2">
-                <Icon name="Trophy" size={18} />
-                Турнирная таблица
-              </Button>
-              <Button variant="outline" className="gap-2">
-                <Icon name="Users" size={18} />
-                Участники
-              </Button>
+            <Button variant="outline" className="gap-2">
+              <Icon name="Trophy" size={18} />
+              Турнирная таблица
+            </Button>
+          </div>
+        </div>
+
+        <Card className="p-6">
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">Участники турнира</h2>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-gray-600">
+                  <span className="font-semibold text-green-600">{onlineCount}</span> из {participants.length} в зале
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Партии тура</h2>
-                
-                <div className="flex gap-2">
-                  <Button
-                    variant={filterStatus === 'all' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilterStatus('all')}
-                  >
-                    Все
-                  </Button>
-                  <Button
-                    variant={filterStatus === 'my_games' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilterStatus('my_games')}
-                  >
-                    Мои
-                  </Button>
-                  <Button
-                    variant={filterStatus === 'in_progress' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilterStatus('in_progress')}
-                  >
-                    Идут
-                  </Button>
-                  <Button
-                    variant={filterStatus === 'completed' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilterStatus('completed')}
-                  >
-                    Завершены
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {filteredGames.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <Icon name="CircleOff" size={48} className="mx-auto mb-4 opacity-50" />
-                    <p>Партии не найдены</p>
-                  </div>
-                ) : (
-                  filteredGames.map((game) => (
-                    <Card
-                      key={game.id}
-                      className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-                        selectedGame?.id === game.id ? 'ring-2 ring-blue-500' : ''
-                      } ${isMyGame(game) ? 'bg-blue-50' : ''}`}
-                      onClick={() => setSelectedGame(game)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 flex-1">
-                          <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center font-bold text-gray-700">
-                            {game.table_number}
-                          </div>
-                          
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-gray-900">
-                                {game.white_player_name}
-                              </span>
-                              <span className="text-sm text-gray-500">vs</span>
-                              <span className="font-medium text-gray-900">
-                                {game.black_player_name}
-                              </span>
-                            </div>
-                            
-                            {game.status === 'in_progress' && (
-                              <div className="flex items-center gap-4 text-sm text-gray-600">
-                                <div className="flex items-center gap-1">
-                                  <Icon name="Clock" size={14} />
-                                  <span>{formatTime(game.white_time_remaining)}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Icon name="Clock" size={14} />
-                                  <span>{formatTime(game.black_time_remaining)}</span>
-                                </div>
-                              </div>
-                            )}
-                            
-                            {game.status === 'completed' && game.result && (
-                              <div className="text-sm font-medium text-gray-600">
-                                Результат: {game.result}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                          {isMyGame(game) && (
-                            <div className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
-                              Моя партия
-                            </div>
-                          )}
-                          
-                          <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(game.status)}`}>
-                            {getStatusText(game.status)}
-                          </div>
-                          
-                          <Icon name="ChevronRight" size={20} className="text-gray-400" />
-                        </div>
+          {participants.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <Icon name="Users" size={48} className="mx-auto mb-4 opacity-50" />
+              <p>Участники не найдены</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {participants.map((participant) => (
+                <Card
+                  key={participant.id}
+                  className={`p-4 transition-all hover:shadow-md ${
+                    participant.isOnline ? 'border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-white' : 'bg-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        {participant.first_name?.charAt(0) || participant.last_name?.charAt(0) || '?'}
                       </div>
-                    </Card>
-                  ))
-                )}
-              </div>
-            </Card>
-          </div>
-
-          <div className="lg:col-span-1">
-            <Card className="p-4 sticky top-4">
-              {selectedGame ? (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-gray-900">
-                      Стол {selectedGame.table_number}
-                    </h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedGame(null)}
-                    >
-                      <Icon name="X" size={16} />
-                    </Button>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="bg-gray-100 rounded-lg p-4 aspect-square flex items-center justify-center">
-                      <div className="text-center">
-                        <Icon name="Grid3x3" size={64} className="mx-auto mb-2 text-gray-400" />
-                        <p className="text-sm text-gray-600">Шахматная доска</p>
-                        <p className="text-xs text-gray-500 mt-1">Будет добавлена на следующем этапе</p>
-                      </div>
+                      {participant.isOnline && (
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                      )}
                     </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-3 bg-white border rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-white border-2 border-gray-800 rounded"></div>
-                          <span className="font-medium">{selectedGame.white_player_name}</span>
-                        </div>
-                        {selectedGame.white_time_remaining && (
-                          <span className="text-sm font-mono">{formatTime(selectedGame.white_time_remaining)}</span>
-                        )}
+                    
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">
+                        {participant.first_name} {participant.last_name}
                       </div>
-
-                      <div className="flex items-center justify-between p-3 bg-gray-800 text-white rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-gray-800 border-2 border-white rounded"></div>
-                          <span className="font-medium">{selectedGame.black_player_name}</span>
+                      {participant.birth_date && (
+                        <div className="text-xs text-gray-500">
+                          {new Date().getFullYear() - new Date(participant.birth_date).getFullYear()} лет
                         </div>
-                        {selectedGame.black_time_remaining && (
-                          <span className="text-sm font-mono">{formatTime(selectedGame.black_time_remaining)}</span>
-                        )}
-                      </div>
+                      )}
+                      {participant.isOnline && (
+                        <div className="flex items-center gap-1 mt-1">
+                          <Icon name="Wifi" size={12} className="text-green-600" />
+                          <span className="text-xs text-green-600 font-medium">В зале</span>
+                        </div>
+                      )}
                     </div>
-
-                    <div className={`p-3 rounded-lg text-center font-medium border ${getStatusColor(selectedGame.status)}`}>
-                      {getStatusText(selectedGame.status)}
-                    </div>
-
-                    {selectedGame.status === 'in_progress' && isMyGame(selectedGame) && (
-                      <Button className="w-full gap-2 bg-green-600 hover:bg-green-700">
-                        <Icon name="Play" size={18} />
-                        Открыть партию
-                      </Button>
-                    )}
-
-                    {selectedGame.status === 'waiting' && isMyGame(selectedGame) && (
-                      <Button className="w-full gap-2" disabled>
-                        <Icon name="Clock" size={18} />
-                        Ожидание начала
-                      </Button>
-                    )}
-
-                    {selectedGame.status === 'completed' && (
-                      <Button className="w-full gap-2" variant="outline">
-                        <Icon name="Eye" size={18} />
-                        Посмотреть партию
-                      </Button>
-                    )}
                   </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <Icon name="MousePointerClick" size={48} className="mx-auto mb-4 text-gray-400" />
-                  <p className="text-gray-600 font-medium mb-2">Выберите партию</p>
-                  <p className="text-sm text-gray-500">Нажмите на партию слева, чтобы увидеть детали</p>
-                </div>
-              )}
-            </Card>
-          </div>
-        </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </Card>
       </div>
     </div>
   );
