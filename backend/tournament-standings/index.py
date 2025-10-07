@@ -71,42 +71,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     for row in rows:
         user_id = row[0]
         
-        games_query = f'''
-            SELECT 
-                result,
-                white_player_id
-            FROM t_p91748136_chess_support_world.games
-            WHERE tournament_id = {tournament_id}
-            AND (white_player_id = {user_id} OR black_player_id = {user_id})
-            AND result IS NOT NULL
-        '''
-        cur.execute(games_query)
-        games = cur.fetchall()
-        
         wins = 0
         draws = 0
         losses = 0
-        
-        for game in games:
-            result = game[0]
-            white_id = game[1]
-            is_white = white_id == user_id
-            
-            if result == '1-0':
-                if is_white:
-                    wins += 1
-                else:
-                    losses += 1
-            elif result == '0-1':
-                if is_white:
-                    losses += 1
-                else:
-                    wins += 1
-            elif result == '1/2-1/2':
-                draws += 1
-        
-        points = wins * 1.0 + draws * 0.5
-        games_played = wins + draws + losses
+        points = 0.0
+        games_played = 0
         
         standings.append({
             'id': user_id,
