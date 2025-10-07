@@ -32,7 +32,7 @@ const TournamentStandings = () => {
   const [user, setUser] = useState<any>(null);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [standings, setStandings] = useState<Standing[]>([]);
-  const [rounds, setRounds] = useState<number>(7);
+  const [rounds, setRounds] = useState<number>(5);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -74,13 +74,18 @@ const TournamentStandings = () => {
   const loadStandings = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`https://functions.poehali.dev/4f56b6da-5abe-49e0-96d2-b5134b60b9fa?tournament_id=${tournamentId}`);
+      const response = await fetch(`https://functions.poehali.dev/4f56b6da-5abe-49e0-96d2-b5134b60b9fa?tournament_id=${tournamentId}`, {
+        cache: 'no-cache'
+      });
       const data = await response.json();
+      
+      console.log('API Response:', data);
       
       if (data.standings) {
         setStandings(data.standings);
       }
-      if (data.rounds) {
+      if (data.rounds !== undefined) {
+        console.log('Setting rounds to:', data.rounds);
         setRounds(data.rounds);
       }
     } catch (error) {
@@ -156,9 +161,9 @@ const TournamentStandings = () => {
                     <th className="text-left p-4 font-bold text-gray-700">#</th>
                     <th className="text-left p-4 font-bold text-gray-700">Участник</th>
                     <th className="text-center p-4 font-bold text-gray-700">Очки</th>
-                    {Array.from({ length: rounds }, (_, i) => i + 1).map((round) => (
-                      <th key={round} className="text-center p-3 font-bold text-gray-700 text-sm">
-                        {round}
+                    {Array.from({ length: Number(rounds) || 0 }, (_, i) => i + 1).map((round) => (
+                      <th key={round} className="text-center p-3 font-bold text-gray-700 text-sm bg-blue-50">
+                        Тур {round}
                       </th>
                     ))}
                     <th className="text-center p-4 font-bold text-gray-700">Партий</th>
@@ -202,8 +207,8 @@ const TournamentStandings = () => {
                           {player.points}
                         </div>
                       </td>
-                      {Array.from({ length: rounds }, (_, i) => i + 1).map((round) => (
-                        <td key={round} className="p-2 text-center">
+                      {Array.from({ length: Number(rounds) || 0 }, (_, i) => i + 1).map((round) => (
+                        <td key={round} className="p-2 text-center bg-blue-50">
                           <span className="text-sm font-medium text-gray-600">
                             {player.round_results?.[round] || '-'}
                           </span>
