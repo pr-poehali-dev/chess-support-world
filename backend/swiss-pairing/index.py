@@ -93,7 +93,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Not enough players'})
         }
     
-    games_query = f'SELECT white_player_id, black_player_id, result, round_number FROM t_p91748136_chess_support_world.games WHERE tournament_id = {tournament_id}'
+    games_query = f'SELECT white_player_id, black_player_id, result, round FROM t_p91748136_chess_support_world.games WHERE tournament_id = {tournament_id}'
     cur.execute(games_query)
     games_data = cur.fetchall()
     
@@ -196,9 +196,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     for white_id, black_id in pairings:
         if black_id is None:
-            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (tournament_id, round_number, white_player_id, black_player_id, result, status) VALUES ({tournament_id}, {next_round}, {white_id}, NULL, \'white_win\', \'completed\')'
+            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (tournament_id, round, white_player_id, black_player_id, result, status) VALUES ({tournament_id}, {next_round}, {white_id}, NULL, \'1-0\', \'completed\')'
         else:
-            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (tournament_id, round_number, white_player_id, black_player_id, status) VALUES ({tournament_id}, {next_round}, {white_id}, {black_id}, \'pending\')'
+            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (tournament_id, round, white_player_id, black_player_id, status) VALUES ({tournament_id}, {next_round}, {white_id}, {black_id}, \'pending\')'
         cur.execute(insert_query)
     
     update_query = f'UPDATE t_p91748136_chess_support_world.tournaments SET current_round = {next_round} WHERE id = {tournament_id}'
