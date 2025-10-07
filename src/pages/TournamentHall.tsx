@@ -113,7 +113,7 @@ const TournamentHall = () => {
 
   const startNextRound = async () => {
     try {
-      const response = await fetch(`https://functions.poehali.dev/6b22bf6a-1a88-465b-bb7a-d1af71dc5940?tournament_id=${tournamentId}`, {
+      const response = await fetch(`https://functions.poehali.dev/8b110e26-a533-4243-85c9-c541e77566da?tournament_id=${tournamentId}`, {
         method: 'POST'
       });
       const data = await response.json();
