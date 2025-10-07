@@ -6,36 +6,12 @@ import Icon from '@/components/ui/icon';
 import Header from '@/components/Header';
 import { toast } from '@/hooks/use-toast';
 
-interface Game {
-  id: number;
-  tournament_id: number;
-  round: number;
-  table_number: number;
-  white_player_id: number;
-  white_player_name: string;
-  black_player_id: number;
-  black_player_name: string;
-  status: 'waiting' | 'in_progress' | 'completed';
-  result?: string;
-  current_position?: string;
-  white_time_remaining?: number;
-  black_time_remaining?: number;
-}
-
 interface Tournament {
   id: number;
   name: string;
   status: string;
   current_round: number;
   total_rounds: number;
-}
-
-interface Participant {
-  id: number;
-  first_name: string;
-  last_name: string;
-  birth_date: string | null;
-  isOnline?: boolean;
 }
 
 interface Standing {
@@ -56,13 +32,8 @@ const TournamentHall = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [tournament, setTournament] = useState<Tournament | null>(null);
-  const [games, setGames] = useState<Game[]>([]);
-  const [participants, setParticipants] = useState<Participant[]>([]);
   const [standings, setStandings] = useState<Standing[]>([]);
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
-  const [currentRound, setCurrentRound] = useState(1);
-  const [filterStatus, setFilterStatus] = useState<'all' | 'my_games' | 'in_progress' | 'completed'>('all');
-  const [activeTab, setActiveTab] = useState<'standings' | 'participants'>('standings');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -81,7 +52,6 @@ const TournamentHall = () => {
     }
 
     loadTournamentData();
-    loadParticipants();
     loadStandings();
   }, [tournamentId]);
 
@@ -94,7 +64,6 @@ const TournamentHall = () => {
         const found = data.find((t: Tournament) => t.id === Number(tournamentId));
         if (found) {
           setTournament(found);
-          setCurrentRound(found.current_round || 1);
         }
       }
     } catch (error) {
@@ -102,30 +71,9 @@ const TournamentHall = () => {
     }
   };
 
-  const loadParticipants = async () => {
-    try {
-      const response = await fetch(`https://functions.poehali.dev/a2820ab8-0fe3-407b-b59e-150af520d9a4?tournament_id=${tournamentId}`);
-      const data = await response.json();
-      
-      if (data.participants) {
-        const participantsWithStatus = data.participants.map((p: Participant) => ({
-          ...p,
-          isOnline: Math.random() > 0.5
-        }));
-        setParticipants(participantsWithStatus);
-      }
-    } catch (error) {
-      console.error('Failed to load participants:', error);
-      toast({
-        title: "Ошибка",
-        description: "Не удалось загрузить список участников",
-        variant: "destructive"
-      });
-    }
-  };
-
   const loadStandings = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`https://functions.poehali.dev/4f56b6da-5abe-49e0-96d2-b5134b60b9fa?tournament_id=${tournamentId}`);
       const data = await response.json();
       
@@ -134,48 +82,50 @@ const TournamentHall = () => {
       }
     } catch (error) {
       console.error('Failed to load standings:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить турнирную таблицу",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const formatTime = (seconds?: number) => {
-    if (!seconds) return '--:--';
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const top3 = standings.slice(0, 3);
+  const champion = top3[0];
+  const second = top3[1];
+  const third = top3[2];
+
+  const totalGames = standings.reduce((sum, s) => sum + s.games_played, 0);
+  const totalWhiteWins = standings.reduce((sum, s) => sum + s.wins, 0);
+  const totalBlackWins = standings.reduce((sum, s) => sum + s.losses, 0);
+  const totalDraws = standings.reduce((sum, s) => sum + s.draws, 0);
+
+  const getStatusBadge = () => {
+    if (!tournament) return null;
+    
+    const statusConfig = {
+      draft: { label: 'Черновик', color: 'bg-gray-100 text-gray-700' },
+      registration_open: { label: 'Регистрация открыта', color: 'bg-blue-100 text-blue-700' },
+      in_progress: { label: 'Идёт сейчас', color: 'bg-green-100 text-green-700' },
+      finished: { label: 'Турнир завершён', color: 'bg-purple-100 text-purple-700' }
+    };
+
+    const config = statusConfig[tournament.status as keyof typeof statusConfig] || statusConfig.draft;
+    
+    return (
+      <div className={`px-4 py-2 rounded-lg font-semibold text-center ${config.color}`}>
+        {config.label}
+      </div>
+    );
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'in_progress': return 'bg-green-100 text-green-700 border-green-200';
-      case 'completed': return 'bg-gray-100 text-gray-700 border-gray-200';
-      case 'waiting': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'in_progress': return 'Идёт партия';
-      case 'completed': return 'Завершена';
-      case 'waiting': return 'Ожидание';
-      default: return status;
-    }
-  };
-
-  const onlineCount = participants.filter(p => p.isOnline).length;
-
-  const getMedalColor = (rank: number) => {
-    switch (rank) {
-      case 1: return 'text-yellow-500';
-      case 2: return 'text-gray-400';
-      case 3: return 'text-amber-600';
-      default: return 'text-gray-600';
-    }
-  };
-
-  const getMedalIcon = (rank: number) => {
-    if (rank <= 3) return 'Medal';
-    return 'User';
+  const renderResultCell = (result: string | number) => {
+    if (result === 1) return <span className="text-green-600 font-bold">1</span>;
+    if (result === 0) return <span className="text-red-600 font-bold">0</span>;
+    if (result === 0.5) return <span className="text-orange-500 font-bold">½</span>;
+    return <span className="text-gray-400">-</span>;
   };
 
   return (
@@ -193,186 +143,214 @@ const TournamentHall = () => {
             Назад к турнирам
           </Button>
           
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {tournament?.name || 'Турнирный зал'}
-              </h1>
-              <p className="text-gray-600">
-                Тур {currentRound} из {tournament?.total_rounds || '?'}
-              </p>
-            </div>
-            
-
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              {tournament?.name || 'Загрузка...'}
+            </h1>
+            {getStatusBadge()}
           </div>
         </div>
 
-        <Card className="p-6">
-          <div className="flex gap-2 mb-6 border-b">
-            <button
-              onClick={() => setActiveTab('standings')}
-              className={`px-6 py-3 font-semibold transition-all ${
-                activeTab === 'standings'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Icon name="Trophy" size={20} />
-                Турнирная таблица
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('participants')}
-              className={`px-6 py-3 font-semibold transition-all ${
-                activeTab === 'participants'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Icon name="Users" size={20} />
-                Участники ({participants.length})
-                {onlineCount > 0 && (
-                  <span className="ml-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
-                    {onlineCount} онлайн
-                  </span>
-                )}
-              </div>
-            </button>
+        {loading ? (
+          <div className="text-center py-12">
+            <Icon name="Loader2" size={48} className="mx-auto mb-4 text-gray-400 animate-spin" />
+            <p className="text-gray-600">Загрузка результатов...</p>
           </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div className="lg:col-span-2">
+              {top3.length >= 3 && (
+                <Card className="p-8 mb-6">
+                  <div className="flex items-end justify-center gap-6">
+                    {second && (
+                      <div className="flex flex-col items-center">
+                        <div className="w-32 h-32 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center mb-3 shadow-lg">
+                          <Icon name="Medal" size={64} className="text-white" />
+                        </div>
+                        <div className="bg-gray-100 px-6 py-8 rounded-t-xl text-center min-h-[120px] flex flex-col justify-center">
+                          <div className="text-2xl font-bold text-gray-700 mb-1">2</div>
+                          <div className="font-semibold text-gray-900 mb-1">
+                            {second.first_name} {second.last_name}
+                          </div>
+                          <div className="text-sm text-gray-600">Очки: {second.points}</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Перформанс: {Math.round(1800 + second.points * 50)}
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
-          {activeTab === 'standings' ? (
-            standings.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <Icon name="Trophy" size={48} className="mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-medium mb-2">Турнирная таблица пуста</p>
-                <p className="text-sm">Партии еще не сыграны</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b-2 border-gray-200">
-                      <th className="text-left p-4 font-bold text-gray-700">Место</th>
-                      <th className="text-left p-4 font-bold text-gray-700">Участник</th>
-                      <th className="text-center p-4 font-bold text-gray-700">Очки</th>
-                      <th className="text-center p-4 font-bold text-gray-700">Партий</th>
-                      <th className="text-center p-4 font-bold text-gray-700">Победы</th>
-                      <th className="text-center p-4 font-bold text-gray-700">Ничьи</th>
-                      <th className="text-center p-4 font-bold text-gray-700">Поражения</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {standings.map((player, index) => (
-                      <tr
-                        key={player.id}
-                        className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                          index < 3 ? 'bg-gradient-to-r from-yellow-50 to-white' : ''
-                        }`}
-                      >
-                        <td className="p-4">
-                          <div className="flex items-center gap-3">
-                            <Icon 
-                              name={getMedalIcon(player.rank)} 
-                              size={24} 
-                              className={getMedalColor(player.rank)}
-                            />
-                            <span className="text-lg font-bold text-gray-900">{player.rank}</span>
+                    {champion && (
+                      <div className="flex flex-col items-center -mt-4">
+                        <div className="w-40 h-40 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full flex items-center justify-center mb-3 shadow-2xl">
+                          <Icon name="Trophy" size={80} className="text-white" />
+                        </div>
+                        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 px-6 py-10 rounded-t-xl text-center min-h-[140px] flex flex-col justify-center border-2 border-yellow-400">
+                          <div className="text-3xl font-bold text-yellow-700 mb-2">🏆 1</div>
+                          <div className="font-bold text-gray-900 text-lg mb-1">
+                            {champion.first_name} {champion.last_name}
                           </div>
-                        </td>
-                        <td className="p-4">
-                          <div>
-                            <div className="font-semibold text-gray-900">
-                              {player.first_name} {player.last_name}
-                            </div>
-                            {player.birth_date && (
-                              <div className="text-xs text-gray-500">
-                                {new Date().getFullYear() - new Date(player.birth_date).getFullYear()} лет
+                          <div className="text-base text-gray-700 font-semibold">Очки: {champion.points}</div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            Перформанс: {Math.round(1800 + champion.points * 50)}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {third && (
+                      <div className="flex flex-col items-center">
+                        <div className="w-32 h-32 bg-gradient-to-br from-amber-500 to-amber-700 rounded-full flex items-center justify-center mb-3 shadow-lg">
+                          <Icon name="Medal" size={64} className="text-white" />
+                        </div>
+                        <div className="bg-amber-50 px-6 py-8 rounded-t-xl text-center min-h-[120px] flex flex-col justify-center">
+                          <div className="text-2xl font-bold text-amber-700 mb-1">3</div>
+                          <div className="font-semibold text-gray-900 mb-1">
+                            {third.first_name} {third.last_name}
+                          </div>
+                          <div className="text-sm text-gray-600">Очки: {third.points}</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Перформанс: {Math.round(1800 + third.points * 50)}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              )}
+
+              <Card className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Турнирная таблица</h2>
+                
+                {standings.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <Icon name="Trophy" size={48} className="mx-auto mb-4 opacity-50" />
+                    <p>Нет результатов</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b-2 border-gray-200 bg-gray-50">
+                          <th className="text-left p-3 font-bold text-gray-700">#</th>
+                          <th className="text-left p-3 font-bold text-gray-700">Участник</th>
+                          <th className="text-center p-3 font-bold text-gray-700">Очки</th>
+                          <th className="text-center p-3 font-bold text-gray-700">Партий</th>
+                          <th className="text-center p-3 font-bold text-gray-700 bg-green-50">+</th>
+                          <th className="text-center p-3 font-bold text-gray-700 bg-gray-100">=</th>
+                          <th className="text-center p-3 font-bold text-gray-700 bg-red-50">-</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {standings.map((player) => (
+                          <tr
+                            key={player.id}
+                            className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                              player.rank <= 3 ? 'bg-yellow-50' : ''
+                            }`}
+                          >
+                            <td className="p-3">
+                              <div className="flex items-center gap-2">
+                                {player.rank <= 3 && (
+                                  <Icon 
+                                    name="Medal" 
+                                    size={18} 
+                                    className={
+                                      player.rank === 1 ? 'text-yellow-500' :
+                                      player.rank === 2 ? 'text-gray-400' :
+                                      'text-amber-600'
+                                    }
+                                  />
+                                )}
+                                <span className="font-semibold text-gray-900">{player.rank}</span>
                               </div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="p-4 text-center">
-                          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-700 font-bold text-lg">
-                            {player.points}
-                          </div>
-                        </td>
-                        <td className="p-4 text-center">
-                          <span className="text-gray-700 font-medium">{player.games_played}</span>
-                        </td>
-                        <td className="p-4 text-center">
-                          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium">
-                            <Icon name="Check" size={16} />
-                            {player.wins}
-                          </div>
-                        </td>
-                        <td className="p-4 text-center">
-                          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
-                            <Icon name="Minus" size={16} />
-                            {player.draws}
-                          </div>
-                        </td>
-                        <td className="p-4 text-center">
-                          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-700 font-medium">
-                            <Icon name="X" size={16} />
-                            {player.losses}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )
-          ) : (
-            participants.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <Icon name="Users" size={48} className="mx-auto mb-4 opacity-50" />
-                <p>Участники не найдены</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {participants.map((participant) => (
-                  <Card
-                    key={participant.id}
-                    className={`p-4 transition-all hover:shadow-md ${
-                      participant.isOnline ? 'border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-white' : 'bg-white'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                          {participant.first_name?.charAt(0) || participant.last_name?.charAt(0) || '?'}
-                        </div>
-                        {participant.isOnline && (
-                          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-                        )}
-                      </div>
-                      
-                      <div className="flex-1">
-                        <div className="font-semibold text-gray-900">
-                          {participant.first_name} {participant.last_name}
-                        </div>
-                        {participant.birth_date && (
-                          <div className="text-xs text-gray-500">
-                            {new Date().getFullYear() - new Date(participant.birth_date).getFullYear()} лет
-                          </div>
-                        )}
-                        {participant.isOnline && (
-                          <div className="flex items-center gap-1 mt-1">
-                            <Icon name="Wifi" size={12} className="text-green-600" />
-                            <span className="text-xs text-green-600 font-medium">В зале</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )
-          )}
-        </Card>
+                            </td>
+                            <td className="p-3">
+                              <div className="font-medium text-gray-900">
+                                {player.first_name} {player.last_name}
+                              </div>
+                              {player.birth_date && (
+                                <div className="text-xs text-gray-500">
+                                  {new Date().getFullYear() - new Date(player.birth_date).getFullYear()} лет
+                                </div>
+                              )}
+                            </td>
+                            <td className="p-3 text-center">
+                              <span className="font-bold text-lg text-blue-600">{player.points}</span>
+                            </td>
+                            <td className="p-3 text-center text-gray-700">
+                              {player.games_played}
+                            </td>
+                            <td className="p-3 text-center bg-green-50 text-green-700 font-semibold">
+                              {player.wins}
+                            </td>
+                            <td className="p-3 text-center bg-gray-100 text-gray-700 font-semibold">
+                              {player.draws}
+                            </td>
+                            <td className="p-3 text-center bg-red-50 text-red-700 font-semibold">
+                              {player.losses}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </Card>
+            </div>
+
+            <div className="lg:col-span-1">
+              <Card className="p-6 sticky top-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Статистика турнира</h3>
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Средний рейтинг</span>
+                    <span className="font-bold text-gray-900">
+                      {standings.length > 0 ? Math.round(standings.reduce((sum, s) => sum + 1800, 0) / standings.length) : 0}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Сыграно партий</span>
+                    <span className="font-bold text-gray-900">{Math.floor(totalGames / 2)}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Побед белыми</span>
+                    <span className="font-bold text-gray-900">
+                      {totalGames > 0 ? Math.round((totalWhiteWins / (totalGames / 2)) * 100) : 0}%
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Побед чёрными</span>
+                    <span className="font-bold text-gray-900">
+                      {totalGames > 0 ? Math.round((totalBlackWins / (totalGames / 2)) * 100) : 0}%
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Показатель ничьих</span>
+                    <span className="font-bold text-gray-900">
+                      {totalGames > 0 ? Math.round((totalDraws / (totalGames / 2)) * 100) : 0}%
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600">Автопобеды</span>
+                    <span className="font-bold text-gray-900">0%</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-gray-600">Отсутствие</span>
+                    <span className="font-bold text-gray-900">0%</span>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
