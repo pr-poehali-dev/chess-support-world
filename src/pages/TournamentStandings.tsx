@@ -150,6 +150,9 @@ const TournamentStandings = () => {
         </div>
 
         <Card className="p-6">
+          <div className="mb-4 p-4 bg-yellow-100 text-sm">
+            DEBUG: loading={loading ? 'true' : 'false'}, standings.length={standings.length}, rounds={rounds}
+          </div>
           {loading ? (
             <div className="text-center py-12">
               <Icon name="Loader2" size={48} className="mx-auto mb-4 text-gray-400 animate-spin" />
