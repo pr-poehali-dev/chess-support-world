@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "Missing tournament_id",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Start next round",
+      "method": "POST",
+      "path": "/?tournament_id=2",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "round": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

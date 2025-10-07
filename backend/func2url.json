@@ -1,4 +1,5 @@
 {
+  "start-next-round": "https://functions.poehali.dev/6b22bf6a-1a88-465b-bb7a-d1af71dc5940",
   "swiss-pairing": "https://functions.poehali.dev/8b110e26-a533-4243-85c9-c541e77566da",
   "tournament-standings": "https://functions.poehali.dev/4f56b6da-5abe-49e0-96d2-b5134b60b9fa",
   "manage-tournament-participants": "https://functions.poehali.dev/28ea3173-5546-49f4-b7e1-611bcdd14d7b",
