@@ -37,6 +37,8 @@ const TournamentHall = () => {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [standings, setStandings] = useState<Standing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [games, setGames] = useState<any[]>([]);
+  const [selectedGame, setSelectedGame] = useState<any>(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -56,6 +58,7 @@ const TournamentHall = () => {
 
     loadTournamentData();
     loadStandings();
+    loadGames();
   }, [tournamentId]);
 
   const loadTournamentData = async () => {
@@ -93,6 +96,18 @@ const TournamentHall = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadGames = async () => {
+    try {
+      const response = await fetch(`https://functions.poehali.dev/d9c4d570-8eec-4b95-925d-c1f55ca52c7d?tournament_id=${tournamentId}`);
+      const data = await response.json();
+      if (data.games) {
+        setGames(data.games);
+      }
+    } catch (error) {
+      console.error('Failed to load games:', error);
     }
   };
 
@@ -222,6 +237,100 @@ const TournamentHall = () => {
                   </div>
                 </Card>
               )}
+
+              <Card className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <Icon name="Eye" size={24} />
+                  Просмотр партий
+                </h2>
+                
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Список партий</h3>
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {games.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          <Icon name="Gamepad2" size={40} className="mx-auto mb-2 opacity-50" />
+                          <p>Партии еще не сыграны</p>
+                        </div>
+                      ) : (
+                        games.map((game: any) => (
+                          <button
+                            key={game.id}
+                            onClick={() => setSelectedGame(game)}
+                            className={`w-full text-left p-3 rounded-lg border transition-all ${
+                              selectedGame?.id === game.id
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <div className="font-medium text-sm text-gray-900">
+                                  Тур {game.round_number}
+                                </div>
+                                <div className="text-xs text-gray-600 mt-1">
+                                  {game.white_player_name || 'Игрок 1'} vs {game.black_player_name || 'Игрок 2'}
+                                </div>
+                              </div>
+                              {game.result && (
+                                <div className="text-xs font-bold px-2 py-1 rounded bg-gray-100">
+                                  {game.result === 'white_win' ? '1-0' : game.result === 'black_win' ? '0-1' : '½-½'}
+                                </div>
+                              )}
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Детали партии</h3>
+                    {selectedGame ? (
+                      <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                        <div className="mb-4">
+                          <div className="text-lg font-bold text-gray-900 mb-2">
+                            Тур {selectedGame.round_number}
+                          </div>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Белые:</span>
+                              <span className="font-medium">{selectedGame.white_player_name || 'Игрок 1'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Черные:</span>
+                              <span className="font-medium">{selectedGame.black_player_name || 'Игрок 2'}</span>
+                            </div>
+                            {selectedGame.result && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Результат:</span>
+                                <span className="font-bold">
+                                  {selectedGame.result === 'white_win' ? 'Победа белых' : 
+                                   selectedGame.result === 'black_win' ? 'Победа черных' : 'Ничья'}
+                                </span>
+                              </div>
+                            )}
+                            {selectedGame.pgn && (
+                              <div className="mt-4">
+                                <div className="text-gray-600 mb-1">PGN:</div>
+                                <pre className="text-xs bg-gray-50 p-2 rounded overflow-x-auto">
+                                  {selectedGame.pgn}
+                                </pre>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="border border-gray-200 rounded-lg p-8 bg-gray-50 text-center text-gray-500">
+                        <Icon name="MousePointerClick" size={40} className="mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">Выберите партию для просмотра</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Card>
 
               <Card className="p-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Турнирная таблица</h2>
