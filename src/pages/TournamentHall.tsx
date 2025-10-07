@@ -236,11 +236,9 @@ const TournamentHall = () => {
                           <th className="text-left p-3 font-bold text-gray-700">#</th>
                           <th className="text-left p-3 font-bold text-gray-700">Участник</th>
                           <th className="text-center p-3 font-bold text-gray-700">Очки</th>
-                          <th className="text-center p-2 font-bold text-gray-700 text-xs bg-blue-50">1</th>
-                          <th className="text-center p-2 font-bold text-gray-700 text-xs bg-blue-50">2</th>
-                          <th className="text-center p-2 font-bold text-gray-700 text-xs bg-blue-50">3</th>
-                          <th className="text-center p-2 font-bold text-gray-700 text-xs bg-blue-50">4</th>
-                          <th className="text-center p-2 font-bold text-gray-700 text-xs bg-blue-50">5</th>
+                          {tournament && Array.from({ length: tournament.total_rounds }, (_, i) => i + 1).map((round) => (
+                            <th key={round} className="text-center p-2 font-bold text-gray-700 text-xs bg-blue-50">{round}</th>
+                          ))}
                           <th className="text-center p-3 font-bold text-gray-700">Партий</th>
                           <th className="text-center p-3 font-bold text-gray-700 bg-green-50">+</th>
                           <th className="text-center p-3 font-bold text-gray-700 bg-gray-100">=</th>
@@ -284,21 +282,11 @@ const TournamentHall = () => {
                             <td className="p-3 text-center">
                               <span className="font-bold text-lg text-blue-600">{player.points}</span>
                             </td>
-                            <td className="p-2 text-center bg-blue-50">
-                              <span className="text-xs text-gray-600">{player.round_results?.[1] || '-'}</span>
-                            </td>
-                            <td className="p-2 text-center bg-blue-50">
-                              <span className="text-xs text-gray-600">{player.round_results?.[2] || '-'}</span>
-                            </td>
-                            <td className="p-2 text-center bg-blue-50">
-                              <span className="text-xs text-gray-600">{player.round_results?.[3] || '-'}</span>
-                            </td>
-                            <td className="p-2 text-center bg-blue-50">
-                              <span className="text-xs text-gray-600">{player.round_results?.[4] || '-'}</span>
-                            </td>
-                            <td className="p-2 text-center bg-blue-50">
-                              <span className="text-xs text-gray-600">{player.round_results?.[5] || '-'}</span>
-                            </td>
+                            {tournament && Array.from({ length: tournament.total_rounds }, (_, i) => i + 1).map((round) => (
+                              <td key={round} className="p-2 text-center bg-blue-50">
+                                <span className="text-xs text-gray-600">{player.round_results?.[round] || '-'}</span>
+                              </td>
+                            ))}
                             <td className="p-3 text-center text-gray-700">
                               {player.games_played}
                             </td>
