@@ -101,7 +101,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             # Проверка существования турнира и возможности регистрации
             cur.execute('''
-                SELECT status, max_participants 
+                SELECT status, max_participants, entry_fee 
                 FROM tournaments 
                 WHERE id = %s
             ''', (tournament_id,))
@@ -123,6 +123,35 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            entry_fee = float(tournament[2]) if tournament[2] else 0
+            
+            # Проверка баланса пользователя
+            if entry_fee > 0:
+                cur.execute('SELECT balance FROM users WHERE id = %s', (user_id,))
+                user_balance_result = cur.fetchone()
+                
+                if not user_balance_result:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'User not found'}),
+                        'isBase64Encoded': False
+                    }
+                
+                user_balance = float(user_balance_result[0]) if user_balance_result[0] else 0
+                
+                if user_balance < entry_fee:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({
+                            'error': 'Insufficient balance',
+                            'required': entry_fee,
+                            'current': user_balance
+                        }),
+                        'isBase64Encoded': False
+                    }
+            
             # Проверка лимита участников
             if tournament[1]:
                 cur.execute('''
@@ -139,7 +168,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'isBase64Encoded': False
                     }
             
-            # Регистрация (или обновление статуса если уже был зарегистрирован)
+            # Проверка, не зарегистрирован ли уже
+            cur.execute('''
+                SELECT status FROM tournament_registrations 
+                WHERE tournament_id = %s AND player_id = %s
+            ''', (tournament_id, user_id))
+            
+            existing_reg = cur.fetchone()
+            
+            if existing_reg and existing_reg[0] == 'registered':
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Already registered'}),
+                    'isBase64Encoded': False
+                }
+            
+            # Списание баланса если есть взнос
+            if entry_fee > 0:
+                cur.execute('''
+                    UPDATE users 
+                    SET balance = balance - %s 
+                    WHERE id = %s
+                ''', (entry_fee, user_id))
+            
+            # Регистрация (или обновление статуса если был отменен)
             cur.execute('''
                 INSERT INTO tournament_registrations (tournament_id, player_id, status)
                 VALUES (%s, %s, 'registered')
@@ -157,7 +210,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({
                     'success': True,
                     'registration_id': result[0],
-                    'registered_at': result[1].isoformat() if result[1] else None
+                    'registered_at': result[1].isoformat() if result[1] else None,
+                    'fee_paid': entry_fee
                 }),
                 'isBase64Encoded': False
             }
@@ -175,6 +229,35 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            # Получаем данные о турнире и текущей регистрации
+            cur.execute('''
+                SELECT t.entry_fee, tr.status
+                FROM tournaments t
+                JOIN tournament_registrations tr ON tr.tournament_id = t.id
+                WHERE t.id = %s AND tr.player_id = %s
+            ''', (tournament_id, user_id))
+            
+            reg_data = cur.fetchone()
+            
+            if not reg_data:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Registration not found'}),
+                    'isBase64Encoded': False
+                }
+            
+            entry_fee = float(reg_data[0]) if reg_data[0] else 0
+            current_status = reg_data[1]
+            
+            # Возврат средств если была оплата и статус registered
+            if entry_fee > 0 and current_status == 'registered':
+                cur.execute('''
+                    UPDATE users 
+                    SET balance = balance + %s 
+                    WHERE id = %s
+                ''', (entry_fee, user_id))
+            
             # Мягкое удаление - меняем статус на cancelled
             cur.execute('''
                 UPDATE tournament_registrations 
@@ -186,20 +269,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             result = cur.fetchone()
             conn.commit()
             
-            if result:
-                return {
-                    'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'success': True, 'message': 'Registration cancelled'}),
-                    'isBase64Encoded': False
-                }
-            else:
-                return {
-                    'statusCode': 404,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Registration not found'}),
-                    'isBase64Encoded': False
-                }
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True, 
+                    'message': 'Registration cancelled',
+                    'refund': entry_fee if current_status == 'registered' else 0
+                }),
+                'isBase64Encoded': False
+            }
         
         else:
             return {

@@ -112,6 +112,30 @@ const Index = () => {
     }
   }, [location.search]);
 
+  const fetchUser = async () => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const currentUser = JSON.parse(storedUser);
+      try {
+        const response = await fetch(
+          `https://functions.poehali.dev/4febeae0-8d66-41f4-ab59-c8e4f0ab0adc`,
+          {
+            headers: {
+              'X-User-Id': currentUser.id.toString()
+            }
+          }
+        );
+        if (response.ok) {
+          const userData = await response.json();
+          localStorage.setItem('user', JSON.stringify(userData));
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+      }
+    }
+  };
+
   const checkRegistrationStatus = async (tournamentId: number, userId: number) => {
     try {
       const response = await fetch(
@@ -156,15 +180,26 @@ const Index = () => {
           }
         );
 
+        const cancelData = await response.json();
+        
         if (response.ok) {
           setRegistrationStatuses(prev => ({
             ...prev,
             [tournamentId]: false
           }));
+          
+          const refundMsg = cancelData.refund > 0 
+            ? ` Вам возвращен взнос ${cancelData.refund} ₽`
+            : '';
+          
           toast({
             title: "Участие отменено",
-            description: "Вы успешно отменили регистрацию на турнир"
+            description: "Вы успешно отменили регистрацию на турнир" + refundMsg
           });
+          
+          if (cancelData.refund > 0) {
+            fetchUser();
+          }
         }
       } else {
         const response = await fetch(
@@ -186,16 +221,44 @@ const Index = () => {
             ...prev,
             [tournamentId]: true
           }));
+          
+          const feeMsg = data.fee_paid > 0 
+            ? ` Списан взнос ${data.fee_paid} ₽`
+            : '';
+          
           toast({
             title: "Успешно!",
-            description: "Вы зарегистрированы на турнир"
+            description: "Вы зарегистрированы на турнир" + feeMsg
           });
+          
+          if (data.fee_paid > 0) {
+            fetchUser();
+          }
         } else {
-          toast({
-            title: "Ошибка",
-            description: data.error || "Не удалось зарегистрироваться",
-            variant: "destructive"
-          });
+          if (data.error === 'Insufficient balance') {
+            const errorMsg = `Недостаточно средств. Необходимо ${data.required} ₽, на балансе ${data.current} ₽`;
+            
+            toast({
+              title: "Ошибка",
+              description: errorMsg,
+              variant: "destructive",
+              action: (
+                <Button 
+                  onClick={() => setTopUpModalOpen(true)}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Пополнить
+                </Button>
+              )
+            });
+          } else {
+            toast({
+              title: "Ошибка",
+              description: data.error || "Не удалось зарегистрироваться",
+              variant: "destructive"
+            });
+          }
         }
       }
     } catch (error) {
