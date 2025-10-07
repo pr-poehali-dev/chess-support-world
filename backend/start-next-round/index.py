@@ -38,6 +38,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     dsn = os.environ.get('DATABASE_URL')
+    if not dsn:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'DATABASE_URL not configured', 'env_keys': list(os.environ.keys())}),
+            'isBase64Encoded': False
+        }
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
     
@@ -45,7 +52,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Get tournament info
         cur.execute(f"""
             SELECT current_round, rounds 
-            FROM tournaments 
+            FROM t_p91748136_chess_support_world.tournaments 
             WHERE id = {tournament_id}
         """)
         tournament_data = cur.fetchone()
@@ -87,8 +94,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         ELSE 0
                     END
                 ), 0) as white_count
-            FROM tournament_registrations tr
-            LEFT JOIN games g ON (g.white_player_id = tr.player_id OR g.black_player_id = tr.player_id)
+            FROM t_p91748136_chess_support_world.tournament_registrations tr
+            LEFT JOIN t_p91748136_chess_support_world.games g ON (g.white_player_id = tr.player_id OR g.black_player_id = tr.player_id)
                 AND g.tournament_id = {tournament_id}
             WHERE tr.tournament_id = {tournament_id} AND tr.status = 'registered'
             GROUP BY tr.player_id
@@ -108,7 +115,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Get previous pairings
         cur.execute(f"""
             SELECT white_player_id, black_player_id
-            FROM games
+            FROM t_p91748136_chess_support_world.games
             WHERE tournament_id = {tournament_id}
         """)
         previous_pairings = set((w, b) for w, b in cur.fetchall())
@@ -186,13 +193,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Insert games
         for white_id, black_id in pairings:
             cur.execute(f"""
-                INSERT INTO games (tournament_id, round, white_player_id, black_player_id, status, result)
+                INSERT INTO t_p91748136_chess_support_world.games (tournament_id, round, white_player_id, black_player_id, status, result)
                 VALUES ({tournament_id}, {next_round}, {white_id}, {black_id}, 'pending', NULL)
             """)
         
         # Update tournament current_round
         cur.execute(f"""
-            UPDATE tournaments 
+            UPDATE t_p91748136_chess_support_world.tournaments 
             SET current_round = {next_round}
             WHERE id = {tournament_id}
         """)
