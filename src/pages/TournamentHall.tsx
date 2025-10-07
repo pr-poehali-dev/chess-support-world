@@ -160,7 +160,11 @@ const TournamentHall = () => {
               </p>
             </div>
             
-            <Button variant="outline" className="gap-2">
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => navigate(`/tournament/${tournamentId}/standings`)}
+            >
               <Icon name="Trophy" size={18} />
               Турнирная таблица
             </Button>

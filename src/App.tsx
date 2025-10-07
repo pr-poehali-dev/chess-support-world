@@ -10,6 +10,7 @@ import Admin from "./pages/Admin";
 import AdminUsers from "./pages/AdminUsers";
 import OnlineChess from "./pages/OnlineChess";
 import TournamentHall from "./pages/TournamentHall";
+import TournamentStandings from "./pages/TournamentStandings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/online-chess" element={<OnlineChess />} />
           <Route path="/online-chess/:gameId" element={<OnlineChess />} />
           <Route path="/tournament/:tournamentId" element={<TournamentHall />} />
+          <Route path="/tournament/:tournamentId/standings" element={<TournamentStandings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

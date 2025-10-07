@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Get tournament standings",
+      "method": "GET",
+      "path": "/?tournament_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "standings": "array",
+        "total": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing tournament_id parameter",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "tournament_id is required"
+      }
+    }
+  ]
+}
