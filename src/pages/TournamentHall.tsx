@@ -64,6 +64,7 @@ const TournamentHall = () => {
       if (Array.isArray(data)) {
         const found = data.find((t: Tournament) => t.id === Number(tournamentId));
         if (found) {
+          console.log('🏆 Tournament loaded:', found.name, 'Rounds:', found.total_rounds);
           setTournament(found);
         }
       }
@@ -236,7 +237,7 @@ const TournamentHall = () => {
                           <th className="text-left p-3 font-bold text-gray-700">#</th>
                           <th className="text-left p-3 font-bold text-gray-700">Участник</th>
                           <th className="text-center p-3 font-bold text-gray-700">Очки</th>
-                          {tournament && Array.from({ length: tournament.total_rounds }, (_, i) => i + 1).map((round) => (
+                          {tournament?.total_rounds && Array.from({ length: tournament.total_rounds }, (_, i) => i + 1).map((round) => (
                             <th key={round} className="text-center p-2 font-bold text-gray-700 text-xs bg-blue-50">{round}</th>
                           ))}
                           <th className="text-center p-3 font-bold text-gray-700">Партий</th>
@@ -282,7 +283,7 @@ const TournamentHall = () => {
                             <td className="p-3 text-center">
                               <span className="font-bold text-lg text-blue-600">{player.points}</span>
                             </td>
-                            {tournament && Array.from({ length: tournament.total_rounds }, (_, i) => i + 1).map((round) => (
+                            {tournament?.total_rounds && Array.from({ length: tournament.total_rounds }, (_, i) => i + 1).map((round) => (
                               <td key={round} className="p-2 text-center bg-blue-50">
                                 <span className="text-xs text-gray-600">{player.round_results?.[round] || '-'}</span>
                               </td>
