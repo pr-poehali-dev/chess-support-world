@@ -72,27 +72,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Get participants with their stats
         cur.execute(f"""
             SELECT 
-                tp.user_id,
+                tr.player_id,
                 COALESCE(SUM(
                     CASE 
-                        WHEN g.result = '1-0' AND g.white_player_id = tp.user_id THEN 1
-                        WHEN g.result = '0-1' AND g.black_player_id = tp.user_id THEN 1
+                        WHEN g.result = '1-0' AND g.white_player_id = tr.player_id THEN 1
+                        WHEN g.result = '0-1' AND g.black_player_id = tr.player_id THEN 1
                         WHEN g.result = '1/2-1/2' THEN 0.5
                         ELSE 0
                     END
                 ), 0) as points,
                 COALESCE(SUM(
                     CASE 
-                        WHEN g.white_player_id = tp.user_id THEN 1
+                        WHEN g.white_player_id = tr.player_id THEN 1
                         ELSE 0
                     END
                 ), 0) as white_count
-            FROM tournament_participants tp
-            LEFT JOIN games g ON (g.white_player_id = tp.user_id OR g.black_player_id = tp.user_id)
+            FROM tournament_registrations tr
+            LEFT JOIN games g ON (g.white_player_id = tr.player_id OR g.black_player_id = tr.player_id)
                 AND g.tournament_id = {tournament_id}
-            WHERE tp.tournament_id = {tournament_id}
-            GROUP BY tp.user_id
-            ORDER BY points DESC, user_id ASC
+            WHERE tr.tournament_id = {tournament_id} AND tr.status = 'registered'
+            GROUP BY tr.player_id
+            ORDER BY points DESC, tr.player_id ASC
         """)
         
         participants = cur.fetchall()
