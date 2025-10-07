@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import TournamentParticipantsManager from '@/components/TournamentParticipantsManager';
 
 interface Tournament {
   id: number;
@@ -72,6 +73,8 @@ const TournamentsManager = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [showParticipants, setShowParticipants] = useState(false);
+  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -454,6 +457,17 @@ const TournamentsManager = () => {
 
                   <div className="flex flex-col gap-2">
                     <Button
+                      onClick={() => {
+                        setSelectedTournament(tournament);
+                        setShowParticipants(true);
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="border-green-400 text-green-700 hover:bg-green-50 hover:border-green-500"
+                    >
+                      <Icon name="Users" size={16} />
+                    </Button>
+                    <Button
                       onClick={() => handleEdit(tournament)}
                       variant="outline"
                       size="sm"
@@ -476,6 +490,15 @@ const TournamentsManager = () => {
           })
         )}
       </div>
+
+      {selectedTournament && (
+        <TournamentParticipantsManager
+          open={showParticipants}
+          onOpenChange={setShowParticipants}
+          tournamentId={selectedTournament.id}
+          tournamentName={selectedTournament.title}
+        />
+      )}
     </div>
   );
 };

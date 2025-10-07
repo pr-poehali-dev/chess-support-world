@@ -1,4 +1,5 @@
 {
+  "manage-tournament-participants": "https://functions.poehali.dev/28ea3173-5546-49f4-b7e1-611bcdd14d7b",
   "tournament-participants": "https://functions.poehali.dev/a2820ab8-0fe3-407b-b59e-150af520d9a4",
   "tournament-registration": "https://functions.poehali.dev/488e552a-8ff0-46f5-9a68-b1f9773a039b",
   "tournaments-manage": "https://functions.poehali.dev/fb78feda-e1cb-4b60-a6c8-7bde514e8308",
