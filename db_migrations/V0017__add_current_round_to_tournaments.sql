@@ -1,0 +1,1 @@
+ALTER TABLE t_p91748136_chess_support_world.tournaments ADD COLUMN IF NOT EXISTS current_round INTEGER DEFAULT 0;

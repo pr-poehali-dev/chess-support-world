@@ -111,6 +111,37 @@ const TournamentHall = () => {
     }
   };
 
+  const startNextRound = async () => {
+    try {
+      const response = await fetch(`https://functions.poehali.dev/8b110e26-a533-4243-85c9-c541e77566da?tournament_id=${tournamentId}`, {
+        method: 'POST'
+      });
+      const data = await response.json();
+      
+      if (response.ok) {
+        toast({
+          title: "Успешно",
+          description: `Тур ${data.round} создан! Пары сформированы.`,
+        });
+        loadGames();
+        loadStandings();
+        loadTournamentData();
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.error || "Не удалось создать тур",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось создать тур",
+        variant: "destructive"
+      });
+    }
+  };
+
   const top3 = standings.slice(0, 3);
   const champion = top3[0];
   const second = top3[1];
@@ -164,9 +195,17 @@ const TournamentHall = () => {
           
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              {tournament?.name || 'Загрузка...'}
+              {tournament?.title || tournament?.name || 'Загрузка...'}
             </h1>
-            {getStatusBadge()}
+            <div className="flex justify-center items-center gap-4">
+              {getStatusBadge()}
+              {tournament?.status === 'in_progress' && user?.role === 'admin' && (
+                <Button onClick={startNextRound} className="gap-2">
+                  <Icon name="Shuffle" size={20} />
+                  Запустить тур {(tournament?.current_round || 0) + 1}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 

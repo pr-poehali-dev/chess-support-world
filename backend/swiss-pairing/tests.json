@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Generate first round pairings",
+      "method": "POST",
+      "path": "/?tournament_id=2",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "round": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Handle OPTIONS request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Require tournament_id",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "tournament_id required"
+      }
+    }
+  ]
+}
