@@ -755,7 +755,7 @@ const Index = () => {
               <Button
                 onClick={() => {
                   setInsufficientBalanceModal({ open: false, required: 0, current: 0 });
-                  setTopUpAmount((insufficientBalanceModal.required - insufficientBalanceModal.current).toFixed(0));
+                  setTopUpAmount((insufficientBalanceModal.required - insufficientBalanceModal.current).toFixed(2));
                   setTopUpModalOpen(true);
                 }}
                 className="flex-1 bg-green-600 hover:bg-green-700 gap-2 py-6 text-lg"
