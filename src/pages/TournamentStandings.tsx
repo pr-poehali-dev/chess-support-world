@@ -169,11 +169,11 @@ const TournamentStandings = () => {
                     <th className="text-left p-4 font-bold text-gray-700">#</th>
                     <th className="text-left p-4 font-bold text-gray-700">Участник</th>
                     <th className="text-center p-4 font-bold text-gray-700">Очки</th>
-                    {Array.from({ length: Number(rounds) || 0 }, (_, i) => i + 1).map((round) => (
-                      <th key={round} className="text-center p-3 font-bold text-gray-700 text-sm bg-blue-50">
-                        Тур {round}
-                      </th>
-                    ))}
+                    <th className="text-center p-3 font-bold text-gray-700 text-sm bg-blue-50">Тур 1</th>
+                    <th className="text-center p-3 font-bold text-gray-700 text-sm bg-blue-50">Тур 2</th>
+                    <th className="text-center p-3 font-bold text-gray-700 text-sm bg-blue-50">Тур 3</th>
+                    <th className="text-center p-3 font-bold text-gray-700 text-sm bg-blue-50">Тур 4</th>
+                    <th className="text-center p-3 font-bold text-gray-700 text-sm bg-blue-50">Тур 5</th>
                     <th className="text-center p-4 font-bold text-gray-700">Партий</th>
                     <th className="text-center p-4 font-bold text-gray-700">+</th>
                     <th className="text-center p-4 font-bold text-gray-700">=</th>
@@ -215,13 +215,31 @@ const TournamentStandings = () => {
                           {player.points}
                         </div>
                       </td>
-                      {Array.from({ length: Number(rounds) || 0 }, (_, i) => i + 1).map((round) => (
-                        <td key={round} className="p-2 text-center bg-blue-50">
-                          <span className="text-sm font-medium text-gray-600">
-                            {player.round_results?.[round] || '-'}
-                          </span>
-                        </td>
-                      ))}
+                      <td className="p-2 text-center bg-blue-50">
+                        <span className="text-sm font-medium text-gray-600">
+                          {player.round_results?.[1] || '-'}
+                        </span>
+                      </td>
+                      <td className="p-2 text-center bg-blue-50">
+                        <span className="text-sm font-medium text-gray-600">
+                          {player.round_results?.[2] || '-'}
+                        </span>
+                      </td>
+                      <td className="p-2 text-center bg-blue-50">
+                        <span className="text-sm font-medium text-gray-600">
+                          {player.round_results?.[3] || '-'}
+                        </span>
+                      </td>
+                      <td className="p-2 text-center bg-blue-50">
+                        <span className="text-sm font-medium text-gray-600">
+                          {player.round_results?.[4] || '-'}
+                        </span>
+                      </td>
+                      <td className="p-2 text-center bg-blue-50">
+                        <span className="text-sm font-medium text-gray-600">
+                          {player.round_results?.[5] || '-'}
+                        </span>
+                      </td>
                       <td className="p-4 text-center">
                         <span className="text-gray-700 font-medium">{player.games_played}</span>
                       </td>
