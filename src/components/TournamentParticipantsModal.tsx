@@ -97,26 +97,38 @@ export default function TournamentParticipantsModal({
             <p>Пока нет участников</p>
           </div>
         ) : (
-          <div className="space-y-1">
-            {participants.map((participant, index) => (
-              <div
-                key={participant.id}
-                className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-400 font-medium text-sm w-6">
-                    {index + 1}.
-                  </span>
-                  <p className="font-medium text-gray-900">
-                    {participant.last_name} {participant.first_name}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1 text-gray-600 text-sm">
-                  <Icon name="Cake" size={14} />
-                  <span>{calculateAge(participant.birth_date)} лет</span>
-                </div>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-2 px-3 text-sm font-semibold text-gray-600 w-12">№</th>
+                  <th className="text-left py-2 px-3 text-sm font-semibold text-gray-600">Фамилия</th>
+                  <th className="text-left py-2 px-3 text-sm font-semibold text-gray-600">Имя</th>
+                  <th className="text-right py-2 px-3 text-sm font-semibold text-gray-600 w-20">Возраст</th>
+                </tr>
+              </thead>
+              <tbody>
+                {participants.map((participant, index) => (
+                  <tr
+                    key={participant.id}
+                    className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="py-2 px-3 text-sm text-gray-400 font-medium">
+                      {index + 1}
+                    </td>
+                    <td className="py-2 px-3 text-sm font-medium text-gray-900">
+                      {participant.last_name}
+                    </td>
+                    <td className="py-2 px-3 text-sm font-medium text-gray-900">
+                      {participant.first_name}
+                    </td>
+                    <td className="py-2 px-3 text-sm text-gray-600 text-right">
+                      {calculateAge(participant.birth_date)} лет
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
