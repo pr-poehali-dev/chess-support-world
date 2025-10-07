@@ -1,4 +1,5 @@
 {
+  "tournament-registration": "https://functions.poehali.dev/488e552a-8ff0-46f5-9a68-b1f9773a039b",
   "tournaments-manage": "https://functions.poehali.dev/fb78feda-e1cb-4b60-a6c8-7bde514e8308",
   "fsr-rating": "https://functions.poehali.dev/ac2aa89d-127b-4263-845d-4185d5db2ac2",
   "game-create": "https://functions.poehali.dev/25b46937-6efd-4eb4-893a-2898656e82f3",

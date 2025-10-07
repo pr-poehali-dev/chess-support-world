@@ -25,6 +25,7 @@ const Index = () => {
   const [newsDialogOpen, setNewsDialogOpen] = useState(false);
   const [topUpModalOpen, setTopUpModalOpen] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('');
+  const [registrationStatuses, setRegistrationStatuses] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -55,6 +56,13 @@ const Index = () => {
         if (Array.isArray(data)) {
           const activeTournaments = data.filter(t => t.status !== 'draft');
           setTournaments(activeTournaments);
+          
+          if (storedUser) {
+            const userId = JSON.parse(storedUser).id;
+            activeTournaments.forEach(tournament => {
+              checkRegistrationStatus(tournament.id, userId);
+            });
+          }
         }
       })
       .catch(err => console.error('Failed to load tournaments:', err));
@@ -100,7 +108,100 @@ const Index = () => {
     }
   }, [location.search]);
 
+  const checkRegistrationStatus = async (tournamentId: number, userId: number) => {
+    try {
+      const response = await fetch(
+        `https://functions.poehali.dev/488e552a-8ff0-46f5-9a68-b1f9773a039b?tournament_id=${tournamentId}`,
+        {
+          headers: {
+            'X-User-Id': userId.toString()
+          }
+        }
+      );
+      const data = await response.json();
+      setRegistrationStatuses(prev => ({
+        ...prev,
+        [tournamentId]: data.is_registered && data.status === 'registered'
+      }));
+    } catch (error) {
+      console.error('Failed to check registration status:', error);
+    }
+  };
 
+  const handleTournamentRegistration = async (tournamentId: number) => {
+    if (!user) {
+      toast({
+        title: "Требуется авторизация",
+        description: "Войдите в систему для регистрации на турнир",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const isRegistered = registrationStatuses[tournamentId];
+
+    try {
+      if (isRegistered) {
+        const response = await fetch(
+          `https://functions.poehali.dev/488e552a-8ff0-46f5-9a68-b1f9773a039b?tournament_id=${tournamentId}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'X-User-Id': user.id.toString()
+            }
+          }
+        );
+
+        if (response.ok) {
+          setRegistrationStatuses(prev => ({
+            ...prev,
+            [tournamentId]: false
+          }));
+          toast({
+            title: "Участие отменено",
+            description: "Вы успешно отменили регистрацию на турнир"
+          });
+        }
+      } else {
+        const response = await fetch(
+          'https://functions.poehali.dev/488e552a-8ff0-46f5-9a68-b1f9773a039b',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-User-Id': user.id.toString()
+            },
+            body: JSON.stringify({ tournament_id: tournamentId })
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          setRegistrationStatuses(prev => ({
+            ...prev,
+            [tournamentId]: true
+          }));
+          toast({
+            title: "Успешно!",
+            description: "Вы зарегистрированы на турнир"
+          });
+        } else {
+          toast({
+            title: "Ошибка",
+            description: data.error || "Не удалось зарегистрироваться",
+            variant: "destructive"
+          });
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Произошла ошибка при регистрации",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -343,9 +444,16 @@ const Index = () => {
 
                         {tournament.status === 'registration_open' && (
                           <div>
-                            <Button className="bg-yellow-500 hover:bg-yellow-600 text-white gap-2">
-                              <Icon name="UserPlus" size={18} />
-                              Записаться
+                            <Button 
+                              onClick={() => handleTournamentRegistration(tournament.id)}
+                              className={`gap-2 ${
+                                registrationStatuses[tournament.id]
+                                  ? 'bg-red-500 hover:bg-red-600'
+                                  : 'bg-yellow-500 hover:bg-yellow-600'
+                              } text-white`}
+                            >
+                              <Icon name={registrationStatuses[tournament.id] ? "UserX" : "UserPlus"} size={18} />
+                              {registrationStatuses[tournament.id] ? 'Отменить участие' : 'Записаться'}
                             </Button>
                           </div>
                         )}
