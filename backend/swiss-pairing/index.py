@@ -1,6 +1,7 @@
 import json
 import os
 import psycopg2
+import uuid
 from typing import Dict, Any, List, Tuple
 from dataclasses import dataclass
 from collections import defaultdict
@@ -196,11 +197,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             pairings.append((unpaired[0].id, None))
     
     for white_id, black_id in pairings:
+        game_id = str(uuid.uuid4())
         if black_id is None:
-            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (tournament_id, round_number, white_player_id, result, status, fen, pgn, current_turn) VALUES ({tournament_id}, {next_round}, {white_id}, \'1-0\', \'completed\', \'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\', \'\', \'w\')'
+            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (id, tournament_id, round_number, white_player_id, result, status, fen, pgn, current_turn) VALUES (\'{game_id}\', {tournament_id}, {next_round}, {white_id}, \'1-0\', \'completed\', \'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\', \'\', \'w\')'
         else:
-            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (tournament_id, round_number, white_player_id, black_player_id, status, fen, pgn, current_turn) VALUES ({tournament_id}, {next_round}, {white_id}, {black_id}, \'pending\', \'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\', \'\', \'w\')'
-        print(f'Executing: {insert_query}')
+            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (id, tournament_id, round_number, white_player_id, black_player_id, status, fen, pgn, current_turn) VALUES (\'{game_id}\', {tournament_id}, {next_round}, {white_id}, {black_id}, \'pending\', \'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\', \'\', \'w\')'
         cur.execute(insert_query)
     
     update_query = f'UPDATE t_p91748136_chess_support_world.tournaments SET current_round = {next_round} WHERE id = {tournament_id}'
