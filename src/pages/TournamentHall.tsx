@@ -178,7 +178,7 @@ const TournamentHall = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div className="lg:col-span-2">
-              {top3.length >= 3 && (
+              {tournament?.status === 'finished' && top3.length >= 3 && (
                 <Card className="p-8 mb-6">
                   <div className="flex items-end justify-center gap-6">
                     {second && (
@@ -420,9 +420,10 @@ const TournamentHall = () => {
               </Card>
             </div>
 
-            <div className="lg:col-span-1">
-              <Card className="p-6 sticky top-4">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Статистика турнира</h3>
+            {tournament?.status === 'finished' && (
+              <div className="lg:col-span-1">
+                <Card className="p-6 sticky top-4">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Статистика турнира</h3>
                 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-2 border-b">
@@ -469,7 +470,8 @@ const TournamentHall = () => {
                   </div>
                 </div>
               </Card>
-            </div>
+              </div>
+            )}
           </div>
         )}
       </div>
