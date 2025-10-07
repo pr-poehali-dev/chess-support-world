@@ -22,6 +22,7 @@ interface Tournament {
   max_participants: number | null;
   time_control: string | null;
   tournament_type: 'blitz' | 'rapid' | null;
+  entry_fee: number | null;
   status: 'draft' | 'registration_open' | 'in_progress' | 'finished';
   created_at: string;
   updated_at: string;
@@ -80,6 +81,7 @@ const TournamentsManager = () => {
     max_participants: '',
     time_control: '',
     tournament_type: '' as 'blitz' | 'rapid' | '',
+    entry_fee: '',
     status: 'draft' as Tournament['status']
   });
 
@@ -119,6 +121,7 @@ const TournamentsManager = () => {
     const payload = {
       ...formData,
       max_participants: formData.max_participants ? parseInt(formData.max_participants) : null,
+      entry_fee: formData.entry_fee ? parseFloat(formData.entry_fee) : 0,
       start_date: formData.start_date || null,
       start_time: formData.start_time || null,
       time_control: formData.time_control || null,
@@ -176,6 +179,7 @@ const TournamentsManager = () => {
       max_participants: tournament.max_participants?.toString() || '',
       time_control: tournament.time_control || '',
       tournament_type: tournament.tournament_type || '',
+      entry_fee: tournament.entry_fee?.toString() || '0',
       status: tournament.status
     });
     setShowForm(true);
@@ -216,6 +220,7 @@ const TournamentsManager = () => {
       max_participants: '',
       time_control: '',
       tournament_type: '',
+      entry_fee: '',
       status: 'draft'
     });
     setEditingId(null);
@@ -324,14 +329,28 @@ const TournamentsManager = () => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Макс. участников</label>
-              <Input
-                type="number"
-                value={formData.max_participants}
-                onChange={(e) => setFormData({ ...formData, max_participants: e.target.value })}
-                placeholder="50"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Макс. участников</label>
+                <Input
+                  type="number"
+                  value={formData.max_participants}
+                  onChange={(e) => setFormData({ ...formData, max_participants: e.target.value })}
+                  placeholder="50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Орг. взнос (₽)</label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.entry_fee}
+                  onChange={(e) => setFormData({ ...formData, entry_fee: e.target.value })}
+                  placeholder="0"
+                />
+              </div>
             </div>
 
             <div>
@@ -420,6 +439,13 @@ const TournamentsManager = () => {
                           <div className="flex items-center gap-2 text-gray-700 bg-white/60 px-3 py-2 rounded-lg">
                             <Icon name="Users" size={16} className="text-blue-500" />
                             <span className="font-medium">До {tournament.max_participants} участников</span>
+                          </div>
+                        )}
+
+                        {tournament.entry_fee !== null && tournament.entry_fee > 0 && (
+                          <div className="flex items-center gap-2 text-gray-700 bg-white/60 px-3 py-2 rounded-lg">
+                            <Icon name="Wallet" size={16} className="text-green-500" />
+                            <span className="font-medium">Орг. взнос: {tournament.entry_fee} ₽</span>
                           </div>
                         )}
                       </div>

@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+from decimal import Decimal
 from typing import Dict, Any, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -66,6 +67,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     tournament_dict['start_date'] = tournament_dict['start_date'].isoformat()
                 if tournament_dict.get('start_time'):
                     tournament_dict['start_time'] = str(tournament_dict['start_time'])
+                entry_fee = tournament_dict.get('entry_fee')
+                if entry_fee is not None:
+                    tournament_dict['entry_fee'] = float(entry_fee) if isinstance(entry_fee, (Decimal, str)) else entry_fee
                 if tournament_dict.get('created_at'):
                     tournament_dict['created_at'] = tournament_dict['created_at'].isoformat()
                 if tournament_dict.get('updated_at'):
@@ -89,6 +93,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         t_dict['start_date'] = t_dict['start_date'].isoformat()
                     if t_dict.get('start_time'):
                         t_dict['start_time'] = str(t_dict['start_time'])
+                    entry_fee = t_dict.get('entry_fee')
+                    if entry_fee is not None:
+                        t_dict['entry_fee'] = float(entry_fee) if isinstance(entry_fee, (Decimal, str)) else entry_fee
                     if t_dict.get('created_at'):
                         t_dict['created_at'] = t_dict['created_at'].isoformat()
                     if t_dict.get('updated_at'):
@@ -119,16 +126,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             max_participants = body_data.get('max_participants')
             time_control = body_data.get('time_control')
             tournament_type = body_data.get('tournament_type')
+            entry_fee = body_data.get('entry_fee', 0)
             status = body_data.get('status', 'draft')
             
             cur.execute(
                 """
                 INSERT INTO t_p91748136_chess_support_world.tournaments 
-                (title, description, start_date, start_time, location, max_participants, time_control, tournament_type, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                (title, description, start_date, start_time, location, max_participants, time_control, tournament_type, entry_fee, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
                 """,
-                (title, description, start_date, start_time, location, max_participants, time_control, tournament_type, status)
+                (title, description, start_date, start_time, location, max_participants, time_control, tournament_type, entry_fee, status)
             )
             
             new_tournament = cur.fetchone()
@@ -139,6 +147,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 tournament_dict['start_date'] = tournament_dict['start_date'].isoformat()
             if tournament_dict.get('start_time'):
                 tournament_dict['start_time'] = str(tournament_dict['start_time'])
+            if isinstance(tournament_dict.get('entry_fee'), Decimal):
+                tournament_dict['entry_fee'] = float(tournament_dict['entry_fee'])
             if tournament_dict.get('created_at'):
                 tournament_dict['created_at'] = tournament_dict['created_at'].isoformat()
             if tournament_dict.get('updated_at'):
@@ -188,6 +198,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if 'tournament_type' in body_data:
                 update_fields.append('tournament_type = %s')
                 params.append(body_data['tournament_type'])
+            if 'entry_fee' in body_data:
+                update_fields.append('entry_fee = %s')
+                params.append(body_data['entry_fee'])
             if 'status' in body_data:
                 update_fields.append('status = %s')
                 params.append(body_data['status'])
@@ -219,6 +232,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 tournament_dict['start_date'] = tournament_dict['start_date'].isoformat()
             if tournament_dict.get('start_time'):
                 tournament_dict['start_time'] = str(tournament_dict['start_time'])
+            if isinstance(tournament_dict.get('entry_fee'), Decimal):
+                tournament_dict['entry_fee'] = float(tournament_dict['entry_fee'])
             if tournament_dict.get('created_at'):
                 tournament_dict['created_at'] = tournament_dict['created_at'].isoformat()
             if tournament_dict.get('updated_at'):

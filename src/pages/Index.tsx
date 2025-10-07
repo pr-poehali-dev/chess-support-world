@@ -327,6 +327,16 @@ const Index = () => {
                                   </div>
                                 </div>
                               )}
+
+                              {tournament.entry_fee !== undefined && tournament.entry_fee > 0 && (
+                                <div className="flex items-center gap-3 bg-gray-50 px-4 py-3 rounded-lg">
+                                  <Icon name="Wallet" size={20} className="text-green-500" />
+                                  <div>
+                                    <div className="text-xs text-gray-500 mb-0.5">Орг. взнос</div>
+                                    <div className="font-semibold text-gray-900">{tournament.entry_fee} ₽</div>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
