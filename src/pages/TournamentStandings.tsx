@@ -81,12 +81,20 @@ const TournamentStandings = () => {
       
       console.log('API Response:', data);
       
+      console.log('🔍 ROUNDS DEBUG:', {
+        roundsFromAPI: data.rounds,
+        type: typeof data.rounds,
+        standingsCount: data.standings?.length
+      });
+      
       if (data.standings) {
         setStandings(data.standings);
       }
       if (data.rounds !== undefined) {
-        console.log('Setting rounds to:', data.rounds);
+        console.log('✅ Setting rounds to:', data.rounds);
         setRounds(data.rounds);
+      } else {
+        console.log('❌ No rounds in response');
       }
     } catch (error) {
       console.error('Failed to load standings:', error);
