@@ -130,7 +130,7 @@ const TournamentStandings = () => {
                 Турнирная таблица
               </h1>
               <p className="text-gray-600">
-                {tournament?.name || 'Загрузка...'}
+                {tournament?.name || 'Загрузка...'} • Туров: {rounds}
               </p>
             </div>
           </div>
@@ -153,18 +153,18 @@ const TournamentStandings = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b-2 border-gray-200">
-                    <th className="text-left p-4 font-bold text-gray-700">Место</th>
+                    <th className="text-left p-4 font-bold text-gray-700">#</th>
                     <th className="text-left p-4 font-bold text-gray-700">Участник</th>
                     <th className="text-center p-4 font-bold text-gray-700">Очки</th>
                     {Array.from({ length: rounds }, (_, i) => i + 1).map((round) => (
-                      <th key={round} className="text-center p-2 font-bold text-gray-700 text-sm">
+                      <th key={round} className="text-center p-3 font-bold text-gray-700 text-sm">
                         {round}
                       </th>
                     ))}
                     <th className="text-center p-4 font-bold text-gray-700">Партий</th>
-                    <th className="text-center p-4 font-bold text-gray-700">Победы</th>
-                    <th className="text-center p-4 font-bold text-gray-700">Ничьи</th>
-                    <th className="text-center p-4 font-bold text-gray-700">Поражения</th>
+                    <th className="text-center p-4 font-bold text-gray-700">+</th>
+                    <th className="text-center p-4 font-bold text-gray-700">=</th>
+                    <th className="text-center p-4 font-bold text-gray-700">-</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -205,7 +205,7 @@ const TournamentStandings = () => {
                       {Array.from({ length: rounds }, (_, i) => i + 1).map((round) => (
                         <td key={round} className="p-2 text-center">
                           <span className="text-sm font-medium text-gray-600">
-                            {player.round_results[round] || '-'}
+                            {player.round_results?.[round] || '-'}
                           </span>
                         </td>
                       ))}
