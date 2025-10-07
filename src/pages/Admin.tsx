@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import Icon from "@/components/ui/icon";
 import { useToast } from "@/hooks/use-toast";
 import NewsManager from "@/components/NewsManager";
+import TournamentsManager from "@/components/TournamentsManager";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showDatabase, setShowDatabase] = useState(false);
   const [showNews, setShowNews] = useState(false);
+  const [showTournaments, setShowTournaments] = useState(false);
   const [dbStats, setDbStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState(false);
 
@@ -124,10 +126,13 @@ const Admin = () => {
             </div>
           </Card>
 
-          <Card className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer">
+          <Card 
+            className="p-6 bg-white/95 border-chess-gold/30 hover:border-chess-gold transition-colors cursor-pointer"
+            onClick={() => setShowTournaments(!showTournaments)}
+          >
             <div className="flex items-start gap-4">
               <div className="p-3 bg-chess-gold/20 rounded-lg">
-                <Icon name="Calendar" size={24} className="text-chess-dark" />
+                <Icon name="Trophy" size={24} className="text-chess-dark" />
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-chess-dark mb-2">
@@ -232,6 +237,12 @@ const Admin = () => {
         {showNews && (
           <Card className="mt-6 p-6 bg-white/95 border-chess-gold/30">
             <NewsManager />
+          </Card>
+        )}
+
+        {showTournaments && (
+          <Card className="mt-6 p-6 bg-white/95 border-chess-gold/30">
+            <TournamentsManager />
           </Card>
         )}
 

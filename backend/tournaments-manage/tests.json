@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "Get all tournaments",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": [],
+      "bodyMatcher": "type"
+    },
+    {
+      "name": "Create tournament",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "title": "Тестовый турнир",
+        "description": "Описание турнира",
+        "status": "draft",
+        "location": "Москва",
+        "max_participants": 50
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "title": "string",
+        "status": "string",
+        "id": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
