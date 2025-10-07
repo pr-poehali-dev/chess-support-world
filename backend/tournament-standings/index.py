@@ -59,7 +59,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     cur.execute(tournament_query)
     tournament_data = cur.fetchone()
-    rounds_count = tournament_data[0] if tournament_data else 7
+    rounds_count = tournament_data[0] if tournament_data and tournament_data[0] else 7
     
     query = f'''
         SELECT 
