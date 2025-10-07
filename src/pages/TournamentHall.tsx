@@ -38,6 +38,19 @@ interface Participant {
   isOnline?: boolean;
 }
 
+interface Standing {
+  rank: number;
+  id: number;
+  first_name: string;
+  last_name: string;
+  birth_date: string | null;
+  points: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  games_played: number;
+}
+
 const TournamentHall = () => {
   const { tournamentId } = useParams();
   const navigate = useNavigate();
@@ -45,9 +58,11 @@ const TournamentHall = () => {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [games, setGames] = useState<Game[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [standings, setStandings] = useState<Standing[]>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [currentRound, setCurrentRound] = useState(1);
   const [filterStatus, setFilterStatus] = useState<'all' | 'my_games' | 'in_progress' | 'completed'>('all');
+  const [activeTab, setActiveTab] = useState<'standings' | 'participants'>('standings');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -67,6 +82,7 @@ const TournamentHall = () => {
 
     loadTournamentData();
     loadParticipants();
+    loadStandings();
   }, [tournamentId]);
 
   const loadTournamentData = async () => {
@@ -108,6 +124,19 @@ const TournamentHall = () => {
     }
   };
 
+  const loadStandings = async () => {
+    try {
+      const response = await fetch(`https://functions.poehali.dev/4f56b6da-5abe-49e0-96d2-b5134b60b9fa?tournament_id=${tournamentId}`);
+      const data = await response.json();
+      
+      if (data.standings) {
+        setStandings(data.standings);
+      }
+    } catch (error) {
+      console.error('Failed to load standings:', error);
+    }
+  };
+
   const formatTime = (seconds?: number) => {
     if (!seconds) return '--:--';
     const mins = Math.floor(seconds / 60);
@@ -135,6 +164,20 @@ const TournamentHall = () => {
 
   const onlineCount = participants.filter(p => p.isOnline).length;
 
+  const getMedalColor = (rank: number) => {
+    switch (rank) {
+      case 1: return 'text-yellow-500';
+      case 2: return 'text-gray-400';
+      case 3: return 'text-amber-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const getMedalIcon = (rank: number) => {
+    if (rank <= 3) return 'Medal';
+    return 'User';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Header user={user} />
@@ -160,74 +203,174 @@ const TournamentHall = () => {
               </p>
             </div>
             
-            <Button 
-              variant="outline" 
-              className="gap-2"
-              onClick={() => navigate(`/tournament/${tournamentId}/standings`)}
-            >
-              <Icon name="Trophy" size={18} />
-              Турнирная таблица
-            </Button>
+
           </div>
         </div>
 
         <Card className="p-6">
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">Участники турнира</h2>
+          <div className="flex gap-2 mb-6 border-b">
+            <button
+              onClick={() => setActiveTab('standings')}
+              className={`px-6 py-3 font-semibold transition-all ${
+                activeTab === 'standings'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-gray-600">
-                  <span className="font-semibold text-green-600">{onlineCount}</span> из {participants.length} в зале
-                </span>
+                <Icon name="Trophy" size={20} />
+                Турнирная таблица
               </div>
-            </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('participants')}
+              className={`px-6 py-3 font-semibold transition-all ${
+                activeTab === 'participants'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Icon name="Users" size={20} />
+                Участники ({participants.length})
+                {onlineCount > 0 && (
+                  <span className="ml-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                    {onlineCount} онлайн
+                  </span>
+                )}
+              </div>
+            </button>
           </div>
 
-          {participants.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <Icon name="Users" size={48} className="mx-auto mb-4 opacity-50" />
-              <p>Участники не найдены</p>
-            </div>
+          {activeTab === 'standings' ? (
+            standings.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <Icon name="Trophy" size={48} className="mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium mb-2">Турнирная таблица пуста</p>
+                <p className="text-sm">Партии еще не сыграны</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b-2 border-gray-200">
+                      <th className="text-left p-4 font-bold text-gray-700">Место</th>
+                      <th className="text-left p-4 font-bold text-gray-700">Участник</th>
+                      <th className="text-center p-4 font-bold text-gray-700">Очки</th>
+                      <th className="text-center p-4 font-bold text-gray-700">Партий</th>
+                      <th className="text-center p-4 font-bold text-gray-700">Победы</th>
+                      <th className="text-center p-4 font-bold text-gray-700">Ничьи</th>
+                      <th className="text-center p-4 font-bold text-gray-700">Поражения</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {standings.map((player, index) => (
+                      <tr
+                        key={player.id}
+                        className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                          index < 3 ? 'bg-gradient-to-r from-yellow-50 to-white' : ''
+                        }`}
+                      >
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <Icon 
+                              name={getMedalIcon(player.rank)} 
+                              size={24} 
+                              className={getMedalColor(player.rank)}
+                            />
+                            <span className="text-lg font-bold text-gray-900">{player.rank}</span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <div>
+                            <div className="font-semibold text-gray-900">
+                              {player.first_name} {player.last_name}
+                            </div>
+                            {player.birth_date && (
+                              <div className="text-xs text-gray-500">
+                                {new Date().getFullYear() - new Date(player.birth_date).getFullYear()} лет
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-4 text-center">
+                          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-700 font-bold text-lg">
+                            {player.points}
+                          </div>
+                        </td>
+                        <td className="p-4 text-center">
+                          <span className="text-gray-700 font-medium">{player.games_played}</span>
+                        </td>
+                        <td className="p-4 text-center">
+                          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 font-medium">
+                            <Icon name="Check" size={16} />
+                            {player.wins}
+                          </div>
+                        </td>
+                        <td className="p-4 text-center">
+                          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                            <Icon name="Minus" size={16} />
+                            {player.draws}
+                          </div>
+                        </td>
+                        <td className="p-4 text-center">
+                          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-700 font-medium">
+                            <Icon name="X" size={16} />
+                            {player.losses}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {participants.map((participant) => (
-                <Card
-                  key={participant.id}
-                  className={`p-4 transition-all hover:shadow-md ${
-                    participant.isOnline ? 'border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-white' : 'bg-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                        {participant.first_name?.charAt(0) || participant.last_name?.charAt(0) || '?'}
-                      </div>
-                      {participant.isOnline && (
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-900">
-                        {participant.first_name} {participant.last_name}
-                      </div>
-                      {participant.birth_date && (
-                        <div className="text-xs text-gray-500">
-                          {new Date().getFullYear() - new Date(participant.birth_date).getFullYear()} лет
+            participants.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <Icon name="Users" size={48} className="mx-auto mb-4 opacity-50" />
+                <p>Участники не найдены</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {participants.map((participant) => (
+                  <Card
+                    key={participant.id}
+                    className={`p-4 transition-all hover:shadow-md ${
+                      participant.isOnline ? 'border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-white' : 'bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                          {participant.first_name?.charAt(0) || participant.last_name?.charAt(0) || '?'}
                         </div>
-                      )}
-                      {participant.isOnline && (
-                        <div className="flex items-center gap-1 mt-1">
-                          <Icon name="Wifi" size={12} className="text-green-600" />
-                          <span className="text-xs text-green-600 font-medium">В зале</span>
+                        {participant.isOnline && (
+                          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                        )}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900">
+                          {participant.first_name} {participant.last_name}
                         </div>
-                      )}
+                        {participant.birth_date && (
+                          <div className="text-xs text-gray-500">
+                            {new Date().getFullYear() - new Date(participant.birth_date).getFullYear()} лет
+                          </div>
+                        )}
+                        {participant.isOnline && (
+                          <div className="flex items-center gap-1 mt-1">
+                            <Icon name="Wifi" size={12} className="text-green-600" />
+                            <span className="text-xs text-green-600 font-medium">В зале</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                  </Card>
+                ))}
+              </div>
+            )
           )}
         </Card>
       </div>
