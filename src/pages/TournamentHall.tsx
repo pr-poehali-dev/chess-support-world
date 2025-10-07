@@ -88,7 +88,7 @@ const TournamentHall = () => {
 
   const loadParticipants = async () => {
     try {
-      const response = await fetch(`https://functions.poehali.dev/7ad7f893-7862-4ac9-b4a7-c9c4bf8cd97b?tournament_id=${tournamentId}`);
+      const response = await fetch(`https://functions.poehali.dev/a2820ab8-0fe3-407b-b59e-150af520d9a4?tournament_id=${tournamentId}`);
       const data = await response.json();
       
       if (data.participants) {
