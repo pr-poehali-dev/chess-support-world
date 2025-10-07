@@ -101,7 +101,7 @@ const TournamentHall = () => {
 
   const loadGames = async () => {
     try {
-      const response = await fetch(`https://functions.poehali.dev/d9c4d570-8eec-4b95-925d-c1f55ca52c7d?tournament_id=${tournamentId}`);
+      const response = await fetch(`https://functions.poehali.dev/4fdb7edf-b3b7-43b8-be98-d01e55edeb8e?tournament_id=${tournamentId}`);
       const data = await response.json();
       if (data.games) {
         setGames(data.games);
@@ -306,15 +306,18 @@ const TournamentHall = () => {
                             <div className="flex justify-between items-start">
                               <div>
                                 <div className="font-medium text-sm text-gray-900">
-                                  Тур {game.round_number}
+                                  Тур {game.round || '?'}
                                 </div>
                                 <div className="text-xs text-gray-600 mt-1">
-                                  {game.white_player_name || 'Игрок 1'} vs {game.black_player_name || 'Игрок 2'}
+                                  ID {game.white_player_id || '?'} vs ID {game.black_player_id || '?'}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  Статус: {game.status === 'pending' ? 'Ожидает' : game.status === 'in_progress' ? 'В процессе' : 'Завершена'}
                                 </div>
                               </div>
                               {game.result && (
                                 <div className="text-xs font-bold px-2 py-1 rounded bg-gray-100">
-                                  {game.result === 'white_win' ? '1-0' : game.result === 'black_win' ? '0-1' : '½-½'}
+                                  {game.result}
                                 </div>
                               )}
                             </div>
