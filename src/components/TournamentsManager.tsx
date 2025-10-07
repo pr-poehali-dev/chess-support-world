@@ -24,6 +24,7 @@ interface Tournament {
   time_control: string | null;
   tournament_type: 'blitz' | 'rapid' | null;
   entry_fee: number | null;
+  rounds: number | null;
   status: 'draft' | 'registration_open' | 'in_progress' | 'finished';
   created_at: string;
   updated_at: string;
@@ -85,6 +86,7 @@ const TournamentsManager = () => {
     time_control: '',
     tournament_type: '' as 'blitz' | 'rapid' | '',
     entry_fee: '',
+    rounds: '7',
     status: 'draft' as Tournament['status']
   });
 
@@ -125,6 +127,7 @@ const TournamentsManager = () => {
       ...formData,
       max_participants: formData.max_participants ? parseInt(formData.max_participants) : null,
       entry_fee: formData.entry_fee ? parseFloat(formData.entry_fee) : 0,
+      rounds: formData.rounds ? parseInt(formData.rounds) : 7,
       start_date: formData.start_date || null,
       start_time: formData.start_time || null,
       time_control: formData.time_control || null,
@@ -183,6 +186,7 @@ const TournamentsManager = () => {
       time_control: tournament.time_control || '',
       tournament_type: tournament.tournament_type || '',
       entry_fee: tournament.entry_fee?.toString() || '0',
+      rounds: tournament.rounds?.toString() || '7',
       status: tournament.status
     });
     setShowForm(true);
@@ -224,6 +228,7 @@ const TournamentsManager = () => {
       time_control: '',
       tournament_type: '',
       entry_fee: '',
+      rounds: '7',
       status: 'draft'
     });
     setEditingId(null);
@@ -332,7 +337,7 @@ const TournamentsManager = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Макс. участников</label>
                 <Input
@@ -340,6 +345,18 @@ const TournamentsManager = () => {
                   value={formData.max_participants}
                   onChange={(e) => setFormData({ ...formData, max_participants: e.target.value })}
                   placeholder="50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Количество туров</label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={formData.rounds}
+                  onChange={(e) => setFormData({ ...formData, rounds: e.target.value })}
+                  placeholder="7"
                 />
               </div>
 

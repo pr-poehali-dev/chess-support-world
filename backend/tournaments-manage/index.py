@@ -127,16 +127,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             time_control = body_data.get('time_control')
             tournament_type = body_data.get('tournament_type')
             entry_fee = body_data.get('entry_fee', 0)
+            rounds = body_data.get('rounds', 7)
             status = body_data.get('status', 'draft')
             
             cur.execute(
                 """
                 INSERT INTO t_p91748136_chess_support_world.tournaments 
-                (title, description, start_date, start_time, location, max_participants, time_control, tournament_type, entry_fee, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                (title, description, start_date, start_time, location, max_participants, time_control, tournament_type, entry_fee, rounds, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
                 """,
-                (title, description, start_date, start_time, location, max_participants, time_control, tournament_type, entry_fee, status)
+                (title, description, start_date, start_time, location, max_participants, time_control, tournament_type, entry_fee, rounds, status)
             )
             
             new_tournament = cur.fetchone()
@@ -201,6 +202,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if 'entry_fee' in body_data:
                 update_fields.append('entry_fee = %s')
                 params.append(body_data['entry_fee'])
+            if 'rounds' in body_data:
+                update_fields.append('rounds = %s')
+                params.append(body_data['rounds'])
             if 'status' in body_data:
                 update_fields.append('status = %s')
                 params.append(body_data['status'])
