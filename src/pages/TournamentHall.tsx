@@ -199,7 +199,7 @@ const TournamentHall = () => {
             </h1>
             <div className="flex justify-center items-center gap-4">
               {getStatusBadge()}
-              {tournament?.status === 'in_progress' && user?.role === 'admin' && (
+              {tournament?.status === 'in_progress' && (
                 <Button onClick={startNextRound} className="gap-2">
                   <Icon name="Shuffle" size={20} />
                   Запустить тур {(tournament?.current_round || 0) + 1}
