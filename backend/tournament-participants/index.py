@@ -54,7 +54,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cur = conn.cursor()
     
     query = f'''
-        SELECT u.id, u.first_name, u.last_name, u.birth_date
+        SELECT u.id, u.full_name, u.last_name, u.birth_date
         FROM t_p91748136_chess_support_world.tournament_registrations tr
         JOIN t_p91748136_chess_support_world.users u ON tr.player_id = u.id
         WHERE tr.tournament_id = {tournament_id} AND tr.status = 'registered'
@@ -68,8 +68,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     for row in rows:
         participants.append({
             'id': row[0],
-            'first_name': row[1],
-            'last_name': row[2],
+            'first_name': row[1] or '',
+            'last_name': row[2] or '',
             'birth_date': row[3].isoformat() if row[3] else None
         })
     
