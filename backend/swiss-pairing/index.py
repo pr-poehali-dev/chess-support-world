@@ -80,7 +80,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Tournament finished, all rounds completed'})
         }
     
-    players_query = f'SELECT u.id, u.rating FROM t_p91748136_chess_support_world.tournament_registrations tr JOIN t_p91748136_chess_support_world.users u ON tr.player_id = u.id WHERE tr.tournament_id = {tournament_id} AND tr.status = \'registered\''
+    players_query = f'SELECT player_id FROM t_p91748136_chess_support_world.tournament_registrations WHERE tournament_id = {tournament_id} AND status = \'registered\''
     cur.execute(players_query)
     players_data = cur.fetchall()
     
@@ -93,15 +93,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Not enough players'})
         }
     
-    games_query = f'SELECT white_player_id, black_player_id, result, round FROM t_p91748136_chess_support_world.games WHERE tournament_id = {tournament_id}'
+    games_query = f'SELECT white_player_id, black_player_id, result, round_number FROM t_p91748136_chess_support_world.games WHERE tournament_id = {tournament_id}'
     cur.execute(games_query)
     games_data = cur.fetchall()
     
     player_stats = {}
-    for player_id, rating in players_data:
+    for row in players_data:
+        player_id = row[0]
         player_stats[player_id] = {
             'id': player_id,
-            'rating': rating or 1500,
+            'rating': 1500,
             'points': 0.0,
             'white_count': 0,
             'black_count': 0,
@@ -196,9 +197,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     for white_id, black_id in pairings:
         if black_id is None:
-            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (tournament_id, round, white_player_id, black_player_id, result, status) VALUES ({tournament_id}, {next_round}, {white_id}, NULL, \'1-0\', \'completed\')'
+            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (tournament_id, round_number, white_player_id, result, status, fen, pgn, current_turn) VALUES ({tournament_id}, {next_round}, {white_id}, \'1-0\', \'completed\', \'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\', \'\', \'w\')'
         else:
-            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (tournament_id, round, white_player_id, black_player_id, status) VALUES ({tournament_id}, {next_round}, {white_id}, {black_id}, \'pending\')'
+            insert_query = f'INSERT INTO t_p91748136_chess_support_world.games (tournament_id, round_number, white_player_id, black_player_id, status, fen, pgn, current_turn) VALUES ({tournament_id}, {next_round}, {white_id}, {black_id}, \'pending\', \'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1\', \'\', \'w\')'
+        print(f'Executing: {insert_query}')
         cur.execute(insert_query)
     
     update_query = f'UPDATE t_p91748136_chess_support_world.tournaments SET current_round = {next_round} WHERE id = {tournament_id}'
