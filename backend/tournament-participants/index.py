@@ -55,10 +55,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     query = f'''
         SELECT u.id, u.first_name, u.last_name, u.birth_date
-        FROM tournament_registrations tr
-        JOIN users u ON tr.player_id = u.id
-        WHERE tr.tournament_id = {tournament_id} AND tr.status = 'registered'
-        ORDER BY tr.registered_at ASC
+        FROM t_p91748136_chess_support_world.tournament_registrations tr
+        JOIN t_p91748136_chess_support_world.users u ON tr.user_id = u.id
+        WHERE tr.tournament_id = {tournament_id}
+        ORDER BY tr.created_at ASC
     '''
     
     cur.execute(query)
