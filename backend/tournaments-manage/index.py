@@ -64,8 +64,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 tournament_dict = dict(tournament)
                 if tournament_dict.get('start_date'):
                     tournament_dict['start_date'] = tournament_dict['start_date'].isoformat()
-                if tournament_dict.get('end_date'):
-                    tournament_dict['end_date'] = tournament_dict['end_date'].isoformat()
+                if tournament_dict.get('start_time'):
+                    tournament_dict['start_time'] = str(tournament_dict['start_time'])
                 if tournament_dict.get('created_at'):
                     tournament_dict['created_at'] = tournament_dict['created_at'].isoformat()
                 if tournament_dict.get('updated_at'):
@@ -87,8 +87,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     t_dict = dict(t)
                     if t_dict.get('start_date'):
                         t_dict['start_date'] = t_dict['start_date'].isoformat()
-                    if t_dict.get('end_date'):
-                        t_dict['end_date'] = t_dict['end_date'].isoformat()
+                    if t_dict.get('start_time'):
+                        t_dict['start_time'] = str(t_dict['start_time'])
                     if t_dict.get('created_at'):
                         t_dict['created_at'] = t_dict['created_at'].isoformat()
                     if t_dict.get('updated_at'):
@@ -114,19 +114,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             description = body_data.get('description', '')
             start_date = body_data.get('start_date')
-            end_date = body_data.get('end_date')
+            start_time = body_data.get('start_time')
             location = body_data.get('location', '')
             max_participants = body_data.get('max_participants')
+            time_control = body_data.get('time_control')
+            tournament_type = body_data.get('tournament_type')
             status = body_data.get('status', 'draft')
             
             cur.execute(
                 """
                 INSERT INTO t_p91748136_chess_support_world.tournaments 
-                (title, description, start_date, end_date, location, max_participants, status)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                (title, description, start_date, start_time, location, max_participants, time_control, tournament_type, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
                 """,
-                (title, description, start_date, end_date, location, max_participants, status)
+                (title, description, start_date, start_time, location, max_participants, time_control, tournament_type, status)
             )
             
             new_tournament = cur.fetchone()
@@ -135,8 +137,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             tournament_dict = dict(new_tournament)
             if tournament_dict.get('start_date'):
                 tournament_dict['start_date'] = tournament_dict['start_date'].isoformat()
-            if tournament_dict.get('end_date'):
-                tournament_dict['end_date'] = tournament_dict['end_date'].isoformat()
+            if tournament_dict.get('start_time'):
+                tournament_dict['start_time'] = str(tournament_dict['start_time'])
             if tournament_dict.get('created_at'):
                 tournament_dict['created_at'] = tournament_dict['created_at'].isoformat()
             if tournament_dict.get('updated_at'):
@@ -171,15 +173,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if 'start_date' in body_data:
                 update_fields.append('start_date = %s')
                 params.append(body_data['start_date'])
-            if 'end_date' in body_data:
-                update_fields.append('end_date = %s')
-                params.append(body_data['end_date'])
+            if 'start_time' in body_data:
+                update_fields.append('start_time = %s')
+                params.append(body_data['start_time'])
             if 'location' in body_data:
                 update_fields.append('location = %s')
                 params.append(body_data['location'])
             if 'max_participants' in body_data:
                 update_fields.append('max_participants = %s')
                 params.append(body_data['max_participants'])
+            if 'time_control' in body_data:
+                update_fields.append('time_control = %s')
+                params.append(body_data['time_control'])
+            if 'tournament_type' in body_data:
+                update_fields.append('tournament_type = %s')
+                params.append(body_data['tournament_type'])
             if 'status' in body_data:
                 update_fields.append('status = %s')
                 params.append(body_data['status'])
@@ -209,8 +217,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             tournament_dict = dict(updated_tournament)
             if tournament_dict.get('start_date'):
                 tournament_dict['start_date'] = tournament_dict['start_date'].isoformat()
-            if tournament_dict.get('end_date'):
-                tournament_dict['end_date'] = tournament_dict['end_date'].isoformat()
+            if tournament_dict.get('start_time'):
+                tournament_dict['start_time'] = str(tournament_dict['start_time'])
             if tournament_dict.get('created_at'):
                 tournament_dict['created_at'] = tournament_dict['created_at'].isoformat()
             if tournament_dict.get('updated_at'):

@@ -11,9 +11,11 @@ interface Tournament {
   title: string;
   description: string;
   start_date: string | null;
-  end_date: string | null;
+  start_time: string | null;
   location: string;
   max_participants: number | null;
+  time_control: string | null;
+  tournament_type: 'blitz' | 'rapid' | null;
   status: 'draft' | 'registration_open' | 'in_progress' | 'finished';
   created_at: string;
   updated_at: string;
@@ -67,9 +69,11 @@ const TournamentsManager = () => {
     title: '',
     description: '',
     start_date: '',
-    end_date: '',
+    start_time: '',
     location: '',
     max_participants: '',
+    time_control: '',
+    tournament_type: '' as 'blitz' | 'rapid' | '',
     status: 'draft' as Tournament['status']
   });
 
@@ -110,7 +114,9 @@ const TournamentsManager = () => {
       ...formData,
       max_participants: formData.max_participants ? parseInt(formData.max_participants) : null,
       start_date: formData.start_date || null,
-      end_date: formData.end_date || null
+      start_time: formData.start_time || null,
+      time_control: formData.time_control || null,
+      tournament_type: formData.tournament_type || null
     };
 
     try {
@@ -159,9 +165,11 @@ const TournamentsManager = () => {
       title: tournament.title,
       description: tournament.description || '',
       start_date: tournament.start_date ? tournament.start_date.split('T')[0] : '',
-      end_date: tournament.end_date ? tournament.end_date.split('T')[0] : '',
+      start_time: tournament.start_time || '',
       location: tournament.location || '',
       max_participants: tournament.max_participants?.toString() || '',
+      time_control: tournament.time_control || '',
+      tournament_type: tournament.tournament_type || '',
       status: tournament.status
     });
     setShowForm(true);
@@ -197,9 +205,11 @@ const TournamentsManager = () => {
       title: '',
       description: '',
       start_date: '',
-      end_date: '',
+      start_time: '',
       location: '',
       max_participants: '',
+      time_control: '',
+      tournament_type: '',
       status: 'draft'
     });
     setEditingId(null);
@@ -267,12 +277,42 @@ const TournamentsManager = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Дата окончания</label>
+                <label className="block text-sm font-medium mb-1">Время начала</label>
                 <Input
-                  type="date"
-                  value={formData.end_date}
-                  onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                  type="time"
+                  value={formData.start_time}
+                  onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Тип турнира *</label>
+                <select
+                  value={formData.tournament_type}
+                  onChange={(e) => setFormData({ ...formData, tournament_type: e.target.value as 'blitz' | 'rapid' | '' })}
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  <option value="">Выберите тип</option>
+                  <option value="blitz">Блиц</option>
+                  <option value="rapid">Рапид</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Контроль времени *</label>
+                <select
+                  value={formData.time_control}
+                  onChange={(e) => setFormData({ ...formData, time_control: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-md"
+                >
+                  <option value="">Выберите контроль</option>
+                  <option value="3+2">3+2</option>
+                  <option value="5+3">5+3</option>
+                  <option value="10+0">10+0</option>
+                  <option value="10+5">10+5</option>
+                </select>
               </div>
             </div>
 
@@ -363,13 +403,19 @@ const TournamentsManager = () => {
                         {tournament.start_date && (
                           <div className="flex items-center gap-2 text-gray-700 bg-white/60 px-3 py-2 rounded-lg">
                             <Icon name="Calendar" size={16} className="text-chess-gold" />
-                            <span className="font-medium">Начало: {new Date(tournament.start_date).toLocaleDateString('ru-RU')}</span>
+                            <span className="font-medium">
+                              {new Date(tournament.start_date).toLocaleDateString('ru-RU')}
+                              {tournament.start_time && ` в ${tournament.start_time.slice(0, 5)}`}
+                            </span>
                           </div>
                         )}
-                        {tournament.end_date && (
+                        {tournament.tournament_type && (
                           <div className="flex items-center gap-2 text-gray-700 bg-white/60 px-3 py-2 rounded-lg">
-                            <Icon name="CalendarCheck" size={16} className="text-chess-gold" />
-                            <span className="font-medium">Конец: {new Date(tournament.end_date).toLocaleDateString('ru-RU')}</span>
+                            <Icon name="Zap" size={16} className="text-orange-500" />
+                            <span className="font-medium">
+                              {tournament.tournament_type === 'blitz' ? 'Блиц' : 'Рапид'}
+                              {tournament.time_control && ` ${tournament.time_control}`}
+                            </span>
                           </div>
                         )}
                         {tournament.location && (
