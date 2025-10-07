@@ -17,6 +17,7 @@ interface Standing {
   draws: number;
   losses: number;
   games_played: number;
+  round_results: Record<number, string>;
 }
 
 interface Tournament {
@@ -31,6 +32,7 @@ const TournamentStandings = () => {
   const [user, setUser] = useState<any>(null);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [standings, setStandings] = useState<Standing[]>([]);
+  const [rounds, setRounds] = useState<number>(7);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -77,6 +79,9 @@ const TournamentStandings = () => {
       
       if (data.standings) {
         setStandings(data.standings);
+      }
+      if (data.rounds) {
+        setRounds(data.rounds);
       }
     } catch (error) {
       console.error('Failed to load standings:', error);
@@ -151,6 +156,11 @@ const TournamentStandings = () => {
                     <th className="text-left p-4 font-bold text-gray-700">Место</th>
                     <th className="text-left p-4 font-bold text-gray-700">Участник</th>
                     <th className="text-center p-4 font-bold text-gray-700">Очки</th>
+                    {Array.from({ length: rounds }, (_, i) => i + 1).map((round) => (
+                      <th key={round} className="text-center p-2 font-bold text-gray-700 text-sm">
+                        {round}
+                      </th>
+                    ))}
                     <th className="text-center p-4 font-bold text-gray-700">Партий</th>
                     <th className="text-center p-4 font-bold text-gray-700">Победы</th>
                     <th className="text-center p-4 font-bold text-gray-700">Ничьи</th>
@@ -192,6 +202,13 @@ const TournamentStandings = () => {
                           {player.points}
                         </div>
                       </td>
+                      {Array.from({ length: rounds }, (_, i) => i + 1).map((round) => (
+                        <td key={round} className="p-2 text-center">
+                          <span className="text-sm font-medium text-gray-600">
+                            {player.round_results[round] || '-'}
+                          </span>
+                        </td>
+                      ))}
                       <td className="p-4 text-center">
                         <span className="text-gray-700 font-medium">{player.games_played}</span>
                       </td>
