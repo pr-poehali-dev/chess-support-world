@@ -316,25 +316,14 @@ const TournamentsManager = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Место проведения</label>
-                <Input
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="Город, адрес"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Макс. участников</label>
-                <Input
-                  type="number"
-                  value={formData.max_participants}
-                  onChange={(e) => setFormData({ ...formData, max_participants: e.target.value })}
-                  placeholder="50"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Макс. участников</label>
+              <Input
+                type="number"
+                value={formData.max_participants}
+                onChange={(e) => setFormData({ ...formData, max_participants: e.target.value })}
+                placeholder="50"
+              />
             </div>
 
             <div>
@@ -418,12 +407,7 @@ const TournamentsManager = () => {
                             </span>
                           </div>
                         )}
-                        {tournament.location && (
-                          <div className="flex items-center gap-2 text-gray-700 bg-white/60 px-3 py-2 rounded-lg">
-                            <Icon name="MapPin" size={16} className="text-red-500" />
-                            <span className="font-medium">{tournament.location}</span>
-                          </div>
-                        )}
+
                         {tournament.max_participants && (
                           <div className="flex items-center gap-2 text-gray-700 bg-white/60 px-3 py-2 rounded-lg">
                             <Icon name="Users" size={16} className="text-blue-500" />
