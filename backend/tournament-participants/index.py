@@ -50,7 +50,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     database_url = os.environ.get('DATABASE_URL')
     
-    conn = psycopg2.connect(database_url, options='-c search_path=t_p91748136_chess_support_world')
+    conn = psycopg2.connect(database_url)
     cur = conn.cursor()
     
     query = f'''
