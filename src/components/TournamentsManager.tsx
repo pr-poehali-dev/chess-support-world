@@ -3,6 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -232,21 +238,23 @@ const TournamentsManager = () => {
           <p className="text-gray-600 text-sm">Управление шахматными турнирами</p>
         </div>
         <Button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => setShowForm(true)}
           className="bg-chess-gold hover:bg-chess-gold/90 text-chess-dark gap-2"
         >
-          <Icon name={showForm ? "X" : "Plus"} size={16} />
-          {showForm ? 'Отмена' : 'Создать турнир'}
+          <Icon name="Plus" size={16} />
+          Создать турнир
         </Button>
       </div>
 
-      {showForm && (
-        <Card className="p-6 border-chess-gold/30">
-          <h3 className="text-xl font-semibold mb-4 text-chess-dark">
-            {editingId ? 'Редактировать турнир' : 'Новый турнир'}
-          </h3>
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-chess-dark">
+              {editingId ? 'Редактировать турнир' : 'Новый турнир'}
+            </DialogTitle>
+          </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="space-y-4 mt-4">
             <div>
               <label className="block text-sm font-medium mb-1">Название *</label>
               <Input
@@ -340,7 +348,13 @@ const TournamentsManager = () => {
               </select>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 justify-end">
+              <Button
+                onClick={resetForm}
+                variant="outline"
+              >
+                Отмена
+              </Button>
               <Button
                 onClick={handleSubmit}
                 className="bg-chess-gold hover:bg-chess-gold/90 text-chess-dark"
@@ -348,16 +362,10 @@ const TournamentsManager = () => {
                 <Icon name="Save" size={16} className="mr-2" />
                 {editingId ? 'Сохранить' : 'Создать'}
               </Button>
-              <Button
-                onClick={resetForm}
-                variant="outline"
-              >
-                Отмена
-              </Button>
             </div>
           </div>
-        </Card>
-      )}
+        </DialogContent>
+      </Dialog>
 
       <div className="space-y-4">
         {tournaments.length === 0 ? (
