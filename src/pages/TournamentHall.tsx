@@ -56,10 +56,19 @@ const TournamentHall = () => {
       return;
     }
 
-    loadTournamentData();
-    loadStandings();
-    loadGames();
+    const loadData = async () => {
+      await loadTournamentData();
+      await loadStandings();
+    };
+    
+    loadData();
   }, [tournamentId]);
+
+  useEffect(() => {
+    if (standings.length > 0) {
+      loadGames();
+    }
+  }, [standings]);
 
   const loadTournamentData = async () => {
     try {
