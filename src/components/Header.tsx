@@ -138,6 +138,18 @@ const Header = ({ user, onUserChange, onTopUpClick }: HeaderProps) => {
                       <Icon name="User" size={16} />
                       Профиль
                     </button>
+                    {user.is_admin && (
+                      <button
+                        onClick={() => {
+                          navigate('/admin');
+                          setUserMenuOpen(false);
+                        }}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-blue-600"
+                      >
+                        <Icon name="Shield" size={16} />
+                        Админ-панель
+                      </button>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-red-600"
