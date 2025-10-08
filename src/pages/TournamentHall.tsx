@@ -104,7 +104,17 @@ const TournamentHall = () => {
       const response = await fetch(`https://functions.poehali.dev/4fdb7edf-b3b7-43b8-be98-d01e55edeb8e?tournament_id=${tournamentId}`);
       const data = await response.json();
       if (data.games) {
-        setGames(data.games);
+        // Добавляем имена игроков к каждой партии
+        const gamesWithNames = data.games.map((game: any) => {
+          const whitePlayer = standings.find(s => s.id === game.white_player_id);
+          const blackPlayer = standings.find(s => s.id === game.black_player_id);
+          return {
+            ...game,
+            white_player_name: whitePlayer ? `${whitePlayer.first_name} ${whitePlayer.last_name}` : 'Неизвестно',
+            black_player_name: blackPlayer ? `${blackPlayer.first_name} ${blackPlayer.last_name}` : 'Неизвестно'
+          };
+        });
+        setGames(gamesWithNames);
       }
     } catch (error) {
       console.error('Failed to load games:', error);
@@ -309,7 +319,7 @@ const TournamentHall = () => {
                                   Тур {game.round || '?'}
                                 </div>
                                 <div className="text-xs text-gray-600 mt-1">
-                                  ID {game.white_player_id || '?'} vs ID {game.black_player_id || '?'}
+                                  {game.white_player_name || 'Неизвестно'} vs {game.black_player_name || 'Неизвестно'}
                                 </div>
                                 <div className="text-xs text-gray-500 mt-1">
                                   Статус: {game.status === 'pending' ? 'Ожидает' : game.status === 'in_progress' ? 'В процессе' : 'Завершена'}
