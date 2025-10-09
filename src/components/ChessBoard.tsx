@@ -224,14 +224,18 @@ const ChessBoard = ({
     );
   }
 
+  const topPlayerName = playerColor === 'black' ? whitePlayerName : blackPlayerName;
+  const bottomPlayerName = playerColor === 'black' ? blackPlayerName : whitePlayerName;
+  const topPlayerColor = playerColor === 'black' ? 'white' : 'black';
+  const bottomPlayerColor = playerColor === 'black' ? 'black' : 'white';
+
   return (
     <Card className="p-6">
       <div className="mb-4">
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-2">
-            <Icon name="Circle" size={16} className="text-gray-900" />
-            <span className="font-semibold">{blackPlayerName}</span>
-            {playerColor === 'black' && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Вы</span>}
+            <Icon name="Circle" size={16} className={topPlayerColor === 'white' ? "text-white stroke-gray-900" : "text-gray-900"} />
+            <span className="font-semibold">{topPlayerName}</span>
           </div>
         </div>
       </div>
@@ -251,9 +255,9 @@ const ChessBoard = ({
       <div className="mt-4">
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-2">
-            <Icon name="Circle" size={16} className="text-white stroke-gray-900" />
-            <span className="font-semibold">{whitePlayerName}</span>
-            {playerColor === 'white' && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Вы</span>}
+            <Icon name="Circle" size={16} className={bottomPlayerColor === 'white' ? "text-white stroke-gray-900" : "text-gray-900"} />
+            <span className="font-semibold">{bottomPlayerName}</span>
+            {playerColor && <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Вы</span>}
           </div>
         </div>
       </div>
