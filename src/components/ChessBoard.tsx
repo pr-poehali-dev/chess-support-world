@@ -33,10 +33,25 @@ const ChessBoard = ({
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
 
   useEffect(() => {
-    if (userId === whitePlayerId) {
+    console.log('🎨 Color determination:', {
+      userId,
+      whitePlayerId,
+      blackPlayerId,
+      userIdType: typeof userId,
+      whitePlayerIdType: typeof whitePlayerId,
+      blackPlayerIdType: typeof blackPlayerId,
+      isWhite: Number(userId) === Number(whitePlayerId),
+      isBlack: Number(userId) === Number(blackPlayerId)
+    });
+    
+    if (Number(userId) === Number(whitePlayerId)) {
       setPlayerColor('white');
-    } else if (userId === blackPlayerId) {
+      console.log('✅ Set player color: WHITE');
+    } else if (Number(userId) === Number(blackPlayerId)) {
       setPlayerColor('black');
+      console.log('✅ Set player color: BLACK');
+    } else {
+      console.log('⚠️ User is not a player in this game');
     }
 
     loadGameState();
