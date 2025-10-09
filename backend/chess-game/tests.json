@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET game state - missing game_id",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "game_id required"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

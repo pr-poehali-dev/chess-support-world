@@ -7,6 +7,7 @@ import PodiumCard from '@/components/tournament/PodiumCard';
 import GamesViewer from '@/components/tournament/GamesViewer';
 import StandingsTable from '@/components/tournament/StandingsTable';
 import TournamentStats from '@/components/tournament/TournamentStats';
+import ChessBoard from '@/components/ChessBoard';
 import { toast } from '@/hooks/use-toast';
 
 interface Tournament {
@@ -225,6 +226,34 @@ const TournamentHall = () => {
               {tournament?.status === 'finished' && top3.length >= 3 && (
                 <PodiumCard top3={top3} />
               )}
+
+              {user && tournament?.status === 'in_progress' && games.length > 0 && (() => {
+                const userGame = games.find(g => 
+                  (g.white_player_id === user.id || g.black_player_id === user.id) && 
+                  g.status !== 'finished'
+                );
+                
+                if (userGame) {
+                  return (
+                    <div className="mb-6">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-4">Ваша партия</h2>
+                      <ChessBoard
+                        gameId={userGame.id}
+                        userId={user.id}
+                        whitePlayerId={userGame.white_player_id}
+                        blackPlayerId={userGame.black_player_id}
+                        whitePlayerName={userGame.white_player_name}
+                        blackPlayerName={userGame.black_player_name}
+                        onGameEnd={() => {
+                          loadGames();
+                          loadStandings();
+                        }}
+                      />
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
               <GamesViewer games={games} />
 
