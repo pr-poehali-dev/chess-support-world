@@ -87,6 +87,20 @@ const ChessBoard = ({
 
   const handleGameEnd = async (result: string) => {
     try {
+      let formattedResult = '';
+      let winner = null;
+      
+      if (result === 'white_win') {
+        formattedResult = '1-0';
+        winner = whitePlayerId;
+      } else if (result === 'black_win') {
+        formattedResult = '0-1';
+        winner = blackPlayerId;
+      } else if (result === 'draw') {
+        formattedResult = '1/2-1/2';
+        winner = null;
+      }
+      
       await fetch('https://functions.poehali.dev/e3e17c70-6cc9-4bb6-a55a-3335c5e9cb0f', {
         method: 'PUT',
         headers: {
@@ -94,7 +108,8 @@ const ChessBoard = ({
         },
         body: JSON.stringify({
           game_id: gameId,
-          result
+          result: formattedResult,
+          winner: winner
         })
       });
       

@@ -51,7 +51,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute('''
                 SELECT id, white_player_id, black_player_id, fen, pgn, status, result
-                FROM games
+                FROM t_p91748136_chess_support_world.games
                 WHERE id = %s
             ''', (game_id,))
             
@@ -95,7 +95,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute('''
-                UPDATE games
+                UPDATE t_p91748136_chess_support_world.games
                 SET fen = %s, pgn = %s, updated_at = NOW()
                 WHERE id = %s
             ''', (fen, pgn, game_id))
@@ -118,6 +118,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body_data = json.loads(event.get('body', '{}'))
             game_id = body_data.get('game_id')
             result = body_data.get('result')
+            winner = body_data.get('winner')
             
             if not game_id or not result:
                 return {
@@ -127,10 +128,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute('''
-                UPDATE games
-                SET result = %s, status = 'finished', updated_at = NOW()
+                UPDATE t_p91748136_chess_support_world.games
+                SET result = %s, status = 'finished', winner = %s, updated_at = NOW()
                 WHERE id = %s
-            ''', (result, game_id))
+            ''', (result, winner, game_id))
             
             conn.commit()
             
@@ -140,7 +141,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({
                     'success': True,
                     'gameId': game_id,
-                    'result': result
+                    'result': result,
+                    'winner': winner
                 })
             }
         
