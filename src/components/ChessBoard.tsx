@@ -131,8 +131,11 @@ const ChessBoard = ({
       return false;
     }
 
-    if ((game.turn() === 'w' && playerColor !== 'white') || 
-        (game.turn() === 'b' && playerColor !== 'black')) {
+    const currentTurn = game.turn();
+    const isMyTurn = (currentTurn === 'w' && playerColor === 'white') || 
+                     (currentTurn === 'b' && playerColor === 'black');
+    
+    if (!isMyTurn) {
       toast({
         title: "Не ваш ход",
         description: "Дождитесь своей очереди",
@@ -222,7 +225,7 @@ const ChessBoard = ({
         <Chessboard
           position={position}
           onPieceDrop={onDrop}
-          boardOrientation={playerColor || 'white'}
+          boardOrientation={playerColor === 'black' ? 'black' : 'white'}
           customBoardStyle={{
             borderRadius: '8px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
