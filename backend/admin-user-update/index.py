@@ -1,6 +1,7 @@
 import json
 import psycopg2
 import os
+import hashlib
 from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -138,6 +139,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if 'balance' in body_data:
         balance = body_data['balance']
         update_fields.append(f"balance = {balance}")
+    
+    if 'password' in body_data:
+        password = body_data['password']
+        if len(password) >= 6:
+            password_hash = hashlib.sha256(password.encode()).hexdigest()
+            password_hash_escaped = password_hash.replace("'", "''")
+            update_fields.append(f"password_hash = '{password_hash_escaped}'")
     
     if not update_fields:
         cursor.close()

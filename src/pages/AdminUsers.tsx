@@ -162,34 +162,40 @@ const AdminUsers = () => {
     }
   };
 
-  const handleSaveUser = async () => {
+  const handleSaveUser = async (newPassword?: string) => {
     if (!editingUser) return;
 
     setSaving(true);
     const token = localStorage.getItem("auth_token");
 
     try {
+      const bodyData: any = {
+        user_id: editingUser.id,
+        full_name: editingUser.full_name,
+        last_name: editingUser.last_name,
+        middle_name: editingUser.middle_name,
+        birth_date: editingUser.birth_date,
+        fsr_id: editingUser.fsr_id,
+        education_institution: editingUser.education_institution,
+        coach: editingUser.coach,
+        city_country: editingUser.city_country,
+        representative_phone: editingUser.representative_phone,
+        is_verified: editingUser.is_verified,
+        is_admin: editingUser.is_admin,
+        balance: editingUser.balance,
+      };
+
+      if (newPassword && newPassword.length >= 6) {
+        bodyData.password = newPassword;
+      }
+
       const response = await fetch(func2url["admin-user-update"], {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-Auth-Token": token!,
         },
-        body: JSON.stringify({
-          user_id: editingUser.id,
-          full_name: editingUser.full_name,
-          last_name: editingUser.last_name,
-          middle_name: editingUser.middle_name,
-          birth_date: editingUser.birth_date,
-          fsr_id: editingUser.fsr_id,
-          education_institution: editingUser.education_institution,
-          coach: editingUser.coach,
-          city_country: editingUser.city_country,
-          representative_phone: editingUser.representative_phone,
-          is_verified: editingUser.is_verified,
-          is_admin: editingUser.is_admin,
-          balance: editingUser.balance,
-        }),
+        body: JSON.stringify(bodyData),
       });
 
       const data = await response.json();

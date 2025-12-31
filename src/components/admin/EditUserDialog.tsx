@@ -9,6 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useState } from "react";
 
 interface User {
   id: number;
@@ -32,7 +33,7 @@ interface EditUserDialogProps {
   user: User | null;
   saving: boolean;
   onClose: () => void;
-  onSave: () => void;
+  onSave: (newPassword?: string) => void;
   onChange: (user: User) => void;
 }
 
@@ -43,8 +44,15 @@ const EditUserDialog = ({
   onSave,
   onChange,
 }: EditUserDialogProps) => {
+  const [newPassword, setNewPassword] = useState("");
+  
+  const handleSave = () => {
+    onSave(newPassword || undefined);
+    setNewPassword("");
+  };
+  
   return (
-    <Dialog open={!!user} onOpenChange={onClose}>
+    <Dialog open={!!user} onOpenChange={() => { setNewPassword(""); onClose(); }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Редактирование пользователя</DialogTitle>
@@ -174,6 +182,15 @@ const EditUserDialog = ({
                   }
                 />
               </div>
+              <div>
+                <Label>Новый пароль (оставьте пустым, чтобы не менять)</Label>
+                <Input
+                  type="password"
+                  placeholder="Минимум 6 символов"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="flex items-center gap-4 pt-4 border-t">
@@ -199,7 +216,7 @@ const EditUserDialog = ({
 
             <div className="flex gap-3 pt-4">
               <Button
-                onClick={onSave}
+                onClick={handleSave}
                 disabled={saving}
                 className="flex-1"
               >
