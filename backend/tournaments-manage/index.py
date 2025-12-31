@@ -260,6 +260,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
+                "DELETE FROM t_p91748136_chess_support_world.games WHERE tournament_id = %s",
+                (tournament_id,)
+            )
+            
+            cur.execute(
+                "DELETE FROM t_p91748136_chess_support_world.tournament_participants WHERE tournament_id = %s",
+                (tournament_id,)
+            )
+            
+            cur.execute(
+                "DELETE FROM t_p91748136_chess_support_world.tournament_registrations WHERE tournament_id = %s",
+                (tournament_id,)
+            )
+            
+            cur.execute(
                 "DELETE FROM t_p91748136_chess_support_world.tournaments WHERE id = %s RETURNING id",
                 (tournament_id,)
             )
