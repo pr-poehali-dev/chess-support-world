@@ -105,7 +105,7 @@ const HomeSection = ({ news, user, onNavigateToTournaments, onNavigateToAuth, on
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          <Card className="p-6 hover:shadow-lg transition-all bg-white">
+          <Card className="p-6 hover:shadow-lg transition-all bg-white cursor-pointer" onClick={onNavigateToTournaments}>
             <div className="w-14 h-14 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
               <Icon name="Trophy" size={28} className="text-yellow-600" />
             </div>
@@ -115,7 +115,7 @@ const HomeSection = ({ news, user, onNavigateToTournaments, onNavigateToAuth, on
             </p>
           </Card>
 
-          <Card className="p-6 hover:shadow-lg transition-all bg-white">
+          <Card className="p-6 hover:shadow-lg transition-all bg-white cursor-pointer" onClick={onNavigateToTournaments}>
             <div className="w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
               <Icon name="Award" size={28} className="text-blue-600" />
             </div>
@@ -125,7 +125,7 @@ const HomeSection = ({ news, user, onNavigateToTournaments, onNavigateToAuth, on
             </p>
           </Card>
 
-          <Card className="p-6 hover:shadow-lg transition-all bg-white">
+          <Card className="p-6 hover:shadow-lg transition-all bg-white cursor-pointer" onClick={onNavigateToTournaments}>
             <div className="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center mb-4">
               <Icon name="Medal" size={28} className="text-green-600" />
             </div>
