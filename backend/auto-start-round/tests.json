@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Check auto-start mechanism",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "checked_at": "string",
+        "started_tournaments": "array",
+        "count": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

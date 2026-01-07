@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import { useEffect, useState } from 'react';
 
 interface Tournament {
   id: number;
@@ -31,6 +32,40 @@ const TournamentsSection = ({
   onNavigateToHall,
   onShowParticipants
 }: TournamentsSectionProps) => {
+  const [timeUntilStart, setTimeUntilStart] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newTimes: Record<number, string> = {};
+      tournaments.forEach(tournament => {
+        if (tournament.status === 'registration_open' && tournament.start_date) {
+          const startDateTime = new Date(`${tournament.start_date}T${tournament.start_time || '00:00:00'}`);
+          const now = new Date();
+          const diff = startDateTime.getTime() - now.getTime();
+          
+          if (diff > 0) {
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (days > 0) {
+              newTimes[tournament.id] = `Старт через ${days}д ${hours}ч`;
+            } else if (hours > 0) {
+              newTimes[tournament.id] = `Старт через ${hours}ч ${minutes}м`;
+            } else {
+              newTimes[tournament.id] = `Старт через ${minutes} минут`;
+            }
+          } else {
+            newTimes[tournament.id] = 'Стартует сейчас...';
+          }
+        }
+      });
+      setTimeUntilStart(newTimes);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [tournaments]);
+
   const statusConfig: Record<string, {label: string, bg: string, text: string, icon: string}> = {
     registration_open: {
       label: 'Регистрация открыта',
@@ -87,6 +122,11 @@ const TournamentsSection = ({
                         <span className={`px-4 py-1.5 rounded-full text-sm font-semibold ${config.bg} ${config.text}`}>
                           {config.label}
                         </span>
+                        {timeUntilStart[tournament.id] && (
+                          <span className="px-3 py-1.5 rounded-full text-sm font-semibold bg-orange-100 text-orange-700 animate-pulse">
+                            ⏱ {timeUntilStart[tournament.id]}
+                          </span>
+                        )}
                       </div>
 
                       {tournament.description && (

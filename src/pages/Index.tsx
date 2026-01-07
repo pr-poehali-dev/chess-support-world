@@ -74,22 +74,43 @@ const Index = () => {
       })
       .catch(err => console.error('Failed to load news:', err));
 
-    fetch('https://functions.poehali.dev/fb78feda-e1cb-4b60-a6c8-7bde514e8308')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          const activeTournaments = data.filter(t => t.status !== 'draft');
-          setTournaments(activeTournaments);
-          
-          if (storedUser) {
-            const userId = JSON.parse(storedUser).id;
-            activeTournaments.forEach(tournament => {
-              checkRegistrationStatus(tournament.id, userId);
+    const loadTournaments = () => {
+      fetch('https://functions.poehali.dev/fb78feda-e1cb-4b60-a6c8-7bde514e8308')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            const activeTournaments = data.filter(t => t.status !== 'draft');
+            setTournaments(activeTournaments);
+            
+            if (storedUser) {
+              const userId = JSON.parse(storedUser).id;
+              activeTournaments.forEach(tournament => {
+                checkRegistrationStatus(tournament.id, userId);
+              });
+            }
+          }
+        })
+        .catch(err => console.error('Failed to load tournaments:', err));
+    };
+
+    loadTournaments();
+    
+    const autoStartInterval = setInterval(() => {
+      fetch('https://functions.poehali.dev/03f0763f-eda0-46e1-bd1d-51c46dd1f5a6', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.started_tournaments && data.started_tournaments.length > 0) {
+            loadTournaments();
+            toast({
+              title: "Турнир начался!",
+              description: `Запущено туров: ${data.started_tournaments.length}`,
             });
           }
-        }
-      })
-      .catch(err => console.error('Failed to load tournaments:', err));
+        })
+        .catch(err => console.error('Auto-start check failed:', err));
+    }, 60000);
+
+    return () => clearInterval(autoStartInterval);
 
     const verifyToken = params.get('verify');
     
