@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Create payment without data",
+      "method": "POST",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "Amount and user_id required"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -370,6 +370,7 @@ const Index = () => {
         open={topUpModalOpen}
         amount={topUpAmount}
         onAmountChange={setTopUpAmount}
+        userId={user?.id}
         onClose={() => {
           setTopUpModalOpen(false);
           setTopUpAmount('');

@@ -1,18 +1,23 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+import func2url from '../../../backend/func2url.json';
 
 interface TopUpModalProps {
   open: boolean;
   amount: string;
   onAmountChange: (amount: string) => void;
   onClose: () => void;
+  userId?: number;
 }
 
-const TopUpModal = ({ open, amount, onAmountChange, onClose }: TopUpModalProps) => {
+const TopUpModal = ({ open, amount, onAmountChange, onClose, userId }: TopUpModalProps) => {
+  const [loading, setLoading] = useState(false);
+  
   if (!open) return null;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!amount || Number(amount) < 100) {
       toast({
         title: "Ошибка",
@@ -21,11 +26,48 @@ const TopUpModal = ({ open, amount, onAmountChange, onClose }: TopUpModalProps) 
       });
       return;
     }
-    toast({
-      title: "Скоро будет доступно",
-      description: "Функция пополнения баланса в разработке"
-    });
-    onClose();
+
+    if (!userId) {
+      toast({
+        title: "Ошибка",
+        description: "Необходима авторизация",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const response = await fetch(func2url['payment-create'], {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: Number(amount),
+          user_id: userId
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.payment_url) {
+        window.location.href = data.payment_url;
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.error || 'Не удалось создать платёж',
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Ошибка соединения с сервером",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -72,10 +114,20 @@ const TopUpModal = ({ open, amount, onAmountChange, onClose }: TopUpModalProps) 
 
         <Button
           onClick={handleSubmit}
+          disabled={loading}
           className="w-full bg-green-600 hover:bg-green-700 gap-2 py-6 text-lg"
         >
-          <Icon name="CreditCard" size={20} />
-          Перейти к оплате
+          {loading ? (
+            <>
+              <Icon name="Loader2" size={20} className="animate-spin" />
+              Создание платежа...
+            </>
+          ) : (
+            <>
+              <Icon name="CreditCard" size={20} />
+              Перейти к оплате
+            </>
+          )}
         </Button>
 
         <p className="text-xs text-gray-500 text-center mt-4">

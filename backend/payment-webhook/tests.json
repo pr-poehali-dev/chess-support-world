@@ -1,0 +1,11 @@
+{
+  "tests": [
+    {
+      "name": "Webhook without data",
+      "method": "POST",
+      "body": {},
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    }
+  ]
+}
