@@ -46,18 +46,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     body_data = json.loads(event.get('body', '{}'))
-    full_name = body_data.get('full_name', '').strip()
-    last_name = body_data.get('last_name', '').strip()
-    middle_name = body_data.get('middle_name', '').strip()
-    birth_date = body_data.get('birth_date', '').strip()
-    fsr_id = body_data.get('fsr_id', '').strip()
-    education_institution = body_data.get('education_institution', '').strip()
-    coach = body_data.get('coach', '').strip()
-    city_country = body_data.get('city_country', '').strip()
-    representative_phone = body_data.get('representative_phone', '').strip()
-    email = body_data.get('email', '').strip().lower()
-    password = body_data.get('password', '').strip()
-    avatar = body_data.get('avatar', '').strip()
+    full_name = (body_data.get('full_name') or '').strip()
+    last_name = (body_data.get('last_name') or '').strip()
+    middle_name = (body_data.get('middle_name') or '').strip()
+    birth_date = (body_data.get('birth_date') or '').strip()
+    fsr_id = (body_data.get('fsr_id') or '').strip()
+    education_institution = (body_data.get('education_institution') or '').strip()
+    coach = (body_data.get('coach') or '').strip()
+    city_country = (body_data.get('city_country') or '').strip()
+    representative_phone = (body_data.get('representative_phone') or '').strip()
+    email = (body_data.get('email') or '').strip().lower()
+    password = (body_data.get('password') or '').strip()
+    avatar = (body_data.get('avatar') or '').strip()
     
     if not full_name or not last_name or not birth_date or not email:
         return {
