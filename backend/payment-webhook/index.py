@@ -39,11 +39,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     try:
         body_str = event.get('body', '{}')
+        print(f"DEBUG: Received body: {body_str[:500]}")
+        print(f"DEBUG: Event keys: {list(event.keys())}")
+        
         if not body_str or body_str.strip() == '':
             body_str = '{}'
         body_data = json.loads(body_str)
         
+        print(f"DEBUG: Parsed body_data keys: {list(body_data.keys())}")
+        
         event_type = body_data.get('event')
+        print(f"DEBUG: Event type: {event_type}")
         if event_type != 'payment.succeeded':
             return {
                 'statusCode': 200,
