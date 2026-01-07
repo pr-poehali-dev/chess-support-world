@@ -92,6 +92,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
         password_hash = hashlib.sha256(password.encode()).hexdigest()
+        print(f"DEBUG: Email={email}, Hash={password_hash}")
         
         cur.execute(
             """
@@ -102,6 +103,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             (email, password_hash)
         )
         user = cur.fetchone()
+        print(f"DEBUG: User found={user is not None}")
         
         cur.close()
         conn.close()
@@ -110,7 +112,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 401,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Неверный email или пароль'}),
+                'body': json.dumps({'error': 'Неверный email или пароль', 'debug_hash': password_hash}),
                 'isBase64Encoded': False
             }
         
