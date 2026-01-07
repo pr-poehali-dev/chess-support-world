@@ -41,6 +41,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body_str = event.get('body', '{}')
         print(f"DEBUG: Received body: {body_str[:500]}")
         print(f"DEBUG: Event keys: {list(event.keys())}")
+        print(f"DEBUG: Full event: {json.dumps(event)[:1000]}")
+        print(f"DEBUG: Headers: {event.get('headers', {})}")
+        print(f"DEBUG: Query params: {event.get('queryStringParameters', {})}")
         
         if not body_str or body_str.strip() == '':
             body_str = '{}'
