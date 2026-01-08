@@ -191,7 +191,7 @@ const TournamentsSection = ({
                                     <>
                                       {moscowTime.toLocaleDateString('ru-RU', {day: 'numeric', month: 'long', timeZone: 'UTC'})}
                                       {tournament.start_time && (
-                                        <span className="text-gray-600"> в {moscowTime.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit', timeZone: 'UTC'})} по московскому времени</span>
+                                        <> в {moscowTime.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit', timeZone: 'UTC'})} <span className="font-normal text-gray-500">по московскому времени</span></>
                                       )}
                                     </>
                                   );
