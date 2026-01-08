@@ -39,7 +39,10 @@ const TournamentsSection = ({
       const newTimes: Record<number, string> = {};
       tournaments.forEach(tournament => {
         if ((tournament.status === 'registration_open' || tournament.status === 'registration_closed') && tournament.start_date) {
-          const startDateTime = new Date(`${tournament.start_date}T${tournament.start_time || '00:00:00'}`);
+          // Парсим дату правильно - start_date уже содержит дату, добавляем время
+          const dateOnly = tournament.start_date.split('T')[0];
+          const timeStr = tournament.start_time || '00:00:00';
+          const startDateTime = new Date(`${dateOnly}T${timeStr}`);
           const now = new Date();
           const diff = startDateTime.getTime() - now.getTime();
           
