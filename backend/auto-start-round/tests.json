@@ -8,8 +8,10 @@
       "expectedBody": {
         "success": true,
         "checked_at": "string",
+        "closed_registrations": "array",
         "started_tournaments": "array",
-        "count": "number"
+        "closed_count": "number",
+        "started_count": "number"
       },
       "bodyMatcher": "partial"
     }

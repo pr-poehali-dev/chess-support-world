@@ -38,7 +38,7 @@ const TournamentsSection = ({
     const interval = setInterval(() => {
       const newTimes: Record<number, string> = {};
       tournaments.forEach(tournament => {
-        if (tournament.status === 'registration_open' && tournament.start_date) {
+        if ((tournament.status === 'registration_open' || tournament.status === 'registration_closed') && tournament.start_date) {
           const startDateTime = new Date(`${tournament.start_date}T${tournament.start_time || '00:00:00'}`);
           const now = new Date();
           const diff = startDateTime.getTime() - now.getTime();
@@ -72,6 +72,12 @@ const TournamentsSection = ({
       bg: 'bg-emerald-50',
       text: 'text-emerald-700',
       icon: 'UserPlus'
+    },
+    registration_closed: {
+      label: 'Регистрация окончена',
+      bg: 'bg-orange-50',
+      text: 'text-orange-700',
+      icon: 'Lock'
     },
     in_progress: {
       label: 'Идет сейчас',
@@ -207,6 +213,17 @@ const TournamentsSection = ({
                       >
                         <Icon name={registrationStatuses[tournament.id] ? "UserX" : "UserPlus"} size={18} />
                         {registrationStatuses[tournament.id] ? 'Отменить участие' : 'Записаться'}
+                      </Button>
+                    )}
+                    
+                    {tournament.status === 'registration_closed' && (
+                      <Button 
+                        variant="outline" 
+                        className="gap-2 border-orange-600 text-orange-700 cursor-not-allowed"
+                        disabled
+                      >
+                        <Icon name="Lock" size={18} />
+                        Регистрация закрыта
                       </Button>
                     )}
                     

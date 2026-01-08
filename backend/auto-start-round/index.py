@@ -1,13 +1,14 @@
 '''
 Автоматический запуск первого тура турнира по времени начала
+Также закрывает регистрацию за 15 минут до начала турнира
 Args: Вызывается периодически (каждую минуту) или по запросу
-Returns: JSON с информацией о запущенных турах
+Returns: JSON с информацией о запущенных турах и закрытых регистрациях
 '''
 
 import json
 import os
 import psycopg2
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from typing import Dict, Any, List
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -43,11 +44,43 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         current_date = now.date()
         current_time = now.time()
         
-        # Найти турниры со статусом registration_open, где время начала уже прошло
+        # Шаг 1: Закрыть регистрацию за 15 минут до начала
         cur.execute(f"""
             SELECT id, title, start_date, start_time
             FROM t_p91748136_chess_support_world.tournaments
             WHERE status = 'registration_open'
+        """)
+        
+        registration_open_tournaments = cur.fetchall()
+        closed_registrations = []
+        
+        for tournament in registration_open_tournaments:
+            tournament_id, title, start_date, start_time = tournament
+            
+            if start_date and start_time:
+                tournament_start = datetime.combine(start_date, start_time)
+                time_until_start = tournament_start - now
+                
+                # Если до начала осталось 15 минут или меньше - закрываем регистрацию
+                if timedelta(minutes=0) <= time_until_start <= timedelta(minutes=15):
+                    cur.execute(f"""
+                        UPDATE t_p91748136_chess_support_world.tournaments
+                        SET status = 'registration_closed'
+                        WHERE id = {tournament_id}
+                    """)
+                    conn.commit()
+                    
+                    closed_registrations.append({
+                        'id': tournament_id,
+                        'title': title,
+                        'starts_in_minutes': int(time_until_start.total_seconds() / 60)
+                    })
+        
+        # Шаг 2: Найти турниры со статусом registration_open/registration_closed, где время начала уже прошло
+        cur.execute(f"""
+            SELECT id, title, start_date, start_time
+            FROM t_p91748136_chess_support_world.tournaments
+            WHERE status IN ('registration_open', 'registration_closed')
             AND start_date <= '{current_date}'
         """)
         
@@ -139,8 +172,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({
                 'success': True,
                 'checked_at': now.isoformat(),
+                'closed_registrations': closed_registrations,
                 'started_tournaments': started_tournaments,
-                'count': len(started_tournaments)
+                'closed_count': len(closed_registrations),
+                'started_count': len(started_tournaments)
             }),
             'isBase64Encoded': False
         }
