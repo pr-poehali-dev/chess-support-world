@@ -58,11 +58,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             tournament_id, title, start_date, start_time = tournament
             
             if start_date and start_time:
-                tournament_start = datetime.combine(start_date, start_time)
+                # start_date может быть datetime, конвертируем в date
+                date_only = start_date.date() if isinstance(start_date, datetime) else start_date
+                tournament_start = datetime.combine(date_only, start_time)
                 time_until_start = tournament_start - now
+                minutes_until_start = time_until_start.total_seconds() / 60
                 
-                # Если до начала осталось 15 минут или меньше - закрываем регистрацию
-                if timedelta(minutes=0) <= time_until_start <= timedelta(minutes=15):
+                # Если до начала осталось 15 минут или меньше (но не прошло) - закрываем регистрацию
+                if 0 <= minutes_until_start <= 15:
                     cur.execute(f"""
                         UPDATE t_p91748136_chess_support_world.tournaments
                         SET status = 'registration_closed'
@@ -73,7 +76,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     closed_registrations.append({
                         'id': tournament_id,
                         'title': title,
-                        'starts_in_minutes': int(time_until_start.total_seconds() / 60)
+                        'starts_in_minutes': int(minutes_until_start)
                     })
         
         # Шаг 2: Найти турниры со статусом registration_open/registration_closed, где время начала уже прошло
@@ -90,17 +93,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         for tournament in tournaments:
             tournament_id, title, start_date, start_time = tournament
             
+            # start_date может быть datetime, конвертируем в date
+            date_only = start_date.date() if isinstance(start_date, datetime) else start_date
+            
             # Проверяем время
             should_start = False
             
-            if start_date < current_date:
+            if date_only < current_date:
                 # Дата уже прошла - точно стартуем
                 should_start = True
-            elif start_date == current_date and start_time:
+            elif date_only == current_date and start_time:
                 # Сегодня - проверяем время
                 if current_time >= start_time:
                     should_start = True
-            elif start_date == current_date and not start_time:
+            elif date_only == current_date and not start_time:
                 # Сегодня, но время не указано - стартуем
                 should_start = True
             
