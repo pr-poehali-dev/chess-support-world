@@ -183,11 +183,15 @@ const TournamentsSection = ({
                                   const dateOnly = tournament.start_date.split('T')[0];
                                   const timeStr = tournament.start_time || '00:00:00';
                                   const startDateTime = new Date(`${dateOnly}T${timeStr}Z`);
+                                  
+                                  // Конвертируем в московское время (UTC+3)
+                                  const moscowTime = new Date(startDateTime.getTime() + 3 * 60 * 60 * 1000);
+                                  
                                   return (
                                     <>
-                                      {startDateTime.toLocaleDateString('ru-RU', {day: 'numeric', month: 'long'})}
+                                      {moscowTime.toLocaleDateString('ru-RU', {day: 'numeric', month: 'long', timeZone: 'UTC'})}
                                       {tournament.start_time && (
-                                        <span className="text-gray-600"> в {startDateTime.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}</span>
+                                        <span className="text-gray-600"> в {moscowTime.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit', timeZone: 'UTC'})} по московскому времени</span>
                                       )}
                                     </>
                                   );
