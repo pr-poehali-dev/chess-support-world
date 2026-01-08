@@ -96,6 +96,10 @@ const Index = () => {
     loadTournaments();
     
     const autoStartInterval = setInterval(() => {
+      // Обновляем список турниров для закрытия регистрации и автостарта
+      loadTournaments();
+      
+      // Проверяем автостарт
       fetch('https://functions.poehali.dev/03f0763f-eda0-46e1-bd1d-51c46dd1f5a6', { method: 'POST' })
         .then(res => res.json())
         .then(data => {
@@ -108,7 +112,7 @@ const Index = () => {
           }
         })
         .catch(err => console.error('Auto-start check failed:', err));
-    }, 60000);
+    }, 30000);
 
     return () => clearInterval(autoStartInterval);
 
