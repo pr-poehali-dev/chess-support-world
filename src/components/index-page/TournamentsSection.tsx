@@ -47,16 +47,30 @@ const TournamentsSection = ({
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
             
             if (days > 0) {
               newTimes[tournament.id] = `Старт через ${days}д ${hours}ч`;
             } else if (hours > 0) {
               newTimes[tournament.id] = `Старт через ${hours}ч ${minutes}м`;
+            } else if (minutes > 0) {
+              newTimes[tournament.id] = `Старт через ${minutes}м ${seconds}с`;
             } else {
-              newTimes[tournament.id] = `Старт через ${minutes} минут`;
+              newTimes[tournament.id] = `Старт через ${seconds}с`;
             }
           } else {
-            newTimes[tournament.id] = 'Стартует сейчас...';
+            const absDiff = Math.abs(diff);
+            const seconds = Math.floor((absDiff % (1000 * 60)) / 1000);
+            const minutes = Math.floor((absDiff % (1000 * 60 * 60)) / (1000 * 60));
+            const hours = Math.floor(absDiff / (1000 * 60 * 60));
+            
+            if (hours > 0) {
+              newTimes[tournament.id] = `Просрочен на ${hours}ч ${minutes}м`;
+            } else if (minutes > 0) {
+              newTimes[tournament.id] = `Просрочен на ${minutes}м ${seconds}с`;
+            } else {
+              newTimes[tournament.id] = `Просрочен на ${seconds}с`;
+            }
           }
         }
       });
