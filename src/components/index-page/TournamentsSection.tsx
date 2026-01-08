@@ -53,9 +53,9 @@ const TournamentsSection = ({
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
             
             if (days > 0) {
-              newTimes[tournament.id] = `Старт через ${days}д ${hours}ч`;
+              newTimes[tournament.id] = `Старт через ${days}д ${hours}ч ${minutes}м`;
             } else if (hours > 0) {
-              newTimes[tournament.id] = `Старт через ${hours}ч ${minutes}м`;
+              newTimes[tournament.id] = `Старт через ${hours}ч ${minutes}м ${seconds}с`;
             } else if (minutes > 0) {
               newTimes[tournament.id] = `Старт через ${minutes}м ${seconds}с`;
             } else {
