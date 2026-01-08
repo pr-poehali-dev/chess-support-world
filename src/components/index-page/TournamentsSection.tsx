@@ -39,10 +39,11 @@ const TournamentsSection = ({
       const newTimes: Record<number, string> = {};
       tournaments.forEach(tournament => {
         if ((tournament.status === 'registration_open' || tournament.status === 'registration_closed') && tournament.start_date) {
-          // Парсим дату правильно - start_date уже содержит дату, добавляем время
+          // Парсим дату правильно - start_date уже содержит дату, добавляем время в UTC
           const dateOnly = tournament.start_date.split('T')[0];
           const timeStr = tournament.start_time || '00:00:00';
-          const startDateTime = new Date(`${dateOnly}T${timeStr}`);
+          // Добавляем Z для указания UTC времени
+          const startDateTime = new Date(`${dateOnly}T${timeStr}Z`);
           const now = new Date();
           const diff = startDateTime.getTime() - now.getTime();
           
@@ -163,10 +164,19 @@ const TournamentsSection = ({
                             <div>
                               <div className="text-xs text-gray-500 mb-0.5">Дата начала</div>
                               <div className="font-semibold text-gray-900">
-                                {new Date(tournament.start_date).toLocaleDateString('ru-RU', {day: 'numeric', month: 'long'})}
-                                {tournament.start_time && (
-                                  <span className="text-gray-600"> в {tournament.start_time.slice(0, 5)}</span>
-                                )}
+                                {(() => {
+                                  const dateOnly = tournament.start_date.split('T')[0];
+                                  const timeStr = tournament.start_time || '00:00:00';
+                                  const startDateTime = new Date(`${dateOnly}T${timeStr}Z`);
+                                  return (
+                                    <>
+                                      {startDateTime.toLocaleDateString('ru-RU', {day: 'numeric', month: 'long'})}
+                                      {tournament.start_time && (
+                                        <span className="text-gray-600"> в {startDateTime.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}</span>
+                                      )}
+                                    </>
+                                  );
+                                })()}
                               </div>
                             </div>
                           </div>
