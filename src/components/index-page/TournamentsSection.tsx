@@ -33,6 +33,20 @@ const TournamentsSection = ({
   onShowParticipants
 }: TournamentsSectionProps) => {
   const [timeUntilStart, setTimeUntilStart] = useState<Record<number, string>>({});
+  const [serverTimeOffset, setServerTimeOffset] = useState<number>(0);
+
+  useEffect(() => {
+    // Получаем серверное время при загрузке
+    fetch('https://functions.poehali.dev/86693577-68f4-4eb2-a7c6-074bdfe70796')
+      .then(res => res.json())
+      .then(data => {
+        const serverTime = new Date(data.server_time).getTime();
+        const clientTime = Date.now();
+        const offset = serverTime - clientTime;
+        setServerTimeOffset(offset);
+      })
+      .catch(err => console.error('Failed to sync server time:', err));
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,8 +58,9 @@ const TournamentsSection = ({
           const timeStr = tournament.start_time || '00:00:00';
           // Добавляем Z для указания UTC времени
           const startDateTime = new Date(`${dateOnly}T${timeStr}Z`);
-          const now = new Date();
-          const diff = startDateTime.getTime() - now.getTime();
+          // Используем серверное время для точного расчета
+          const now = Date.now() + serverTimeOffset;
+          const diff = startDateTime.getTime() - now;
           
           if (diff > 0) {
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));

@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Get server time",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "server_time": "string",
+        "timestamp": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

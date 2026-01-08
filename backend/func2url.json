@@ -1,4 +1,5 @@
 {
+  "server-time": "https://functions.poehali.dev/86693577-68f4-4eb2-a7c6-074bdfe70796",
   "auto-start-round": "https://functions.poehali.dev/03f0763f-eda0-46e1-bd1d-51c46dd1f5a6",
   "payment-webhook": "https://functions.poehali.dev/6c3717cd-1601-44a2-a0c0-9bbca1c5f614",
   "payment-create": "https://functions.poehali.dev/6561406c-5cc5-4a7b-beec-43c348197c65",
