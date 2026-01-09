@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Get events for registered player",
+      "method": "GET",
+      "path": "/?player_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "events": "array",
+        "checked_at": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing player_id parameter",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "player_id required"
+      }
+    }
+  ]
+}
