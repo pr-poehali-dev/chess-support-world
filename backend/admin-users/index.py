@@ -80,7 +80,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     cursor.execute("""
         SELECT id, email, full_name, last_name, middle_name, birth_date, 
-               fsr_id, education_institution, coach, city_country, 
+               fsr_id, education_institution, coach, ms_rating, city_country, 
                representative_phone, is_verified, is_admin, created_at, balance 
         FROM users 
         ORDER BY created_at DESC
@@ -98,12 +98,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'fsr_id': row[6],
             'education_institution': row[7],
             'coach': row[8],
-            'city_country': row[9],
-            'representative_phone': row[10],
-            'is_verified': row[11],
-            'is_admin': row[12],
-            'created_at': row[13].isoformat() if row[13] else None,
-            'balance': float(row[14]) if row[14] is not None else 0.0
+            'ms_rating': row[9],
+            'city_country': row[10],
+            'representative_phone': row[11],
+            'is_verified': row[12],
+            'is_admin': row[13],
+            'created_at': row[14].isoformat() if row[14] else None,
+            'balance': float(row[15]) if row[15] is not None else 0.0
         })
     
     cursor.close()

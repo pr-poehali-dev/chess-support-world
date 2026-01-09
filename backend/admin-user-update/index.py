@@ -122,6 +122,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         coach_escaped = body_data['coach'].replace("'", "''")
         update_fields.append(f"coach = '{coach_escaped}'")
     
+    if 'ms_rating' in body_data:
+        ms_rating = body_data['ms_rating']
+        if ms_rating:
+            update_fields.append(f"ms_rating = {ms_rating}")
+        else:
+            update_fields.append(f"ms_rating = NULL")
+    
     if 'city_country' in body_data:
         city_escaped = body_data['city_country'].replace("'", "''")
         update_fields.append(f"city_country = '{city_escaped}'")

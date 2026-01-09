@@ -21,6 +21,7 @@ interface User {
   fsr_id: string;
   education_institution: string;
   coach: string;
+  ms_rating?: number;
   city_country: string;
   representative_phone: string;
   is_verified: boolean;
@@ -141,6 +142,17 @@ const EditUserDialog = ({
                   onChange={(e) =>
                     onChange({ ...user, coach: e.target.value })
                   }
+                />
+              </div>
+              <div>
+                <Label>Рейтинг МШ (Мир Шахмат)</Label>
+                <Input
+                  type="number"
+                  value={user.ms_rating || ""}
+                  onChange={(e) =>
+                    onChange({ ...user, ms_rating: parseInt(e.target.value) || undefined })
+                  }
+                  placeholder="Введите рейтинг МШ"
                 />
               </div>
               <div>

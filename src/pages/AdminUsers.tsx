@@ -18,6 +18,7 @@ interface User {
   fsr_id: string;
   education_institution: string;
   coach: string;
+  ms_rating?: number;
   city_country: string;
   representative_phone: string;
   is_verified: boolean;
