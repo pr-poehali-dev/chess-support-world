@@ -14,7 +14,7 @@ interface Tournament {
   tournament_type: 'blitz' | 'rapid' | null;
   entry_fee: number | null;
   rounds: number | null;
-  status: 'draft' | 'registration_open' | 'in_progress' | 'finished';
+  status: 'draft' | 'registration_open' | 'registration_closed' | 'in_progress' | 'finished';
   created_at: string;
   updated_at: string;
 }
@@ -33,6 +33,13 @@ const statusConfig = {
     card: 'border-l-4 border-l-emerald-500 bg-gradient-to-r from-emerald-50 to-white shadow-emerald-100 shadow-md',
     icon: 'UserPlus',
     iconColor: 'text-emerald-600'
+  },
+  registration_closed: {
+    label: 'Регистрация закрыта',
+    badge: 'bg-amber-100 text-amber-800 border-amber-400',
+    card: 'border-l-4 border-l-amber-500 bg-gradient-to-r from-amber-50 to-white shadow-amber-100 shadow-md',
+    icon: 'Lock',
+    iconColor: 'text-amber-600'
   },
   in_progress: {
     label: 'Идет сейчас',
