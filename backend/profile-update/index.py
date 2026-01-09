@@ -53,6 +53,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     fsr_id = (body_data.get('fsr_id') or '').strip()
     education_institution = (body_data.get('education_institution') or '').strip()
     coach = (body_data.get('coach') or '').strip()
+    ms_rating = body_data.get('ms_rating')
     city_country = (body_data.get('city_country') or '').strip()
     representative_phone = (body_data.get('representative_phone') or '').strip()
     email = (body_data.get('email') or '').strip().lower()
@@ -106,6 +107,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     fsr_id_escaped = fsr_id.replace("'", "''")
     education_institution_escaped = education_institution.replace("'", "''")
     coach_escaped = coach.replace("'", "''")
+    ms_rating_str = str(ms_rating) if ms_rating else 'NULL'
     city_country_escaped = city_country.replace("'", "''")
     representative_phone_escaped = representative_phone.replace("'", "''")
     
@@ -128,6 +130,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 f"UPDATE users SET full_name = '{full_name_escaped}', last_name = '{last_name_escaped}', "
                 f"middle_name = '{middle_name_escaped}', birth_date = '{birth_date}', fsr_id = '{fsr_id_escaped}', "
                 f"education_institution = '{education_institution_escaped}', coach = '{coach_escaped}', "
+                f"ms_rating = {ms_rating_str}, "
                 f"city_country = '{city_country_escaped}', representative_phone = '{representative_phone_escaped}', "
                 f"email = '{email_escaped}', password_hash = '{password_hash_escaped}', avatar = '{avatar_escaped}' WHERE id = {user_id}"
             )
@@ -136,6 +139,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 f"UPDATE users SET full_name = '{full_name_escaped}', last_name = '{last_name_escaped}', "
                 f"middle_name = '{middle_name_escaped}', birth_date = '{birth_date}', fsr_id = '{fsr_id_escaped}', "
                 f"education_institution = '{education_institution_escaped}', coach = '{coach_escaped}', "
+                f"ms_rating = {ms_rating_str}, "
                 f"city_country = '{city_country_escaped}', representative_phone = '{representative_phone_escaped}', "
                 f"email = '{email_escaped}', password_hash = '{password_hash_escaped}' WHERE id = {user_id}"
             )
@@ -146,6 +150,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 f"UPDATE users SET full_name = '{full_name_escaped}', last_name = '{last_name_escaped}', "
                 f"middle_name = '{middle_name_escaped}', birth_date = '{birth_date}', fsr_id = '{fsr_id_escaped}', "
                 f"education_institution = '{education_institution_escaped}', coach = '{coach_escaped}', "
+                f"ms_rating = {ms_rating_str}, "
                 f"city_country = '{city_country_escaped}', representative_phone = '{representative_phone_escaped}', "
                 f"email = '{email_escaped}', avatar = '{avatar_escaped}' WHERE id = {user_id}"
             )
@@ -154,11 +159,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 f"UPDATE users SET full_name = '{full_name_escaped}', last_name = '{last_name_escaped}', "
                 f"middle_name = '{middle_name_escaped}', birth_date = '{birth_date}', fsr_id = '{fsr_id_escaped}', "
                 f"education_institution = '{education_institution_escaped}', coach = '{coach_escaped}', "
+                f"ms_rating = {ms_rating_str}, "
                 f"city_country = '{city_country_escaped}', representative_phone = '{representative_phone_escaped}', "
                 f"email = '{email_escaped}' WHERE id = {user_id}"
             )
     
-    cursor.execute(f"SELECT id, email, full_name, last_name, middle_name, birth_date, fsr_id, education_institution, coach, city_country, representative_phone, is_verified, created_at, avatar FROM users WHERE id = {user_id}")
+    cursor.execute(f"SELECT id, email, full_name, last_name, middle_name, birth_date, fsr_id, education_institution, coach, ms_rating, city_country, representative_phone, is_verified, created_at, avatar FROM users WHERE id = {user_id}")
     user_row = cursor.fetchone()
     
     cursor.close()
@@ -174,11 +180,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'fsr_id': user_row[6],
         'education_institution': user_row[7],
         'coach': user_row[8],
-        'city_country': user_row[9],
-        'representative_phone': user_row[10],
-        'is_verified': user_row[11],
-        'created_at': user_row[12].isoformat() if user_row[12] else None,
-        'avatar': user_row[13]
+        'ms_rating': user_row[9],
+        'city_country': user_row[10],
+        'representative_phone': user_row[11],
+        'is_verified': user_row[12],
+        'created_at': user_row[13].isoformat() if user_row[13] else None,
+        'avatar': user_row[14]
     }
     
     return {

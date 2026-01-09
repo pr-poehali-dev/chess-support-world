@@ -20,6 +20,7 @@ const Profile = () => {
   const [fsrId, setFsrId] = useState('');
   const [educationInstitution, setEducationInstitution] = useState('');
   const [coach, setCoach] = useState('');
+  const [msRating, setMsRating] = useState('');
   const [cityCountry, setCityCountry] = useState('');
   const [representativePhone, setRepresentativePhone] = useState('');
   const [email, setEmail] = useState('');
@@ -63,6 +64,7 @@ const Profile = () => {
           setFsrId(userData.fsr_id || '');
           setEducationInstitution(userData.education_institution || '');
           setCoach(userData.coach || '');
+          setMsRating(userData.ms_rating || '');
           setCityCountry(userData.city_country || '');
           setRepresentativePhone(userData.representative_phone || '');
           setEmail(userData.email || '');
@@ -119,6 +121,7 @@ const Profile = () => {
           fsr_id: fsrId,
           education_institution: educationInstitution,
           coach,
+          ms_rating: msRating,
           city_country: cityCountry,
           representative_phone: representativePhone,
           email,
@@ -140,6 +143,7 @@ const Profile = () => {
         setFsrId(updatedUser.fsr_id || '');
         setEducationInstitution(updatedUser.education_institution || '');
         setCoach(updatedUser.coach || '');
+        setMsRating(updatedUser.ms_rating || '');
         setCityCountry(updatedUser.city_country || '');
         setRepresentativePhone(updatedUser.representative_phone || '');
         setEmail(updatedUser.email || '');
@@ -436,6 +440,23 @@ const Profile = () => {
                 />
               ) : (
                 <p className="text-sm text-gray-900">{user.coach || 'Не указано'}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Рейтинг МШ (Мир Шахмат)
+              </label>
+              {editing ? (
+                <input
+                  type="number"
+                  value={msRating}
+                  onChange={(e) => setMsRating(e.target.value)}
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                  placeholder="Введите рейтинг МШ"
+                />
+              ) : (
+                <p className="text-sm text-gray-900">{user.ms_rating || 'Не указано'}</p>
               )}
             </div>
           </div>
