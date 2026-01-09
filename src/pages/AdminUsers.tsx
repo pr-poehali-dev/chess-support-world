@@ -179,6 +179,7 @@ const AdminUsers = () => {
         fsr_id: editingUser.fsr_id,
         education_institution: editingUser.education_institution,
         coach: editingUser.coach,
+        ms_rating: editingUser.ms_rating,
         city_country: editingUser.city_country,
         representative_phone: editingUser.representative_phone,
         is_verified: editingUser.is_verified,
