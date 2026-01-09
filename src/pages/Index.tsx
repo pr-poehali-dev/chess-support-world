@@ -105,10 +105,30 @@ const Index = () => {
         .then(data => {
           if (data.started_tournaments && data.started_tournaments.length > 0) {
             loadTournaments();
-            toast({
-              title: "Турнир начался!",
-              description: `Запущено туров: ${data.started_tournaments.length}`,
-            });
+            
+            // Проверяем, зарегистрирован ли пользователь в начавшихся турнирах
+            if (storedUser) {
+              const userId = JSON.parse(storedUser).id;
+              data.started_tournaments.forEach((tournamentId: number) => {
+                if (registrationStatuses[tournamentId]) {
+                  // Открываем турнирный зал для первого турнира, в котором зарегистрирован
+                  navigate(`/tournament/${tournamentId}`);
+                  toast({
+                    title: "Турнир начался!",
+                    description: "Переход в турнирный зал...",
+                  });
+                  return;
+                }
+              });
+            }
+            
+            // Если не зарегистрирован - просто показываем уведомление
+            if (!data.started_tournaments.some((id: number) => registrationStatuses[id])) {
+              toast({
+                title: "Турнир начался!",
+                description: `Запущено туров: ${data.started_tournaments.length}`,
+              });
+            }
           }
         })
         .catch(err => console.error('Auto-start check failed:', err));
