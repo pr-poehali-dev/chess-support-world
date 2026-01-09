@@ -447,7 +447,7 @@ const Profile = () => {
               <label className="block text-xs font-medium text-gray-600 mb-1">
                 Рейтинг МШ (Мир Шахмат)
               </label>
-              {editing ? (
+              {editing && user.is_admin ? (
                 <input
                   type="number"
                   value={msRating}
