@@ -230,30 +230,30 @@ const ChessBoard = ({
   const bottomPlayerColor = playerColor === 'black' ? 'black' : 'white';
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div className="lg:col-span-2">
-        <Card className="p-6">
+        <Card className="p-4">
           {/* Верхний игрок */}
-          <div className="mb-4 bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border">
+          <div className="mb-3 bg-gradient-to-r from-gray-50 to-gray-100 p-3 rounded-lg border">
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${topPlayerColor === 'white' ? 'bg-white border-2 border-gray-300' : 'bg-gray-900'}`}>
-                  <Icon name="User" size={20} className={topPlayerColor === 'white' ? 'text-gray-900' : 'text-white'} />
+              <div className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${topPlayerColor === 'white' ? 'bg-white border-2 border-gray-300' : 'bg-gray-900'}`}>
+                  <Icon name="User" size={16} className={topPlayerColor === 'white' ? 'text-gray-900' : 'text-white'} />
                 </div>
                 <div>
-                  <div className="font-semibold text-lg">{topPlayerName}</div>
+                  <div className="font-semibold text-sm">{topPlayerName}</div>
                   <div className="text-xs text-gray-500">{topPlayerColor === 'white' ? 'Белые' : 'Черные'}</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold font-mono">5:00</div>
+                <div className="text-lg font-bold font-mono">5:00</div>
                 <div className="text-xs text-gray-500">Время</div>
               </div>
             </div>
           </div>
 
           {/* Шахматная доска */}
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-xl mx-auto">
             <Chessboard
               position={position}
               onPieceDrop={onDrop}
@@ -266,41 +266,41 @@ const ChessBoard = ({
           </div>
 
           {/* Нижний игрок */}
-          <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border-2 border-blue-200">
+          <div className="mt-3 bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border-2 border-blue-200">
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${bottomPlayerColor === 'white' ? 'bg-white border-2 border-gray-300' : 'bg-gray-900'}`}>
-                  <Icon name="User" size={20} className={bottomPlayerColor === 'white' ? 'text-gray-900' : 'text-white'} />
+              <div className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${bottomPlayerColor === 'white' ? 'bg-white border-2 border-gray-300' : 'bg-gray-900'}`}>
+                  <Icon name="User" size={16} className={bottomPlayerColor === 'white' ? 'text-gray-900' : 'text-white'} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-lg">{bottomPlayerName}</span>
-                    {playerColor && <span className="text-xs bg-blue-500 text-white px-2 py-1 rounded font-semibold">ВЫ</span>}
+                    <span className="font-semibold text-sm">{bottomPlayerName}</span>
+                    {playerColor && <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded font-semibold">ВЫ</span>}
                   </div>
                   <div className="text-xs text-gray-500">{bottomPlayerColor === 'white' ? 'Белые' : 'Черные'}</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold font-mono text-blue-600">5:00</div>
+                <div className="text-lg font-bold font-mono text-blue-600">5:00</div>
                 <div className="text-xs text-gray-500">Время</div>
               </div>
             </div>
           </div>
 
           {/* Статус игры */}
-          <div className="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-yellow-200">
-            <div className="text-center font-bold text-xl text-yellow-900 mb-3">
+          <div className="mt-3 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-yellow-200">
+            <div className="text-center font-bold text-lg text-yellow-900 mb-2">
               {gameStatus}
             </div>
             
             {playerColor && !gameStatus.includes('Мат') && !gameStatus.includes('Ничья') && (
-              <div className="flex gap-3 justify-center">
-                <Button onClick={handleResign} variant="destructive" className="gap-2">
-                  <Icon name="Flag" size={18} />
+              <div className="flex gap-2 justify-center">
+                <Button onClick={handleResign} variant="destructive" size="sm" className="gap-1">
+                  <Icon name="Flag" size={16} />
                   Сдаться
                 </Button>
-                <Button onClick={handleOfferDraw} variant="outline" className="gap-2">
-                  <Icon name="Handshake" size={18} />
+                <Button onClick={handleOfferDraw} variant="outline" size="sm" className="gap-1">
+                  <Icon name="Handshake" size={16} />
                   Предложить ничью
                 </Button>
               </div>
@@ -311,29 +311,29 @@ const ChessBoard = ({
 
       {/* История ходов */}
       <div className="lg:col-span-1">
-        <Card className="p-6 h-full">
-          <div className="flex items-center gap-2 mb-4">
-            <Icon name="List" size={20} className="text-blue-600" />
-            <h3 className="font-bold text-lg">История ходов</h3>
+        <Card className="p-4 h-full">
+          <div className="flex items-center gap-2 mb-3">
+            <Icon name="List" size={18} className="text-blue-600" />
+            <h3 className="font-bold text-base">История ходов</h3>
           </div>
           
           {moveHistory.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">
-              <Icon name="Clock" size={32} className="mx-auto mb-2 opacity-50" />
-              <p>Ходы появятся здесь</p>
+            <div className="text-center py-8 text-gray-400">
+              <Icon name="Clock" size={24} className="mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Ходы появятся здесь</p>
             </div>
           ) : (
-            <div className="space-y-2 max-h-[600px] overflow-y-auto">
+            <div className="space-y-1 max-h-[450px] overflow-y-auto">
               {Array.from({ length: Math.ceil(moveHistory.length / 2) }).map((_, pairIndex) => {
                 const whiteMove = moveHistory[pairIndex * 2];
                 const blackMove = moveHistory[pairIndex * 2 + 1];
                 
                 return (
-                  <div key={pairIndex} className="flex gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                    <span className="font-bold text-gray-500 w-8">{pairIndex + 1}.</span>
-                    <div className="flex gap-3 flex-1">
-                      <span className="font-mono font-semibold flex-1">{whiteMove}</span>
-                      {blackMove && <span className="font-mono font-semibold flex-1">{blackMove}</span>}
+                  <div key={pairIndex} className="flex gap-2 p-1.5 rounded hover:bg-gray-50 transition-colors">
+                    <span className="font-bold text-gray-500 w-6 text-sm">{pairIndex + 1}.</span>
+                    <div className="flex gap-2 flex-1">
+                      <span className="font-mono text-sm font-semibold flex-1">{whiteMove}</span>
+                      {blackMove && <span className="font-mono text-sm font-semibold flex-1">{blackMove}</span>}
                     </div>
                   </div>
                 );
