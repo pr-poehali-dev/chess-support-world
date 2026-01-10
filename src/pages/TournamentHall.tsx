@@ -266,7 +266,7 @@ const TournamentHall = () => {
                   Запустить турнир
                 </Button>
               )}
-              {tournament && tournament.current_round && tournament.current_round > 0 && tournament.current_round < tournament.rounds && (
+              {tournament?.current_round && tournament.current_round > 0 && tournament.current_round < tournament.rounds && (
                 <div className="px-4 py-2 bg-blue-50 rounded-lg">
                   <span className="font-semibold">Тур: {tournament.current_round}/{tournament.rounds}</span>
                 </div>
@@ -315,7 +315,7 @@ const TournamentHall = () => {
                 return null;
               })()}
 
-              {tournament && tournament.current_round && tournament.current_round > 0 && (
+              {tournament?.current_round && tournament.current_round > 0 && (
                 <div className="mb-6">
                   <CurrentRoundPairings 
                     tournamentId={Number(tournamentId)} 
