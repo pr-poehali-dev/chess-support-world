@@ -31,16 +31,16 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
-        cur.execute("UPDATE tournaments SET status = 'registration_open', rounds = 3, time_control = '5+0', tournament_type = 'swiss' WHERE id = %s", (tournament_id,))
+        cur.execute(f"UPDATE tournaments SET status = 'registration_open', rounds = 3, time_control = '5+0', tournament_type = 'swiss' WHERE id = {tournament_id}")
         
         user_ids = [8, 10, 13, 14]
         
         for user_id in user_ids:
-            cur.execute("""
-                INSERT INTO tournament_participants (tournament_id, user_id, registration_date)
-                VALUES (%s, %s, NOW())
+            cur.execute(f"""
+                INSERT INTO tournament_participants (tournament_id, user_id, registration_date, status)
+                VALUES ({tournament_id}, {user_id}, NOW(), 'registered')
                 ON CONFLICT DO NOTHING
-            """, (tournament_id, user_id))
+            """)
         
         conn.commit()
         cur.close()
