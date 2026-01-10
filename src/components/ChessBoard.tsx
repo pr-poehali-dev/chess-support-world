@@ -230,9 +230,63 @@ const ChessBoard = ({
   const bottomPlayerColor = playerColor === 'black' ? 'black' : 'white';
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      {/* Левая панель */}
+      <div className="lg:col-span-1 flex flex-col gap-3">
+        {/* Информация об игре */}
+        <Card className="p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Icon name="Info" size={18} className="text-blue-600" />
+            <h3 className="font-bold text-base">Информация</h3>
+          </div>
+          
+          <div className="space-y-3">
+            <div>
+              <div className="text-xs text-gray-500 mb-1">Контроль времени</div>
+              <div className="text-sm font-semibold">5 мин</div>
+            </div>
+            
+            <div>
+              <div className="text-xs text-gray-500 mb-1">Режим игры</div>
+              <div className="text-sm font-semibold">Блиц</div>
+            </div>
+            
+            <div>
+              <div className="text-xs text-gray-500 mb-1">Статус</div>
+              <div className="text-sm font-semibold text-green-600">Активна</div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Чат */}
+        <Card className="p-4 flex-1 flex flex-col">
+          <div className="flex items-center gap-2 mb-3">
+            <Icon name="MessageSquare" size={18} className="text-blue-600" />
+            <h3 className="font-bold text-base">Чат</h3>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto mb-3 space-y-2 min-h-[200px]">
+            <div className="text-center py-8 text-gray-400">
+              <Icon name="MessagesSquare" size={24} className="mx-auto mb-2 opacity-50" />
+              <p className="text-sm">Сообщений пока нет</p>
+            </div>
+          </div>
+          
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Напишите сообщение..."
+              className="flex-1 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Button size="sm" className="gap-1">
+              <Icon name="Send" size={16} />
+            </Button>
+          </div>
+        </Card>
+      </div>
+
       {/* Шахматная доска */}
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-3">
         <Card className="p-4">
           <div className="max-w-xl mx-auto">
             <Chessboard
