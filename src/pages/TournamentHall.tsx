@@ -16,7 +16,7 @@ interface Tournament {
   title: string;
   name?: string;
   status: string;
-  current_round: number;
+  current_round?: number;
   rounds: number;
   total_rounds?: number;
 }
@@ -266,7 +266,7 @@ const TournamentHall = () => {
                   Запустить турнир
                 </Button>
               )}
-              {tournament && tournament.current_round > 0 && tournament.current_round < tournament.rounds && (
+              {tournament && tournament.current_round && tournament.current_round > 0 && tournament.current_round < tournament.rounds && (
                 <div className="px-4 py-2 bg-blue-50 rounded-lg">
                   <span className="font-semibold">Тур: {tournament.current_round}/{tournament.rounds}</span>
                 </div>
