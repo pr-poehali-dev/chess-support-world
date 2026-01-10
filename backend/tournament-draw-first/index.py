@@ -118,7 +118,7 @@ def handler(event: dict, context) -> dict:
         
         cur.execute(f"""
             UPDATE tournaments
-            SET current_round = 1
+            SET current_round = 1, status = 'in_progress'
             WHERE id = {tournament_id}
         """)
         
