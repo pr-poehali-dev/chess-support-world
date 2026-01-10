@@ -51,13 +51,13 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
-        cur.execute("""
+        cur.execute(f"""
             SELECT tp.user_id, u.ms_rating
             FROM tournament_participants tp
             JOIN users u ON u.id = tp.user_id
-            WHERE tp.tournament_id = %s AND tp.status = 'registered'
+            WHERE tp.tournament_id = {tournament_id} AND tp.status = 'registered'
             ORDER BY u.ms_rating DESC
-        """, (tournament_id,))
+        """)
         
         participants = cur.fetchall()
         
@@ -74,11 +74,12 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
-        cur.execute("""
+        created_at = datetime.now().isoformat()
+        cur.execute(f"""
             INSERT INTO tournament_rounds (tournament_id, round_number, status, created_at)
-            VALUES (%s, 1, 'pending', %s)
+            VALUES ({tournament_id}, 1, 'pending', '{created_at}')
             RETURNING id
-        """, (tournament_id, datetime.now()))
+        """)
         
         round_id = cur.fetchone()[0]
         
@@ -95,12 +96,14 @@ def handler(event: dict, context) -> dict:
             white_id = player_ids[i]
             black_id = player_ids[i + 1] if i + 1 < len(player_ids) else None
             
-            cur.execute("""
+            black_clause = f"{black_id}" if black_id is not None else "NULL"
+            
+            cur.execute(f"""
                 INSERT INTO tournament_pairings 
                 (tournament_id, round_id, white_player_id, black_player_id, board_number, created_at)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                VALUES ({tournament_id}, {round_id}, {white_id}, {black_clause}, {board_number}, '{created_at}')
                 RETURNING id
-            """, (tournament_id, round_id, white_id, black_id, board_number, datetime.now()))
+            """)
             
             pairing_id = cur.fetchone()[0]
             
@@ -113,11 +116,11 @@ def handler(event: dict, context) -> dict:
             
             board_number += 1
         
-        cur.execute("""
+        cur.execute(f"""
             UPDATE tournaments
             SET current_round = 1
-            WHERE id = %s
-        """, (tournament_id,))
+            WHERE id = {tournament_id}
+        """)
         
         conn.commit()
         cur.close()
