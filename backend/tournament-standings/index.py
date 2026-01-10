@@ -1,5 +1,5 @@
 '''
-Business: Get tournament standings table with scores, rankings and round results
+Business: Get tournament standings table with scores, rankings and round results 
 Args: event with httpMethod, queryStringParameters (tournament_id)
       context with request_id
 Returns: JSON with standings (rank, player info, points, wins, draws, losses, round results) and tournament rounds count
@@ -50,30 +50,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     database_url = os.environ.get('DATABASE_URL')
     
-    conn = psycopg2.connect(database_url)
-    cur = conn.cursor()
-    
-    tournament_query = f'''
-        SELECT rounds FROM t_p91748136_chess_support_world.tournaments
-        WHERE id = {tournament_id}
-    '''
-    cur.execute(tournament_query)
-    tournament_data = cur.fetchone()
-    rounds_count = tournament_data[0] if tournament_data and tournament_data[0] else 7
-    
-    query = f'''
-        SELECT 
-            u.id,
-            u.first_name,
-            u.last_name,
-            u.birth_date
-        FROM t_p91748136_chess_support_world.tournament_participants tp
-        JOIN t_p91748136_chess_support_world.users u ON tp.user_id = u.id
-        WHERE tp.tournament_id = {tournament_id} AND tp.status = 'registered'
-    '''
-    
-    cur.execute(query)
-    rows = cur.fetchall()
+    try:
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        
+        tournament_query = f'''
+            SELECT rounds FROM t_p91748136_chess_support_world.tournaments
+            WHERE id = {tournament_id}
+        '''
+        cur.execute(tournament_query)
+        tournament_data = cur.fetchone()
+        rounds_count = tournament_data[0] if tournament_data and tournament_data[0] else 7
+        
+        query = f'''
+            SELECT 
+                u.id,
+                u.first_name,
+                u.last_name,
+                u.birth_date
+            FROM t_p91748136_chess_support_world.tournament_participants tp
+            JOIN t_p91748136_chess_support_world.users u ON tp.user_id = u.id
+            WHERE tp.tournament_id = {tournament_id} AND tp.status = 'registered'
+        '''
+        
+        cur.execute(query)
+        rows = cur.fetchall()
     
     standings = []
     for row in rows:
@@ -142,24 +143,37 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'round_results': round_results
         })
     
-    standings.sort(key=lambda x: x['points'], reverse=True)
-    
-    for i, player in enumerate(standings):
-        player['rank'] = i + 1
-    
-    cur.close()
-    conn.close()
-    
-    return {
-        'statusCode': 200,
-        'headers': {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-        },
-        'isBase64Encoded': False,
-        'body': json.dumps({
-            'standings': standings,
-            'total': len(standings),
-            'rounds': rounds_count
-        })
-    }
+        standings.sort(key=lambda x: x['points'], reverse=True)
+        
+        for i, player in enumerate(standings):
+            player['rank'] = i + 1
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'isBase64Encoded': False,
+            'body': json.dumps({
+                'standings': standings,
+                'total': len(standings),
+                'rounds': rounds_count
+            })
+        }
+        
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'isBase64Encoded': False,
+            'body': json.dumps({'error': str(e)})
+        }
+    finally:
+        if 'cur' in locals():
+            cur.close()
+        if 'conn' in locals():
+            conn.close()
