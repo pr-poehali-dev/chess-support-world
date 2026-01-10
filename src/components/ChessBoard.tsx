@@ -230,9 +230,9 @@ const ChessBoard = ({
   const bottomPlayerColor = playerColor === 'black' ? 'black' : 'white';
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+    <div className="flex flex-col lg:flex-row gap-4 items-start">
       {/* Левая панель */}
-      <div className="lg:col-span-1 flex flex-col gap-3">
+      <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-3">
         {/* Информация об игре */}
         <Card className="p-4">
           <div className="flex items-center gap-2 mb-3">
@@ -286,9 +286,9 @@ const ChessBoard = ({
       </div>
 
       {/* Шахматная доска */}
-      <div className="lg:col-span-3">
-        <Card className="p-4">
-          <div className="max-w-xl mx-auto">
+      <div className="flex-shrink-0">
+        <Card className="p-4" style={{width: 'calc(600px + 20px)'}}>
+          <div style={{width: '600px', margin: '0 auto'}}>
             <Chessboard
               position={position}
               onPieceDrop={onDrop}
@@ -303,7 +303,7 @@ const ChessBoard = ({
       </div>
 
       {/* Правая панель */}
-      <div className="lg:col-span-1 flex flex-col gap-3">
+      <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-3">
         {/* Верхний игрок */}
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-3 rounded-lg border">
           <div className="flex justify-between items-center">
