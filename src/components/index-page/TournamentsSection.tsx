@@ -20,6 +20,7 @@ interface Tournament {
 interface TournamentsSectionProps {
   tournaments: Tournament[];
   registrationStatuses: Record<number, boolean>;
+  isAdmin: boolean;
   onRegister: (tournamentId: number) => void;
   onNavigateToHall: (tournamentId: number) => void;
   onShowParticipants: (tournamentId: number, tournamentName: string) => void;
@@ -28,6 +29,7 @@ interface TournamentsSectionProps {
 const TournamentsSection = ({
   tournaments,
   registrationStatuses,
+  isAdmin,
   onRegister,
   onNavigateToHall,
   onShowParticipants
@@ -238,7 +240,7 @@ const TournamentsSection = ({
                   </div>
 
                   <div className="flex gap-2 flex-wrap">
-                    {registrationStatuses[tournament.id] && (
+                    {(registrationStatuses[tournament.id] || isAdmin) && (
                       <Button 
                         onClick={() => onNavigateToHall(tournament.id)}
                         className="gap-2 bg-green-600 hover:bg-green-700"

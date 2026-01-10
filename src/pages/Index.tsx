@@ -360,6 +360,7 @@ const Index = () => {
           <TournamentsSection
             tournaments={tournaments}
             registrationStatuses={registrationStatuses}
+            isAdmin={user?.is_admin || false}
             onRegister={handleTournamentRegistration}
             onNavigateToHall={(id) => navigate(`/tournament/${id}`)}
             onShowParticipants={(id, name) => {
