@@ -64,12 +64,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     query = f'''
         SELECT 
             u.id,
-            u.full_name,
+            u.first_name,
             u.last_name,
             u.birth_date
-        FROM t_p91748136_chess_support_world.tournament_registrations tr
-        JOIN t_p91748136_chess_support_world.users u ON tr.player_id = u.id
-        WHERE tr.tournament_id = {tournament_id} AND tr.status = 'registered'
+        FROM t_p91748136_chess_support_world.tournament_participants tp
+        JOIN t_p91748136_chess_support_world.users u ON tp.user_id = u.id
+        WHERE tp.tournament_id = {tournament_id} AND tp.status = 'registered'
     '''
     
     cur.execute(query)
