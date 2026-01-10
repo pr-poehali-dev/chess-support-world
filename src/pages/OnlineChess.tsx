@@ -129,6 +129,7 @@ export default function OnlineChess() {
           blackPlayerName={gameState.black_player_name || 'Игрок 2'}
           whitePlayerRating={gameState.white_player_rating}
           blackPlayerRating={gameState.black_player_rating}
+          tournamentId={gameState.tournament_id}
           onGameEnd={() => {
             loadGame();
           }}

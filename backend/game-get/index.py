@@ -49,7 +49,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     cursor.execute("""
         SELECT g.id, g.fen, g.pgn, g.white_player_id, g.black_player_id, 
-               g.current_turn, g.status, g.winner,
+               g.current_turn, g.status, g.winner, g.tournament_id,
                w.full_name as white_name, w.last_name as white_last_name, w.ms_rating as white_rating,
                b.full_name as black_name, b.last_name as black_last_name, b.ms_rating as black_rating
         FROM games g
@@ -70,8 +70,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    white_full_name = f"{row[9]} {row[8]}" if row[9] and row[8] else (row[8] or 'Игрок 1')
-    black_full_name = f"{row[12]} {row[11]}" if row[12] and row[11] else (row[11] or 'Игрок 2')
+    white_full_name = f"{row[10]} {row[9]}" if row[10] and row[9] else (row[9] or 'Игрок 1')
+    black_full_name = f"{row[13]} {row[12]}" if row[13] and row[12] else (row[12] or 'Игрок 2')
     
     game_data = {
         'id': row[0],
@@ -82,10 +82,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'current_turn': row[5],
         'status': row[6],
         'winner': row[7],
+        'tournament_id': row[8],
         'white_player_name': white_full_name,
         'black_player_name': black_full_name,
-        'white_player_rating': row[10],
-        'black_player_rating': row[13]
+        'white_player_rating': row[11],
+        'black_player_rating': row[14]
     }
     
     return {
