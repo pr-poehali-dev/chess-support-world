@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 
 interface ChessBoardProps {
-  gameId: number;
+  gameId: string;
   userId: number;
   whitePlayerId: number;
   blackPlayerId: number;

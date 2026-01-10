@@ -121,7 +121,7 @@ export default function OnlineChess() {
         </div>
 
         <ChessBoard
-          gameId={parseInt(gameId)}
+          gameId={gameId}
           userId={user?.id || 0}
           whitePlayerId={gameState.white_player_id}
           blackPlayerId={gameState.black_player_id}
