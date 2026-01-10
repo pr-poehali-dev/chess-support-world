@@ -66,7 +66,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     cursor.execute("""
         SELECT white_player_id, black_player_id, status
-        FROM games
+        FROM t_p91748136_chess_support_world.games
         WHERE id = %s
     """, (game_id,))
     
@@ -87,20 +87,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if game_status == 'waiting' and black_id is None and user_id_int != white_id:
         cursor.execute("""
-            UPDATE games
+            UPDATE t_p91748136_chess_support_world.games
             SET black_player_id = %s, status = 'active', updated_at = NOW()
             WHERE id = %s
         """, (user_id_int, game_id))
         conn.commit()
     
     cursor.execute("""
-        UPDATE games
+        UPDATE t_p91748136_chess_support_world.games
         SET fen = %s, pgn = %s, current_turn = %s, status = %s, winner = %s, updated_at = NOW()
         WHERE id = %s
     """, (fen, pgn or '', current_turn, status, winner, game_id))
     
     cursor.execute("""
-        SELECT tournament_id FROM games WHERE id = %s
+        SELECT tournament_id FROM t_p91748136_chess_support_world.games WHERE id = %s
     """, (game_id,))
     
     tournament_row = cursor.fetchone()

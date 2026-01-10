@@ -52,9 +52,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                g.current_turn, g.status, g.winner, g.tournament_id,
                w.full_name as white_name, w.last_name as white_last_name, w.ms_rating as white_rating,
                b.full_name as black_name, b.last_name as black_last_name, b.ms_rating as black_rating
-        FROM games g
-        LEFT JOIN users w ON g.white_player_id = w.id
-        LEFT JOIN users b ON g.black_player_id = b.id
+        FROM t_p91748136_chess_support_world.games g
+        LEFT JOIN t_p91748136_chess_support_world.users w ON g.white_player_id = w.id
+        LEFT JOIN t_p91748136_chess_support_world.users b ON g.black_player_id = b.id
         WHERE g.id = %s
     """, (game_id,))
     
