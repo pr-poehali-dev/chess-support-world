@@ -337,7 +337,7 @@ const ChessBoard = ({
         </div>
 
         {/* История ходов */}
-        <Card className="p-4 flex-1 flex flex-col">
+        <Card className="p-4 flex flex-col" style={{height: '320px'}}>
           <div className="flex items-center gap-2 mb-3">
             <Icon name="List" size={18} className="text-blue-600" />
             <h3 className="font-bold text-base">История ходов</h3>
