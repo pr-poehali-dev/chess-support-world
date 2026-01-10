@@ -55,10 +55,10 @@ def handler(event, context):
         rounds_count = tournament_data[0] if tournament_data else 7
         
         cur.execute(f"""
-            SELECT u.id, u.first_name, u.last_name, u.birth_date
+            SELECT u.id, u.full_name, u.last_name, u.birth_date
             FROM tournament_participants tp
             JOIN users u ON tp.user_id = u.id
-            WHERE tp.tournament_id = {tournament_id} AND tp.status = 'registered'
+            WHERE tp.tournament_id = {tournament_id}
         """)
         rows = cur.fetchall()
         
