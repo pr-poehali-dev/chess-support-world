@@ -31,6 +31,8 @@ const ChessBoard = ({
   const [gameStatus, setGameStatus] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
+  const [whitePlayerData, setWhitePlayerData] = useState<{full_name: string, last_name: string, ms_rating: number | null} | null>(null);
+  const [blackPlayerData, setBlackPlayerData] = useState<{full_name: string, last_name: string, ms_rating: number | null} | null>(null);
 
   useEffect(() => {
     console.log('🎨 Color determination:', {
@@ -55,10 +57,53 @@ const ChessBoard = ({
     }
 
     loadGameState();
+    loadPlayersData();
     
     const interval = setInterval(loadGameState, 2000);
     return () => clearInterval(interval);
   }, [gameId]);
+
+  const loadPlayersData = async () => {
+    try {
+      // Загружаем данные белого игрока
+      const whiteResponse = await fetch(
+        `https://functions.poehali.dev/4febeae0-8d66-41f4-ab59-c8e4f0ab0adc`,
+        {
+          headers: {
+            'X-User-Id': whitePlayerId.toString()
+          }
+        }
+      );
+      if (whiteResponse.ok) {
+        const whiteData = await whiteResponse.json();
+        setWhitePlayerData({
+          full_name: whiteData.full_name || 'Игрок',
+          last_name: whiteData.last_name || '',
+          ms_rating: whiteData.ms_rating
+        });
+      }
+
+      // Загружаем данные черного игрока
+      const blackResponse = await fetch(
+        `https://functions.poehali.dev/4febeae0-8d66-41f4-ab59-c8e4f0ab0adc`,
+        {
+          headers: {
+            'X-User-Id': blackPlayerId.toString()
+          }
+        }
+      );
+      if (blackResponse.ok) {
+        const blackData = await blackResponse.json();
+        setBlackPlayerData({
+          full_name: blackData.full_name || 'Игрок',
+          last_name: blackData.last_name || '',
+          ms_rating: blackData.ms_rating
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load players data:', error);
+    }
+  };
 
   const loadGameState = async () => {
     try {
@@ -242,18 +287,40 @@ const ChessBoard = ({
           
           <div className="space-y-3">
             <div>
+              <div className="text-xs text-gray-500 mb-1">Белые</div>
+              <div className="text-sm font-semibold">
+                {whitePlayerData ? (
+                  <>
+                    {whitePlayerData.last_name} {whitePlayerData.full_name}
+                    {whitePlayerData.ms_rating && (
+                      <span className="text-gray-500"> ({whitePlayerData.ms_rating})</span>
+                    )}
+                  </>
+                ) : (
+                  whitePlayerName
+                )}
+              </div>
+            </div>
+            
+            <div>
+              <div className="text-xs text-gray-500 mb-1">Черные</div>
+              <div className="text-sm font-semibold">
+                {blackPlayerData ? (
+                  <>
+                    {blackPlayerData.last_name} {blackPlayerData.full_name}
+                    {blackPlayerData.ms_rating && (
+                      <span className="text-gray-500"> ({blackPlayerData.ms_rating})</span>
+                    )}
+                  </>
+                ) : (
+                  blackPlayerName
+                )}
+              </div>
+            </div>
+            
+            <div>
               <div className="text-xs text-gray-500 mb-1">Контроль времени</div>
-              <div className="text-sm font-semibold">5 мин</div>
-            </div>
-            
-            <div>
-              <div className="text-xs text-gray-500 mb-1">Режим игры</div>
-              <div className="text-sm font-semibold">Блиц</div>
-            </div>
-            
-            <div>
-              <div className="text-xs text-gray-500 mb-1">Статус</div>
-              <div className="text-sm font-semibold text-green-600">Активна</div>
+              <div className="text-sm font-semibold">5 мин • Блиц</div>
             </div>
           </div>
         </Card>
