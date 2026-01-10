@@ -50,10 +50,10 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
-        cur.execute("""
+        cur.execute(f"""
             SELECT id FROM tournament_rounds
-            WHERE tournament_id = %s AND round_number = %s
-        """, (tournament_id, round_number))
+            WHERE tournament_id = {tournament_id} AND round_number = {round_number}
+        """)
         
         round_row = cur.fetchone()
         
@@ -72,13 +72,13 @@ def handler(event: dict, context) -> dict:
         
         round_id = round_row[0]
         
-        cur.execute("""
+        cur.execute(f"""
             SELECT 
                 tp.id,
                 tp.board_number,
-                CONCAT(uw.full_name, ' ', uw.last_name) as white_player_name,
+                CONCAT(uw.first_name, ' ', uw.last_name) as white_player_name,
                 CASE WHEN tp.black_player_id IS NOT NULL 
-                     THEN CONCAT(ub.full_name, ' ', ub.last_name)
+                     THEN CONCAT(ub.first_name, ' ', ub.last_name)
                      ELSE NULL 
                 END as black_player_name,
                 tp.result,
@@ -86,9 +86,9 @@ def handler(event: dict, context) -> dict:
             FROM tournament_pairings tp
             JOIN users uw ON uw.id = tp.white_player_id
             LEFT JOIN users ub ON ub.id = tp.black_player_id
-            WHERE tp.round_id = %s
+            WHERE tp.round_id = {round_id}
             ORDER BY tp.board_number
-        """, (round_id,))
+        """)
         
         pairings = []
         for row in cur.fetchall():

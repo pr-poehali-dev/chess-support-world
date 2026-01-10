@@ -28,6 +28,7 @@ const App = () => (
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/online-chess" element={<OnlineChess />} />
           <Route path="/online-chess/:gameId" element={<OnlineChess />} />
+          <Route path="/game/:gameId" element={<OnlineChess />} />
           <Route path="/tournament/:tournamentId" element={<TournamentHall />} />
           <Route path="/tournament/:tournamentId/standings" element={<TournamentStandings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
