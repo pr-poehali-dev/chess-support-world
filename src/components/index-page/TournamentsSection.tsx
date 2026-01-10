@@ -238,7 +238,7 @@ const TournamentsSection = ({
                   </div>
 
                   <div className="flex gap-2 flex-wrap">
-                    {tournament.status === 'in_progress' && (
+                    {registrationStatuses[tournament.id] && (
                       <Button 
                         onClick={() => onNavigateToHall(tournament.id)}
                         className="gap-2 bg-green-600 hover:bg-green-700"
@@ -262,7 +262,7 @@ const TournamentsSection = ({
                       </Button>
                     )}
                     
-                    {tournament.status === 'registration_closed' && (
+                    {tournament.status === 'registration_closed' && !registrationStatuses[tournament.id] && (
                       <Button 
                         variant="outline" 
                         className="gap-2 border-orange-600 text-orange-700 cursor-not-allowed"
