@@ -52,10 +52,10 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
         
         cur.execute(f"""
-            SELECT tp.user_id, u.ms_rating
-            FROM tournament_participants tp
-            JOIN users u ON u.id = tp.user_id
-            WHERE tp.tournament_id = {tournament_id} AND tp.status = 'registered'
+            SELECT tr.player_id, u.ms_rating
+            FROM t_p91748136_chess_support_world.tournament_registrations tr
+            JOIN t_p91748136_chess_support_world.users u ON u.id = tr.player_id
+            WHERE tr.tournament_id = {tournament_id} AND tr.status = 'registered'
             ORDER BY u.ms_rating DESC
         """)
         
@@ -76,7 +76,7 @@ def handler(event: dict, context) -> dict:
         
         created_at = datetime.now().isoformat()
         cur.execute(f"""
-            INSERT INTO tournament_rounds (tournament_id, round_number, status, created_at)
+            INSERT INTO t_p91748136_chess_support_world.tournament_rounds (tournament_id, round_number, status, created_at)
             VALUES ({tournament_id}, 1, 'pending', '{created_at}')
             RETURNING id
         """)
@@ -99,7 +99,7 @@ def handler(event: dict, context) -> dict:
             black_clause = f"{black_id}" if black_id is not None else "NULL"
             
             cur.execute(f"""
-                INSERT INTO tournament_pairings 
+                INSERT INTO t_p91748136_chess_support_world.tournament_pairings 
                 (tournament_id, round_id, white_player_id, black_player_id, board_number, created_at)
                 VALUES ({tournament_id}, {round_id}, {white_id}, {black_clause}, {board_number}, '{created_at}')
                 RETURNING id
@@ -117,7 +117,7 @@ def handler(event: dict, context) -> dict:
             board_number += 1
         
         cur.execute(f"""
-            UPDATE tournaments
+            UPDATE t_p91748136_chess_support_world.tournaments
             SET current_round = 1, status = 'in_progress'
             WHERE id = {tournament_id}
         """)
