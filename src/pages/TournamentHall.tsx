@@ -315,7 +315,7 @@ const TournamentHall = () => {
                 return null;
               })()}
 
-              {tournament && tournament.current_round > 0 && (
+              {tournament && tournament.current_round && tournament.current_round > 0 && (
                 <div className="mb-6">
                   <CurrentRoundPairings 
                     tournamentId={Number(tournamentId)} 
