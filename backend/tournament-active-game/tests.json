@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Test get active game without user",
+      "method": "GET",
+      "path": "/?tournament_id=1",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "success": false
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

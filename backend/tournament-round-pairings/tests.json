@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Test get round pairings",
+      "method": "GET",
+      "path": "/?tournament_id=1&round_number=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "pairings": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

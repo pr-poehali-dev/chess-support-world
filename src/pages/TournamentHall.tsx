@@ -7,6 +7,7 @@ import PodiumCard from '@/components/tournament/PodiumCard';
 import GamesViewer from '@/components/tournament/GamesViewer';
 import StandingsTable from '@/components/tournament/StandingsTable';
 import TournamentStats from '@/components/tournament/TournamentStats';
+import CurrentRoundPairings from '@/components/tournament/CurrentRoundPairings';
 import ChessBoard from '@/components/ChessBoard';
 import { toast } from '@/hooks/use-toast';
 
@@ -73,6 +74,39 @@ const TournamentHall = () => {
     }
   }, [standings]);
 
+  useEffect(() => {
+    if (!user || !tournamentId) return;
+
+    const checkActiveGame = async () => {
+      try {
+        const token = localStorage.getItem('auth_token');
+        if (!token) return;
+
+        const response = await fetch(
+          `https://functions.poehali.dev/17abc2b2-3993-415b-bc53-681c566702b6?tournament_id=${tournamentId}`,
+          {
+            headers: {
+              'X-User-Id': user.id.toString()
+            }
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.has_game && data.game_id) {
+          navigate(`/game/${data.game_id}`);
+        }
+      } catch (error) {
+        console.error('Failed to check active game:', error);
+      }
+    };
+
+    checkActiveGame();
+    const interval = setInterval(checkActiveGame, 5000);
+
+    return () => clearInterval(interval);
+  }, [user, tournamentId, navigate]);
+
   const loadTournamentData = async () => {
     try {
       const response = await fetch(`https://functions.poehali.dev/fb78feda-e1cb-4b60-a6c8-7bde514e8308`);
@@ -132,17 +166,38 @@ const TournamentHall = () => {
     }
   };
 
-  const startNextRound = async () => {
+  const startTournament = async () => {
     try {
-      const response = await fetch(`https://functions.poehali.dev/8b110e26-a533-4243-85c9-c541e77566da?tournament_id=${tournamentId}`, {
-        method: 'POST'
+      const drawResponse = await fetch('https://functions.poehali.dev/ecb405f1-c317-442d-af24-2f54c8ed0f13', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tournament_id: Number(tournamentId) })
       });
-      const data = await response.json();
+      const drawData = await drawResponse.json();
       
-      if (response.ok) {
+      if (!drawData.success) {
         toast({
-          title: "Успешно",
-          description: `Тур ${data.round} создан! Пары сформированы.`,
+          title: "Ошибка",
+          description: drawData.error || "Не удалось провести жеребьёвку",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const startResponse = await fetch('https://functions.poehali.dev/21206049-7e6d-45f1-8e19-57aa762ef701', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          tournament_id: Number(tournamentId),
+          round_id: drawData.round_id
+        })
+      });
+      const startData = await startResponse.json();
+      
+      if (startData.success) {
+        toast({
+          title: "Турнир стартовал!",
+          description: `Тур 1 начался. Создано ${startData.total_games} партий.`,
         });
         loadGames();
         loadStandings();
@@ -150,14 +205,14 @@ const TournamentHall = () => {
       } else {
         toast({
           title: "Ошибка",
-          description: data.error || "Не удалось создать тур",
+          description: startData.error || "Не удалось запустить тур",
           variant: "destructive"
         });
       }
     } catch (error) {
       toast({
         title: "Ошибка",
-        description: "Не удалось создать тур",
+        description: "Не удалось запустить турнир",
         variant: "destructive"
       });
     }
@@ -205,11 +260,16 @@ const TournamentHall = () => {
             </h1>
             <div className="flex justify-center items-center gap-4">
               {getStatusBadge()}
-              {tournament?.status === 'in_progress' && (
-                <Button onClick={startNextRound} className="gap-2">
-                  <Icon name="Shuffle" size={20} />
-                  Запустить тур {(tournament?.current_round || 0) + 1}
+              {tournament?.status === 'registration_open' && user?.is_admin && (
+                <Button onClick={startTournament} className="gap-2 bg-green-600 hover:bg-green-700">
+                  <Icon name="Play" size={20} />
+                  Запустить турнир
                 </Button>
+              )}
+              {tournament && tournament.current_round > 0 && tournament.current_round < tournament.rounds && (
+                <div className="px-4 py-2 bg-blue-50 rounded-lg">
+                  <span className="font-semibold">Тур: {tournament.current_round}/{tournament.rounds}</span>
+                </div>
               )}
             </div>
           </div>
@@ -254,6 +314,15 @@ const TournamentHall = () => {
                 }
                 return null;
               })()}
+
+              {tournament && tournament.current_round > 0 && (
+                <div className="mb-6">
+                  <CurrentRoundPairings 
+                    tournamentId={Number(tournamentId)} 
+                    roundNumber={tournament.current_round} 
+                  />
+                </div>
+              )}
 
               <GamesViewer games={games} />
 

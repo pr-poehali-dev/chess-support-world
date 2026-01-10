@@ -8,6 +8,7 @@ import json
 import psycopg2
 import os
 from typing import Dict, Any
+import urllib.request
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -98,9 +99,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         WHERE id = %s
     """, (fen, pgn or '', current_turn, status, winner, game_id))
     
+    cursor.execute("""
+        SELECT tournament_id FROM games WHERE id = %s
+    """, (game_id,))
+    
+    tournament_row = cursor.fetchone()
+    tournament_id = tournament_row[0] if tournament_row else None
+    
     conn.commit()
     cursor.close()
     conn.close()
+    
+    if tournament_id and status in ['checkmate', 'stalemate', 'draw', 'resignation', 'timeout']:
+        try:
+            check_url = os.environ.get('TOURNAMENT_CHECK_URL', 'https://functions.poehali.dev/cb616011-7fdb-4eb7-8e58-948329b28419')
+            check_data = json.dumps({'tournament_id': tournament_id}).encode('utf-8')
+            check_req = urllib.request.Request(check_url, data=check_data, headers={'Content-Type': 'application/json'}, method='POST')
+            with urllib.request.urlopen(check_req) as response:
+                check_result = json.loads(response.read().decode('utf-8'))
+                
+                if check_result.get('round_finished') and not check_result.get('tournament_finished'):
+                    auto_next_url = os.environ.get('TOURNAMENT_AUTO_NEXT_URL', 'https://functions.poehali.dev/tournament-auto-next')
+                    auto_next_data = json.dumps({'tournament_id': tournament_id}).encode('utf-8')
+                    auto_next_req = urllib.request.Request(auto_next_url, data=auto_next_data, headers={'Content-Type': 'application/json'}, method='POST')
+                    urllib.request.urlopen(auto_next_req)
+        except Exception:
+            pass
     
     return {
         'statusCode': 200,
