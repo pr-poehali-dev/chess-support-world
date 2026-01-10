@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Chess } from 'chess.js';
-import Chessboard from 'chessboardjsx';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import ChessBoard from '@/components/ChessBoard';
+import Header from '@/components/Header';
 
 const BACKEND_URLS = {
   gameCreate: 'https://functions.poehali.dev/25b46937-6efd-4eb4-893a-2898656e82f3',
@@ -15,17 +15,11 @@ const BACKEND_URLS = {
 export default function OnlineChess() {
   const { gameId } = useParams<{ gameId?: string }>();
   const navigate = useNavigate();
-  const [game, setGame] = useState(new Chess());
   const [gameState, setGameState] = useState<any>(null);
-  const [currentUser] = useState(() => {
+  const [user] = useState(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      return user.id?.toString();
-    }
-    return null;
+    return storedUser ? JSON.parse(storedUser) : null;
   });
-  const [playerColor, setPlayerColor] = useState<'white' | 'black' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -42,21 +36,7 @@ export default function OnlineChess() {
       const data = await response.json();
       
       if (data.success) {
-        const gameData = data.game;
-        setGameState(gameData);
-        
-        const newGame = new Chess(gameData.fen);
-        setGame(newGame);
-        
-        if (currentUser) {
-          if (parseInt(currentUser) === gameData.white_player_id) {
-            setPlayerColor('white');
-          } else if (parseInt(currentUser) === gameData.black_player_id) {
-            setPlayerColor('black');
-          } else if (!gameData.black_player_id && gameData.status === 'waiting') {
-            setPlayerColor('black');
-          }
-        }
+        setGameState(data.game);
       }
     } catch (error) {
       console.error('Error loading game:', error);
@@ -64,7 +44,7 @@ export default function OnlineChess() {
   };
 
   const createNewGame = async () => {
-    if (!currentUser) {
+    if (!user) {
       alert('Войдите в систему для создания игры');
       return;
     }
@@ -75,7 +55,7 @@ export default function OnlineChess() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-User-Id': currentUser
+          'X-User-Id': user.id.toString()
         }
       });
 
@@ -91,158 +71,67 @@ export default function OnlineChess() {
     }
   };
 
-  const makeMove = ({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare: string }) => {
-    if (!gameState || !currentUser) return;
-
-    const isPlayerTurn = 
-      (playerColor === 'white' && gameState.current_turn === 'w') ||
-      (playerColor === 'black' && gameState.current_turn === 'b');
-
-    if (!isPlayerTurn) return;
-
-    const gameCopy = new Chess(game.fen());
-    
-    try {
-      const move = gameCopy.move({
-        from: sourceSquare,
-        to: targetSquare,
-        promotion: 'q'
-      });
-
-      if (move === null) return;
-
-      setGame(gameCopy);
-
-      let status = 'active';
-      let winner = null;
-
-      if (gameCopy.isCheckmate()) {
-        status = 'finished';
-        winner = gameCopy.turn() === 'w' ? 'black' : 'white';
-      } else if (gameCopy.isDraw() || gameCopy.isStalemate() || gameCopy.isThreefoldRepetition()) {
-        status = 'draw';
-      }
-
-      fetch(BACKEND_URLS.gameMove, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': currentUser
-        },
-        body: JSON.stringify({
-          game_id: gameId,
-          fen: gameCopy.fen(),
-          pgn: gameCopy.pgn(),
-          current_turn: gameCopy.turn(),
-          status,
-          winner
-        })
-      });
-    } catch (error) {
-      console.error('Invalid move:', error);
-    }
-  };
-
-  const copyInviteLink = () => {
-    const link = `${window.location.origin}/online-chess/${gameId}`;
-    navigator.clipboard.writeText(link);
-    alert('Ссылка скопирована в буфер обмена!');
-  };
-
   if (!gameId) {
     return (
-      <div className="container mx-auto p-6 max-w-2xl">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center text-3xl">Онлайн-шахматы</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center gap-4">
-            <p className="text-center text-muted-foreground">
-              Создайте новую игру и поделитесь ссылкой с другом, чтобы сыграть онлайн
-            </p>
-            <Button onClick={createNewGame} disabled={isLoading} size="lg">
-              <Icon name="Plus" className="mr-2" size={20} />
-              {isLoading ? 'Создание...' : 'Создать новую игру'}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        <Header user={user} />
+        <div className="container mx-auto p-6 max-w-2xl">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center text-3xl">Онлайн-шахматы</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center gap-4">
+              <p className="text-center text-muted-foreground">
+                Создайте новую игру и поделитесь ссылкой с другом, чтобы сыграть онлайн
+              </p>
+              <Button onClick={createNewGame} disabled={isLoading} size="lg">
+                <Icon name="Plus" className="mr-2" size={20} />
+                {isLoading ? 'Создание...' : 'Создать новую игру'}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </>
+    );
+  }
+
+  if (!gameState) {
+    return (
+      <>
+        <Header user={user} />
+        <div className="container mx-auto p-6">
+          <div className="text-center py-12">
+            <Icon name="Loader2" size={48} className="mx-auto mb-4 text-gray-400 animate-spin" />
+            <p className="text-gray-600">Загрузка партии...</p>
+          </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
-      <div className="grid gap-6 md:grid-cols-[1fr_300px]">
-        <Card>
-          <CardContent className="p-6">
-            <Chessboard
-              position={game.fen()}
-              onDrop={makeMove}
-              orientation={playerColor || 'white'}
-              width={500}
-            />
-          </CardContent>
-        </Card>
-
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Информация об игре</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {gameState && (
-                <>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Статус</p>
-                    <p className="font-medium">
-                      {gameState.status === 'waiting' && 'Ожидание противника'}
-                      {gameState.status === 'active' && 'Игра идёт'}
-                      {gameState.status === 'finished' && `Победа: ${gameState.winner}`}
-                      {gameState.status === 'draw' && 'Ничья'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-muted-foreground">Белые</p>
-                    <p className="font-medium">{gameState.white_player_name || 'Игрок 1'}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-muted-foreground">Чёрные</p>
-                    <p className="font-medium">{gameState.black_player_name || 'Ожидание...'}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-muted-foreground">Ваш цвет</p>
-                    <p className="font-medium">
-                      {playerColor === 'white' ? 'Белые' : playerColor === 'black' ? 'Чёрные' : 'Наблюдатель'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-muted-foreground">Ход</p>
-                    <p className="font-medium">
-                      {gameState.current_turn === 'w' ? 'Белые' : 'Чёрные'}
-                    </p>
-                  </div>
-
-                  {gameState.status === 'waiting' && (
-                    <Button onClick={copyInviteLink} variant="outline" className="w-full">
-                      <Icon name="Copy" className="mr-2" size={16} />
-                      Скопировать ссылку
-                    </Button>
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          <Button onClick={() => navigate('/')} variant="outline" className="w-full">
-            <Icon name="Home" className="mr-2" size={16} />
+    <>
+      <Header user={user} />
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <Button onClick={() => navigate('/')} variant="ghost" className="gap-2">
+            <Icon name="ArrowLeft" size={20} />
             На главную
           </Button>
         </div>
+
+        <ChessBoard
+          gameId={parseInt(gameId)}
+          userId={user?.id || 0}
+          whitePlayerId={gameState.white_player_id}
+          blackPlayerId={gameState.black_player_id}
+          whitePlayerName={gameState.white_player_name || 'Игрок 1'}
+          blackPlayerName={gameState.black_player_name || 'Игрок 2'}
+          onGameEnd={() => {
+            loadGame();
+          }}
+        />
       </div>
-    </div>
+    </>
   );
 }
