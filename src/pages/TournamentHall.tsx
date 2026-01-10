@@ -47,10 +47,7 @@ const TournamentHall = () => {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      console.log('👤 User loaded:', parsedUser);
-      console.log('🔑 User role:', parsedUser.role);
-      setUser(parsedUser);
+      setUser(JSON.parse(storedUser));
     }
 
     if (!tournamentId) {
