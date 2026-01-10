@@ -317,7 +317,7 @@ const ChessBoard = ({
       </div>
 
       {/* Правая панель */}
-      <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-3">
+      <div className="w-full lg:flex-1 flex flex-col gap-3">
         {/* Верхний игрок */}
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-3 rounded-lg border">
           <div className="flex justify-between items-center">
