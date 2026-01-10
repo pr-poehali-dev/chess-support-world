@@ -262,8 +262,8 @@ const ChessBoard = ({
                 <div className="text-xs text-gray-500">{topPlayerColor === 'white' ? 'Белые' : 'Черные'}</div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-lg font-bold font-mono">5:00</div>
+            <div className="text-right bg-gray-900 px-4 py-2 rounded-lg shadow-lg">
+              <div className="text-2xl font-bold font-mono text-white tracking-wider">5:00</div>
             </div>
           </div>
         </div>
@@ -315,8 +315,8 @@ const ChessBoard = ({
                 <div className="text-xs text-gray-500">{bottomPlayerColor === 'white' ? 'Белые' : 'Черные'}</div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-lg font-bold font-mono text-blue-600">5:00</div>
+            <div className="text-right bg-blue-600 px-4 py-2 rounded-lg shadow-lg">
+              <div className="text-2xl font-bold font-mono text-white tracking-wider">5:00</div>
             </div>
           </div>
         </div>
