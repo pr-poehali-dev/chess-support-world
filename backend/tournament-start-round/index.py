@@ -52,11 +52,11 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
-        cur.execute("""
+        cur.execute(f"""
             SELECT id, white_player_id, black_player_id
             FROM tournament_pairings
-            WHERE round_id = %s AND tournament_id = %s
-        """, (round_id, tournament_id))
+            WHERE round_id = {round_id} AND tournament_id = {tournament_id}
+        """)
         
         pairings = cur.fetchall()
         
@@ -73,11 +73,11 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
-        cur.execute("""
+        cur.execute(f"""
             SELECT round_number
             FROM tournament_rounds
-            WHERE id = %s
-        """, (round_id,))
+            WHERE id = {round_id}
+        """)
         
         round_number = cur.fetchone()[0]
         
@@ -85,28 +85,29 @@ def handler(event: dict, context) -> dict:
         
         for pairing_id, white_id, black_id in pairings:
             if black_id is None:
-                cur.execute("""
+                cur.execute(f"""
                     UPDATE tournament_pairings
                     SET result = '1-0'
-                    WHERE id = %s
-                """, (pairing_id,))
+                    WHERE id = {pairing_id}
+                """)
                 continue
             
             game_id = str(uuid.uuid4())
             
             initial_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            now = datetime.now().isoformat()
             
-            cur.execute("""
+            cur.execute(f"""
                 INSERT INTO games 
                 (id, fen, pgn, white_player_id, black_player_id, current_turn, status, tournament_id, round_number, created_at, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (game_id, initial_fen, '', white_id, black_id, 'w', 'active', tournament_id, round_number, datetime.now(), datetime.now()))
+                VALUES ('{game_id}', '{initial_fen}', '', {white_id}, {black_id}, 'w', 'active', {tournament_id}, {round_number}, '{now}', '{now}')
+            """)
             
-            cur.execute("""
+            cur.execute(f"""
                 UPDATE tournament_pairings
-                SET game_id = %s
-                WHERE id = %s
-            """, (game_id, pairing_id))
+                SET game_id = '{game_id}'
+                WHERE id = {pairing_id}
+            """)
             
             created_games.append({
                 'game_id': game_id,
@@ -115,11 +116,12 @@ def handler(event: dict, context) -> dict:
                 'pairing_id': pairing_id
             })
         
-        cur.execute("""
+        now = datetime.now().isoformat()
+        cur.execute(f"""
             UPDATE tournament_rounds
-            SET status = 'active', started_at = %s
-            WHERE id = %s
-        """, (datetime.now(), round_id))
+            SET status = 'active', started_at = '{now}'
+            WHERE id = {round_id}
+        """)
         
         conn.commit()
         cur.close()
