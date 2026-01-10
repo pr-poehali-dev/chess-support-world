@@ -50,15 +50,18 @@ def handler(event, context):
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
-        cur.execute(f"SELECT rounds FROM tournaments WHERE id = {tournament_id}")
+        cur.execute(f"SELECT rounds FROM t_p91748136_chess_support_world.tournaments WHERE id = {tournament_id}")
         tournament_data = cur.fetchone()
         rounds_count = tournament_data[0] if tournament_data else 7
         
         cur.execute(f"""
-            SELECT u.id, u.full_name, u.last_name, u.birth_date
-            FROM tournament_participants tp
-            JOIN users u ON tp.user_id = u.id
-            WHERE tp.tournament_id = {tournament_id}
+            SELECT DISTINCT u.id, u.full_name, u.last_name, u.birth_date
+            FROM t_p91748136_chess_support_world.users u
+            WHERE u.id IN (
+                SELECT user_id FROM t_p91748136_chess_support_world.tournament_participants WHERE tournament_id = {tournament_id}
+                UNION
+                SELECT player_id FROM t_p91748136_chess_support_world.tournament_registrations WHERE tournament_id = {tournament_id} AND status = 'registered'
+            )
         """)
         rows = cur.fetchall()
         
@@ -68,7 +71,7 @@ def handler(event, context):
             
             cur.execute(f"""
                 SELECT round_number, result, white_player_id, black_player_id
-                FROM games
+                FROM t_p91748136_chess_support_world.games
                 WHERE tournament_id = {tournament_id}
                 AND (white_player_id = {user_id} OR black_player_id = {user_id})
                 AND result IS NOT NULL
