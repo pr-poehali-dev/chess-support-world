@@ -5,6 +5,12 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface ChessBoardProps {
   gameId: number;
@@ -17,6 +23,27 @@ interface ChessBoardProps {
   blackPlayerRating?: number | null;
   tournamentId?: number | null;
   onGameEnd?: (result: string) => void;
+}
+
+interface Standing {
+  rank: number;
+  id: number;
+  first_name: string;
+  last_name: string;
+  birth_date: string | null;
+  points: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  games_played: number;
+  round_results?: { [key: number]: string };
+}
+
+interface Tournament {
+  id: number;
+  title: string;
+  status: string;
+  rounds: number;
 }
 
 const ChessBoard = ({
@@ -37,6 +64,10 @@ const ChessBoard = ({
   const [gameStatus, setGameStatus] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
+  const [showStandingsModal, setShowStandingsModal] = useState(false);
+  const [standings, setStandings] = useState<Standing[]>([]);
+  const [tournament, setTournament] = useState<Tournament | null>(null);
+  const [loadingStandings, setLoadingStandings] = useState(false);
 
   useEffect(() => {
     console.log('🎨 Color determination:', {
@@ -213,6 +244,41 @@ const ChessBoard = ({
     });
   };
 
+  const loadTournamentStandings = async () => {
+    if (!tournamentId) return;
+    
+    setLoadingStandings(true);
+    try {
+      const [tournamentRes, standingsRes] = await Promise.all([
+        fetch('https://functions.poehali.dev/fb78feda-e1cb-4b60-a6c8-7bde514e8308'),
+        fetch(`https://functions.poehali.dev/4f56b6da-5abe-49e0-96d2-b5134b60b9fa?tournament_id=${tournamentId}`)
+      ]);
+
+      const tournamentsData = await tournamentRes.json();
+      const standingsData = await standingsRes.json();
+
+      if (Array.isArray(tournamentsData)) {
+        const found = tournamentsData.find((t: Tournament) => t.id === tournamentId);
+        if (found) {
+          setTournament(found);
+        }
+      }
+
+      if (standingsData.standings) {
+        setStandings(standingsData.standings);
+      }
+    } catch (error) {
+      console.error('Failed to load tournament standings:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить турнирную таблицу",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingStandings(false);
+    }
+  };
+
   const handleOfferDraw = () => {
     toast({
       title: "Предложение ничьей",
@@ -370,14 +436,17 @@ const ChessBoard = ({
           )}
         </Card>
 
-        {/* Кнопка "В турнирный зал" */}
+        {/* Кнопка "Турнирная таблица" */}
         {tournamentId && (
           <Button 
-            onClick={() => window.location.href = `/tournament/${tournamentId}`}
+            onClick={() => {
+              setShowStandingsModal(true);
+              loadTournamentStandings();
+            }}
             className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all"
           >
             <Icon name="Trophy" size={20} className="mr-2" />
-            В турнирный зал
+            Турнирная таблица
           </Button>
         )}
 
@@ -422,6 +491,103 @@ const ChessBoard = ({
           )}
         </div>
       </div>
+
+      {/* Модальное окно с турнирной таблицей */}
+      <Dialog open={showStandingsModal} onOpenChange={setShowStandingsModal}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Турнирная таблица</DialogTitle>
+          </DialogHeader>
+          
+          {loadingStandings ? (
+            <div className="text-center py-12">
+              <Icon name="Loader2" size={48} className="mx-auto mb-4 text-gray-400 animate-spin" />
+              <p className="text-gray-600">Загрузка...</p>
+            </div>
+          ) : standings.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <Icon name="Trophy" size={48} className="mx-auto mb-4 opacity-50" />
+              <p>Нет результатов</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b-2 border-gray-200 bg-gray-50">
+                    <th className="text-left p-3 font-bold text-gray-700">#</th>
+                    <th className="text-left p-3 font-bold text-gray-700">Участник</th>
+                    <th className="text-center p-3 font-bold text-gray-700">Очки</th>
+                    {tournament?.rounds && Array.from({ length: tournament.rounds }, (_, i) => i + 1).map((round) => (
+                      <th key={round} className="text-center p-2 font-bold text-gray-700 text-xs bg-blue-50">{round}</th>
+                    ))}
+                    <th className="text-center p-3 font-bold text-gray-700">Партий</th>
+                    <th className="text-center p-3 font-bold text-gray-700 bg-green-50">+</th>
+                    <th className="text-center p-3 font-bold text-gray-700 bg-gray-100">=</th>
+                    <th className="text-center p-3 font-bold text-gray-700 bg-red-50">-</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {standings.map((player) => (
+                    <tr
+                      key={player.id}
+                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                        player.rank <= 3 ? 'bg-yellow-50' : ''
+                      }`}
+                    >
+                      <td className="p-3">
+                        <div className="flex items-center gap-2">
+                          {player.rank <= 3 && (
+                            <Icon 
+                              name="Medal" 
+                              size={18} 
+                              className={
+                                player.rank === 1 ? 'text-yellow-500' :
+                                player.rank === 2 ? 'text-gray-400' :
+                                'text-amber-600'
+                              }
+                            />
+                          )}
+                          <span className="font-semibold text-gray-900">{player.rank}</span>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <div className="font-medium text-gray-900">
+                          {player.first_name} {player.last_name}
+                        </div>
+                        {player.birth_date && (
+                          <div className="text-xs text-gray-500">
+                            {new Date().getFullYear() - new Date(player.birth_date).getFullYear()} лет
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-3 text-center">
+                        <span className="font-bold text-lg text-blue-600">{player.points}</span>
+                      </td>
+                      {tournament?.rounds && Array.from({ length: tournament.rounds }, (_, i) => i + 1).map((round) => (
+                        <td key={round} className="p-2 text-center bg-blue-50">
+                          <span className="text-xs text-gray-600">{player.round_results?.[round] || '-'}</span>
+                        </td>
+                      ))}
+                      <td className="p-3 text-center text-gray-700">
+                        {player.games_played}
+                      </td>
+                      <td className="p-3 text-center bg-green-50 text-green-700 font-semibold">
+                        {player.wins}
+                      </td>
+                      <td className="p-3 text-center bg-gray-100 text-gray-700 font-semibold">
+                        {player.draws}
+                      </td>
+                      <td className="p-3 text-center bg-red-50 text-red-700 font-semibold">
+                        {player.losses}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
