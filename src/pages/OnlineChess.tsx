@@ -127,6 +127,8 @@ export default function OnlineChess() {
           blackPlayerId={gameState.black_player_id}
           whitePlayerName={gameState.white_player_name || 'Игрок 1'}
           blackPlayerName={gameState.black_player_name || 'Игрок 2'}
+          whitePlayerRating={gameState.white_player_rating}
+          blackPlayerRating={gameState.black_player_rating}
           onGameEnd={() => {
             loadGame();
           }}

@@ -155,8 +155,10 @@ const TournamentHall = () => {
           const blackPlayer = standings.find(s => s.id === game.black_player_id);
           return {
             ...game,
-            white_player_name: whitePlayer ? `${whitePlayer.first_name} ${whitePlayer.last_name}` : 'Неизвестно',
-            black_player_name: blackPlayer ? `${blackPlayer.first_name} ${blackPlayer.last_name}` : 'Неизвестно'
+            white_player_name: whitePlayer ? `${whitePlayer.last_name} ${whitePlayer.first_name}` : 'Неизвестно',
+            black_player_name: blackPlayer ? `${blackPlayer.last_name} ${blackPlayer.first_name}` : 'Неизвестно',
+            white_player_rating: whitePlayer?.rating,
+            black_player_rating: blackPlayer?.rating
           };
         });
         setGames(gamesWithNames);
@@ -304,6 +306,8 @@ const TournamentHall = () => {
                         blackPlayerId={userGame.black_player_id}
                         whitePlayerName={userGame.white_player_name}
                         blackPlayerName={userGame.black_player_name}
+                        whitePlayerRating={userGame.white_player_rating}
+                        blackPlayerRating={userGame.black_player_rating}
                         onGameEnd={() => {
                           loadGames();
                           loadStandings();
