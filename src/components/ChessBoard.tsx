@@ -368,6 +368,15 @@ const ChessBoard = ({
           )}
         </Card>
 
+        {/* Кнопка "В турнирный зал" */}
+        <Button 
+          onClick={() => window.location.href = '/tournament'}
+          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all"
+        >
+          <Icon name="Trophy" size={20} className="mr-2" />
+          В турнирный зал
+        </Button>
+
         {/* Нижний игрок */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border-2 border-blue-200">
           <div className="flex justify-between items-center">
