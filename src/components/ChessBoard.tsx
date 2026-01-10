@@ -100,14 +100,14 @@ const ChessBoard = ({
   const loadGameState = async () => {
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/e3e17c70-6cc9-4bb6-a55a-3335c5e9cb0f?game_id=${gameId}`
+        `https://functions.poehali.dev/7cdaaced-a780-4853-8559-0c013d6a3af2?game_id=${gameId}`
       );
       const data = await response.json();
       
-      if (data.fen && data.fen !== position) {
-        const newGame = new Chess(data.fen);
+      if (data.success && data.game && data.game.fen && data.game.fen !== position) {
+        const newGame = new Chess(data.game.fen);
         setGame(newGame);
-        setPosition(data.fen);
+        setPosition(data.game.fen);
         setMoveHistory(newGame.history());
         updateGameStatus(newGame);
       }
@@ -212,16 +212,18 @@ const ChessBoard = ({
       setMoveHistory(game.history());
       updateGameStatus(game);
 
-      await fetch('https://functions.poehali.dev/e3e17c70-6cc9-4bb6-a55a-3335c5e9cb0f', {
+      await fetch('https://functions.poehali.dev/668c7b6f-f978-482a-a965-3f91c86ebea3', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-User-Id': userId.toString()
         },
         body: JSON.stringify({
           game_id: gameId,
-          move: move.san,
           fen: newFen,
-          pgn: newPgn
+          pgn: newPgn,
+          current_turn: game.turn(),
+          status: game.isGameOver() ? (game.isCheckmate() ? 'checkmate' : game.isDraw() ? 'draw' : 'stalemate') : 'active'
         })
       });
 
