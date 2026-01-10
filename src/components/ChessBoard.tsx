@@ -340,6 +340,20 @@ const ChessBoard = ({
           </div>
         </Card>
 
+        {/* Кнопка "Турнирная таблица" */}
+        {tournamentId && (
+          <Button 
+            onClick={() => {
+              setShowStandingsModal(true);
+              loadTournamentStandings();
+            }}
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all"
+          >
+            <Icon name="Trophy" size={20} className="mr-2" />
+            Турнирная таблица
+          </Button>
+        )}
+
         {/* Чат */}
         <Card className="p-4 flex-1 flex flex-col">
           <div className="flex items-center gap-2 mb-3">
@@ -476,20 +490,6 @@ const ChessBoard = ({
             </div>
           )}
         </div>
-
-        {/* Кнопка "Турнирная таблица" */}
-        {tournamentId && (
-          <Button 
-            onClick={() => {
-              setShowStandingsModal(true);
-              loadTournamentStandings();
-            }}
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all"
-          >
-            <Icon name="Trophy" size={20} className="mr-2" />
-            Турнирная таблица
-          </Button>
-        )}
       </div>
 
       {/* Модальное окно с турнирной таблицей */}
