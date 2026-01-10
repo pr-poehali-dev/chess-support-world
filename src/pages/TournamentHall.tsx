@@ -262,7 +262,7 @@ const TournamentHall = () => {
             </h1>
             <div className="flex justify-center items-center gap-4">
               {getStatusBadge()}
-              {user && (
+              {user?.role === 'admin' && (
                 <Button onClick={startTournament} className="gap-2 bg-green-600 hover:bg-green-700">
                   <Icon name="Play" size={20} />
                   Запустить турнир
