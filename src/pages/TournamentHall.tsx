@@ -16,7 +16,7 @@ interface Tournament {
   title: string;
   name?: string;
   status: string;
-  current_round?: number;
+  current_round: number;
   rounds: number;
   total_rounds?: number;
 }
