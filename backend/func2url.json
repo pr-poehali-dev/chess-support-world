@@ -1,4 +1,5 @@
 {
+  "tournament-add-test-participants": "https://functions.poehali.dev/a316ce0e-733f-43e8-af54-bff8def84ead",
   "tournament-round-pairings": "https://functions.poehali.dev/0c199601-88dd-41ac-8753-0b3dd51d7515",
   "tournament-active-game": "https://functions.poehali.dev/17abc2b2-3993-415b-bc53-681c566702b6",
   "tournament-auto-next": "https://functions.poehali.dev/ceb56594-aa84-40f3-b104-f1951b2a349a",
