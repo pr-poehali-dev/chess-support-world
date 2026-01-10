@@ -3,7 +3,7 @@
     {
       "name": "Get tournament standings",
       "method": "GET",
-      "path": "/?tournament_id=1",
+      "path": "/?tournament_id=15",
       "expectedStatus": 200,
       "expectedBody": {
         "standings": "array",
