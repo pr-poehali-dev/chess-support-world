@@ -1,4 +1,8 @@
 {
+  "tournament-check-round": "https://functions.poehali.dev/cb616011-7fdb-4eb7-8e58-948329b28419",
+  "tournament-start-round": "https://functions.poehali.dev/21206049-7e6d-45f1-8e19-57aa762ef701",
+  "tournament-draw-first": "https://functions.poehali.dev/ecb405f1-c317-442d-af24-2f54c8ed0f13",
+  "tournament-draw-swiss": "https://functions.poehali.dev/a7f5903d-560f-476d-9c9e-eddfe1add636",
   "tournament-events": "https://functions.poehali.dev/a7dffea0-ae94-48ce-86ff-5c03468c61d1",
   "server-time": "https://functions.poehali.dev/86693577-68f4-4eb2-a7c6-074bdfe70796",
   "auto-start-round": "https://functions.poehali.dev/03f0763f-eda0-46e1-bd1d-51c46dd1f5a6",

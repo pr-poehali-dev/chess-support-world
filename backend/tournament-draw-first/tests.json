@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Test first round draw creation",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "tournament_id": 1
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "round_id": "number",
+        "pairings": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
