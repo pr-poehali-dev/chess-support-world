@@ -76,9 +76,9 @@ def handler(event: dict, context) -> dict:
             SELECT 
                 tp.id,
                 tp.board_number,
-                CONCAT(uw.first_name, ' ', uw.last_name) as white_player_name,
+                COALESCE(uw.full_name, uw.email) as white_player_name,
                 CASE WHEN tp.black_player_id IS NOT NULL 
-                     THEN CONCAT(ub.first_name, ' ', ub.last_name)
+                     THEN COALESCE(ub.full_name, ub.email)
                      ELSE NULL 
                 END as black_player_name,
                 tp.result,
