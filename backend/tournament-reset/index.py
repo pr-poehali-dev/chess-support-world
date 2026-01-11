@@ -57,19 +57,19 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
-        cur.execute(f"UPDATE tournament_pairings SET game_id = NULL WHERE tournament_id = {tournament_id}")
+        cur.execute(f"UPDATE t_p91748136_chess_support_world.tournament_pairings SET game_id = NULL WHERE tournament_id = {tournament_id}")
         
-        cur.execute(f"DELETE FROM games WHERE tournament_id = {tournament_id}")
+        cur.execute(f"DELETE FROM t_p91748136_chess_support_world.games WHERE tournament_id = {tournament_id}")
         games_deleted = cur.rowcount
         
-        cur.execute(f"DELETE FROM tournament_pairings WHERE tournament_id = {tournament_id}")
+        cur.execute(f"DELETE FROM t_p91748136_chess_support_world.tournament_pairings WHERE tournament_id = {tournament_id}")
         pairings_deleted = cur.rowcount
         
-        cur.execute(f"DELETE FROM tournament_rounds WHERE tournament_id = {tournament_id}")
+        cur.execute(f"DELETE FROM t_p91748136_chess_support_world.tournament_rounds WHERE tournament_id = {tournament_id}")
         rounds_deleted = cur.rowcount
         
         cur.execute(f"""
-            UPDATE tournaments 
+            UPDATE t_p91748136_chess_support_world.tournaments 
             SET status = 'registration_open', current_round = 0 
             WHERE id = {tournament_id}
         """)
