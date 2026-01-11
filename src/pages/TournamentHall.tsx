@@ -220,6 +220,41 @@ const TournamentHall = () => {
     }
   };
 
+  const resetTournament = async () => {
+    if (!confirm('Сбросить турнир? Все туры, пары и партии будут удалены!')) return;
+    
+    try {
+      const response = await fetch('https://functions.poehali.dev/06983d60-4ab4-45c8-a6e7-fb8f04c7e618', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tournament_id: Number(tournamentId) })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({
+          title: "Турнир сброшен",
+          description: `Удалено: ${data.deleted.games} партий, ${data.deleted.pairings} пар, ${data.deleted.rounds} туров`,
+        });
+        loadGames();
+        loadStandings();
+        loadTournamentData();
+      } else {
+        toast({
+          title: "Ошибка",
+          description: data.error || "Не удалось сбросить турнир",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось сбросить турнир",
+        variant: "destructive"
+      });
+    }
+  };
+
   const top3 = standings.slice(0, 3);
 
   const getStatusBadge = () => {
@@ -263,10 +298,16 @@ const TournamentHall = () => {
             <div className="flex justify-center items-center gap-4">
               {getStatusBadge()}
               {user?.is_admin === true && (
-                <Button onClick={startTournament} className="gap-2 bg-green-600 hover:bg-green-700">
-                  <Icon name="Play" size={20} />
-                  Запустить турнир
-                </Button>
+                <>
+                  <Button onClick={startTournament} className="gap-2 bg-green-600 hover:bg-green-700">
+                    <Icon name="Play" size={20} />
+                    Запустить турнир
+                  </Button>
+                  <Button onClick={resetTournament} variant="destructive" className="gap-2">
+                    <Icon name="RotateCcw" size={20} />
+                    Сбросить турнир
+                  </Button>
+                </>
               )}
               {tournament?.current_round && tournament.current_round > 0 && tournament.current_round < tournament.rounds && (
                 <div className="px-4 py-2 bg-blue-50 rounded-lg">
