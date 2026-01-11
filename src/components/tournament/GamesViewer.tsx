@@ -205,6 +205,17 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
                      'Завершена'}
                   </div>
                 </div>
+
+                {selectedGame.pgn && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="text-sm text-gray-600 mb-2">История ходов</div>
+                    <div className="bg-white rounded border border-gray-200 p-3 max-h-64 overflow-y-auto">
+                      <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono leading-relaxed">
+                        {selectedGame.pgn}
+                      </pre>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
