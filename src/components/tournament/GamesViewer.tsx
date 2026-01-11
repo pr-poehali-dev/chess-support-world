@@ -147,7 +147,7 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
           onClick={() => setIsModalOpen(false)}
         >
           <div 
-            className="bg-white rounded-lg shadow-2xl max-w-2xl w-full p-6"
+            className="bg-white rounded-lg shadow-2xl max-w-4xl w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
@@ -164,7 +164,7 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
               <div>
                 <Chessboard 
                   position={selectedGame.fen}
-                  boardWidth={400}
+                  boardWidth={550}
                   arePiecesDraggable={false}
                 />
               </div>
