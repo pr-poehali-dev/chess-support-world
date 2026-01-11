@@ -9,6 +9,11 @@ interface GamesViewerProps {
 
 const GamesViewer = ({ games }: GamesViewerProps) => {
   const [selectedGame, setSelectedGame] = useState<any>(null);
+  
+  const handleGameSelect = (game: any) => {
+    console.log('🎮 Selected game:', JSON.stringify(game, null, 2));
+    setSelectedGame(game);
+  };
 
   return (
     <Card className="p-6">
@@ -30,7 +35,7 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
               games.map((game: any) => (
                 <button
                   key={game.id}
-                  onClick={() => setSelectedGame(game)}
+                  onClick={() => handleGameSelect(game)}
                   className={`w-full text-left p-3 rounded-lg border transition-all ${
                     selectedGame?.id === game.id
                       ? 'border-blue-500 bg-blue-50'
