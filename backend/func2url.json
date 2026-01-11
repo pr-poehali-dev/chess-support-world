@@ -10,7 +10,6 @@
   "tournament-draw-swiss": "https://functions.poehali.dev/a7f5903d-560f-476d-9c9e-eddfe1add636",
   "tournament-events": "https://functions.poehali.dev/a7dffea0-ae94-48ce-86ff-5c03468c61d1",
   "server-time": "https://functions.poehali.dev/86693577-68f4-4eb2-a7c6-074bdfe70796",
-  "auto-start-round": "https://functions.poehali.dev/03f0763f-eda0-46e1-bd1d-51c46dd1f5a6",
   "payment-webhook": "https://functions.poehali.dev/6c3717cd-1601-44a2-a0c0-9bbca1c5f614",
   "payment-create": "https://functions.poehali.dev/6561406c-5cc5-4a7b-beec-43c348197c65",
   "chess-game": "https://functions.poehali.dev/e3e17c70-6cc9-4bb6-a55a-3335c5e9cb0f",
