@@ -16,6 +16,12 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
   };
 
   useEffect(() => {
+    if (!selectedGame && games.length > 0) {
+      setSelectedGame(games[0]);
+    }
+  }, [games, selectedGame]);
+
+  useEffect(() => {
     if (selectedGame) {
       const updatedGame = games.find(g => g.id === selectedGame.id);
       if (updatedGame && updatedGame.fen !== selectedGame.fen) {
