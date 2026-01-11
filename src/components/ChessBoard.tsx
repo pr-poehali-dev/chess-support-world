@@ -212,6 +212,23 @@ const ChessBoard = ({
       setMoveHistory(game.history());
       updateGameStatus(game);
 
+      // Определяем статус и победителя
+      let status = 'active';
+      let winner = null;
+      
+      if (game.isGameOver()) {
+        if (game.isCheckmate()) {
+          status = 'checkmate';
+          winner = game.turn() === 'w' ? 'black' : 'white';
+        } else if (game.isDraw()) {
+          status = 'draw';
+          winner = 'draw';
+        } else if (game.isStalemate()) {
+          status = 'stalemate';
+          winner = 'draw';
+        }
+      }
+
       await fetch('https://functions.poehali.dev/668c7b6f-f978-482a-a965-3f91c86ebea3', {
         method: 'POST',
         headers: {
@@ -223,7 +240,8 @@ const ChessBoard = ({
           fen: newFen,
           pgn: newPgn,
           current_turn: game.turn(),
-          status: game.isGameOver() ? (game.isCheckmate() ? 'checkmate' : game.isDraw() ? 'draw' : 'stalemate') : 'active'
+          status: status,
+          winner: winner
         })
       });
 
