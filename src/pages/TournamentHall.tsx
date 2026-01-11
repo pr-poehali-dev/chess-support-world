@@ -7,7 +7,7 @@ import PodiumCard from '@/components/tournament/PodiumCard';
 import GamesViewer from '@/components/tournament/GamesViewer';
 import StandingsTable from '@/components/tournament/StandingsTable';
 import TournamentStats from '@/components/tournament/TournamentStats';
-import CurrentRoundPairings from '@/components/tournament/CurrentRoundPairings';
+
 import ChessBoard from '@/components/ChessBoard';
 import { toast } from '@/hooks/use-toast';
 
@@ -361,15 +361,6 @@ const TournamentHall = () => {
                 }
                 return null;
               })()}
-
-              {tournament?.current_round && tournament.current_round > 0 && (
-                <div className="mb-6">
-                  <CurrentRoundPairings 
-                    tournamentId={Number(tournamentId)} 
-                    roundNumber={tournament.current_round} 
-                  />
-                </div>
-              )}
 
               <GamesViewer games={games} />
 
