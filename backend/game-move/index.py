@@ -9,6 +9,7 @@ import psycopg2
 import os
 from typing import Dict, Any
 import urllib.request
+import chess
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -46,13 +47,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     body_data = json.loads(event.get('body', '{}'))
     game_id = body_data.get('game_id')
-    fen = body_data.get('fen')
+    new_fen = body_data.get('fen')
     pgn = body_data.get('pgn')
     current_turn = body_data.get('current_turn')
     status = body_data.get('status', 'active')
     winner = body_data.get('winner')
     
-    if not game_id or not fen:
+    if not game_id or not new_fen:
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -65,7 +66,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cursor = conn.cursor()
     
     cursor.execute("""
-        SELECT white_player_id, black_player_id, status
+        SELECT white_player_id, black_player_id, status, fen, current_turn
         FROM t_p91748136_chess_support_world.games
         WHERE id = %s
     """, (game_id,))
@@ -82,8 +83,74 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    white_id, black_id, game_status = row
+    white_id, black_id, game_status, old_fen, db_current_turn = row
     user_id_int = int(user_id)
+    
+    # ВАЛИДАЦИЯ 1: Игра должна быть активной
+    if game_status not in ['active', 'waiting']:
+        cursor.close()
+        conn.close()
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Игра уже завершена'}),
+            'isBase64Encoded': False
+        }
+    
+    # ВАЛИДАЦИЯ 2: Проверка права хода
+    if game_status == 'active':
+        if db_current_turn == 'w' and user_id_int != white_id:
+            cursor.close()
+            conn.close()
+            return {
+                'statusCode': 403,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Сейчас ход белых'}),
+                'isBase64Encoded': False
+            }
+        if db_current_turn == 'b' and user_id_int != black_id:
+            cursor.close()
+            conn.close()
+            return {
+                'statusCode': 403,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Сейчас ход чёрных'}),
+                'isBase64Encoded': False
+            }
+    
+    # ВАЛИДАЦИЯ 3: Проверка легальности хода через python-chess
+    if game_status == 'active' and old_fen:
+        try:
+            old_board = chess.Board(old_fen)
+            new_board = chess.Board(new_fen)
+            
+            # Проверяем что новая позиция достижима из старой одним легальным ходом
+            move_found = False
+            for legal_move in old_board.legal_moves:
+                test_board = old_board.copy()
+                test_board.push(legal_move)
+                if test_board.fen() == new_fen:
+                    move_found = True
+                    break
+            
+            if not move_found:
+                cursor.close()
+                conn.close()
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Некорректный ход'}),
+                    'isBase64Encoded': False
+                }
+        except Exception as e:
+            cursor.close()
+            conn.close()
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': f'Ошибка валидации: {str(e)}'}),
+                'isBase64Encoded': False
+            }
     
     if game_status == 'waiting' and black_id is None and user_id_int != white_id:
         cursor.execute("""
@@ -97,7 +164,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         UPDATE t_p91748136_chess_support_world.games
         SET fen = %s, pgn = %s, current_turn = %s, status = %s, winner = %s, updated_at = NOW()
         WHERE id = %s
-    """, (fen, pgn or '', current_turn, status, winner, game_id))
+    """, (new_fen, pgn or '', current_turn, status, winner, game_id))
     
     cursor.execute("""
         SELECT tournament_id FROM t_p91748136_chess_support_world.games WHERE id = %s
