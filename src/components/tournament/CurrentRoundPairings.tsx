@@ -29,7 +29,7 @@ const CurrentRoundPairings = ({ tournamentId, roundNumber }: Props) => {
   const loadPairings = async () => {
     try {
       const response = await fetch(
-        `https://functions.poehali.dev/tournament-round-pairings?tournament_id=${tournamentId}&round_number=${roundNumber}`
+        `https://functions.poehali.dev/0c199601-88dd-41ac-8753-0b3dd51d7515?tournament_id=${tournamentId}&round_number=${roundNumber}`
       );
       const data = await response.json();
       

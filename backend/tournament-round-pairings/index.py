@@ -51,7 +51,7 @@ def handler(event: dict, context) -> dict:
         cur = conn.cursor()
         
         cur.execute(f"""
-            SELECT id FROM tournament_rounds
+            SELECT id FROM t_p91748136_chess_support_world.tournament_rounds
             WHERE tournament_id = {tournament_id} AND round_number = {round_number}
         """)
         
@@ -82,23 +82,45 @@ def handler(event: dict, context) -> dict:
                      ELSE NULL 
                 END as black_player_name,
                 tp.result,
-                tp.game_id
-            FROM tournament_pairings tp
-            JOIN users uw ON uw.id = tp.white_player_id
-            LEFT JOIN users ub ON ub.id = tp.black_player_id
+                tp.game_id,
+                g.status,
+                g.winner
+            FROM t_p91748136_chess_support_world.tournament_pairings tp
+            JOIN t_p91748136_chess_support_world.users uw ON uw.id = tp.white_player_id
+            LEFT JOIN t_p91748136_chess_support_world.users ub ON ub.id = tp.black_player_id
+            LEFT JOIN t_p91748136_chess_support_world.games g ON g.id = tp.game_id
             WHERE tp.round_id = {round_id}
             ORDER BY tp.board_number
         """)
         
         pairings = []
         for row in cur.fetchall():
+            game_status = row[6]
+            game_winner = row[7]
+            
+            # Вычисляем результат на основе статуса игры
+            if row[4]:  # Если result уже установлен в паре (например, для выходного)
+                result = row[4]
+            elif game_status in ('checkmate', 'stalemate', 'draw', 'resignation', 'timeout'):
+                if game_winner == 'white':
+                    result = '1-0'
+                elif game_winner == 'black':
+                    result = '0-1'
+                elif game_winner == 'draw':
+                    result = '1/2-1/2'
+                else:
+                    result = None
+            else:
+                result = None
+            
             pairings.append({
                 'id': row[0],
                 'board_number': row[1],
                 'white_player_name': row[2],
                 'black_player_name': row[3],
-                'result': row[4],
-                'game_id': row[5]
+                'result': result,
+                'game_id': row[5],
+                'game_status': game_status
             })
         
         cur.close()

@@ -54,7 +54,7 @@ def handler(event: dict, context) -> dict:
         
         cur.execute(f"""
             SELECT id, white_player_id, black_player_id
-            FROM tournament_pairings
+            FROM t_p91748136_chess_support_world.tournament_pairings
             WHERE round_id = {round_id} AND tournament_id = {tournament_id}
         """)
         
@@ -75,7 +75,7 @@ def handler(event: dict, context) -> dict:
         
         cur.execute(f"""
             SELECT round_number
-            FROM tournament_rounds
+            FROM t_p91748136_chess_support_world.tournament_rounds
             WHERE id = {round_id}
         """)
         
@@ -86,7 +86,7 @@ def handler(event: dict, context) -> dict:
         for pairing_id, white_id, black_id in pairings:
             if black_id is None:
                 cur.execute(f"""
-                    UPDATE tournament_pairings
+                    UPDATE t_p91748136_chess_support_world.tournament_pairings
                     SET result = '1-0'
                     WHERE id = {pairing_id}
                 """)
@@ -98,13 +98,13 @@ def handler(event: dict, context) -> dict:
             now = datetime.now().isoformat()
             
             cur.execute(f"""
-                INSERT INTO games 
+                INSERT INTO t_p91748136_chess_support_world.games 
                 (id, fen, pgn, white_player_id, black_player_id, current_turn, status, tournament_id, round_number, created_at, updated_at)
                 VALUES ('{game_id}', '{initial_fen}', '', {white_id}, {black_id}, 'w', 'active', {tournament_id}, {round_number}, '{now}', '{now}')
             """)
             
             cur.execute(f"""
-                UPDATE tournament_pairings
+                UPDATE t_p91748136_chess_support_world.tournament_pairings
                 SET game_id = '{game_id}'
                 WHERE id = {pairing_id}
             """)
@@ -118,7 +118,7 @@ def handler(event: dict, context) -> dict:
         
         now = datetime.now().isoformat()
         cur.execute(f"""
-            UPDATE tournament_rounds
+            UPDATE t_p91748136_chess_support_world.tournament_rounds
             SET status = 'active', started_at = '{now}'
             WHERE id = {round_id}
         """)
