@@ -32,10 +32,10 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
         Просмотр партий
       </h2>
       
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
+      <div className="grid md:grid-cols-2 gap-4 h-[500px]">
+        <div className="flex flex-col">
           <h3 className="text-sm font-semibold text-gray-700 mb-2">Список партий</h3>
-          <div className="space-y-2 max-h-96 overflow-y-auto">
+          <div className="space-y-2 flex-1 overflow-y-auto pr-2">
             {games.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <Icon name="Gamepad2" size={40} className="mx-auto mb-2 opacity-50" />
@@ -80,10 +80,10 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
           </div>
         </div>
         
-        <div>
+        <div className="flex flex-col">
           <h3 className="text-sm font-semibold text-gray-700 mb-2">Детали партии</h3>
           {selectedGame ? (
-            <div className="border border-gray-200 rounded-lg p-4 bg-white space-y-4">
+            <div className="border border-gray-200 rounded-lg p-4 bg-white space-y-4 h-full overflow-y-auto">
               <div>
                 <div className="text-lg font-bold text-gray-900 mb-2">
                   Тур {selectedGame.round_number}
@@ -123,7 +123,7 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
               )}
             </div>
           ) : (
-            <div className="border border-gray-200 rounded-lg p-8 bg-gray-50 text-center text-gray-500">
+            <div className="border border-gray-200 rounded-lg p-8 bg-gray-50 text-center text-gray-500 h-full flex flex-col items-center justify-center">
               <Icon name="MousePointerClick" size={40} className="mx-auto mb-2 opacity-50" />
               <p className="text-sm">Выберите партию для просмотра</p>
             </div>
