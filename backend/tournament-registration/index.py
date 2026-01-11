@@ -61,7 +61,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute('''
                 SELECT id, status, registered_at 
-                FROM tournament_registrations 
+                FROM t_p91748136_chess_support_world.tournament_registrations 
                 WHERE tournament_id = %s AND player_id = %s
             ''', (tournament_id, user_id))
             
@@ -102,7 +102,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Проверка существования турнира и возможности регистрации
             cur.execute('''
                 SELECT status, max_participants, entry_fee 
-                FROM tournaments 
+                FROM t_p91748136_chess_support_world.tournaments 
                 WHERE id = %s
             ''', (tournament_id,))
             
@@ -127,7 +127,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             # Проверка баланса пользователя
             if entry_fee > 0:
-                cur.execute('SELECT balance FROM users WHERE id = %s', (user_id,))
+                cur.execute('SELECT balance FROM t_p91748136_chess_support_world.users WHERE id = %s', (user_id,))
                 user_balance_result = cur.fetchone()
                 
                 if not user_balance_result:
@@ -155,7 +155,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Проверка лимита участников
             if tournament[1]:
                 cur.execute('''
-                    SELECT COUNT(*) FROM tournament_registrations 
+                    SELECT COUNT(*) FROM t_p91748136_chess_support_world.tournament_registrations 
                     WHERE tournament_id = %s AND status = 'registered'
                 ''', (tournament_id,))
                 current_count = cur.fetchone()[0]
@@ -170,7 +170,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             # Проверка, не зарегистрирован ли уже
             cur.execute('''
-                SELECT status FROM tournament_registrations 
+                SELECT status FROM t_p91748136_chess_support_world.tournament_registrations 
                 WHERE tournament_id = %s AND player_id = %s
             ''', (tournament_id, user_id))
             
@@ -187,14 +187,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Списание баланса если есть взнос
             if entry_fee > 0:
                 cur.execute('''
-                    UPDATE users 
+                    UPDATE t_p91748136_chess_support_world.users 
                     SET balance = balance - %s 
                     WHERE id = %s
                 ''', (entry_fee, user_id))
             
             # Регистрация (или обновление статуса если был отменен)
             cur.execute('''
-                INSERT INTO tournament_registrations (tournament_id, player_id, status)
+                INSERT INTO t_p91748136_chess_support_world.tournament_registrations (tournament_id, player_id, status)
                 VALUES (%s, %s, 'registered')
                 ON CONFLICT (tournament_id, player_id) 
                 DO UPDATE SET status = 'registered', registered_at = CURRENT_TIMESTAMP
@@ -232,8 +232,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Получаем данные о турнире и текущей регистрации
             cur.execute('''
                 SELECT t.entry_fee, tr.status
-                FROM tournaments t
-                JOIN tournament_registrations tr ON tr.tournament_id = t.id
+                FROM t_p91748136_chess_support_world.tournaments t
+                JOIN t_p91748136_chess_support_world.tournament_registrations tr ON tr.tournament_id = t.id
                 WHERE t.id = %s AND tr.player_id = %s
             ''', (tournament_id, user_id))
             
@@ -253,14 +253,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Возврат средств если была оплата и статус registered
             if entry_fee > 0 and current_status == 'registered':
                 cur.execute('''
-                    UPDATE users 
+                    UPDATE t_p91748136_chess_support_world.users 
                     SET balance = balance + %s 
                     WHERE id = %s
                 ''', (entry_fee, user_id))
             
             # Мягкое удаление - меняем статус на cancelled
             cur.execute('''
-                UPDATE tournament_registrations 
+                UPDATE t_p91748136_chess_support_world.tournament_registrations 
                 SET status = 'cancelled'
                 WHERE tournament_id = %s AND player_id = %s
                 RETURNING id
