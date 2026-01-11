@@ -45,7 +45,11 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
                         {game.white_player_name || 'Неизвестно'} vs {game.black_player_name || 'Неизвестно'}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        Статус: {game.status === 'pending' ? 'Ожидает' : game.status === 'in_progress' ? 'В процессе' : 'Завершена'}
+                        Статус: {
+                          game.status === 'waiting' || game.status === 'pending' ? 'Ожидает' : 
+                          game.status === 'active' || game.status === 'in_progress' ? 'Идёт игра' : 
+                          'Завершена'
+                        }
                       </div>
                     </div>
                     {game.result && (
