@@ -106,6 +106,23 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     tournament_row = cursor.fetchone()
     tournament_id = tournament_row[0] if tournament_row else None
     
+    # Обновляем результат в tournament_pairings если игра турнирная и завершена
+    if tournament_id and status in ['checkmate', 'stalemate', 'draw', 'resignation', 'timeout']:
+        result = None
+        if winner == 'white':
+            result = '1-0'
+        elif winner == 'black':
+            result = '0-1'
+        elif winner == 'draw':
+            result = '1/2-1/2'
+        
+        if result:
+            cursor.execute("""
+                UPDATE t_p91748136_chess_support_world.tournament_pairings
+                SET result = %s
+                WHERE game_id = %s
+            """, (result, game_id))
+    
     conn.commit()
     cursor.close()
     conn.close()

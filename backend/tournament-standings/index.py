@@ -70,12 +70,13 @@ def handler(event, context):
             user_id = row[0]
             
             cur.execute(f"""
-                SELECT round_number, result, white_player_id, black_player_id
-                FROM t_p91748136_chess_support_world.games
-                WHERE tournament_id = {tournament_id}
-                AND (white_player_id = {user_id} OR black_player_id = {user_id})
-                AND result IS NOT NULL
-                ORDER BY round_number
+                SELECT tr.round_number, tp.result, tp.white_player_id, tp.black_player_id
+                FROM t_p91748136_chess_support_world.tournament_pairings tp
+                JOIN t_p91748136_chess_support_world.tournament_rounds tr ON tr.id = tp.round_id
+                WHERE tp.tournament_id = {tournament_id}
+                AND (tp.white_player_id = {user_id} OR tp.black_player_id = {user_id})
+                AND tp.result IS NOT NULL
+                ORDER BY tr.round_number
             """)
             games = cur.fetchall()
             
