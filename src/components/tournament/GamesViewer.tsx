@@ -121,15 +121,6 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
                   </div>
                 </div>
               )}
-
-              {selectedGame.pgn && (
-                <div>
-                  <div className="text-sm font-semibold text-gray-700 mb-1">PGN:</div>
-                  <pre className="text-xs bg-gray-50 p-2 rounded overflow-x-auto border border-gray-200">
-                    {selectedGame.pgn}
-                  </pre>
-                </div>
-              )}
             </div>
           ) : (
             <div className="border border-gray-200 rounded-lg p-8 bg-gray-50 text-center text-gray-500">
