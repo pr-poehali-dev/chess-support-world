@@ -34,6 +34,7 @@ const CurrentRoundPairings = ({ tournamentId, roundNumber }: Props) => {
       const data = await response.json();
       
       if (data.success && data.pairings) {
+        console.log('🎯 Pairings data:', JSON.stringify(data.pairings, null, 2));
         setPairings(data.pairings);
       }
     } catch (error) {
