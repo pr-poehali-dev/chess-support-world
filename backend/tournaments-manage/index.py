@@ -81,22 +81,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps(tournament_dict)
                 }
             else:
-                # Сначала автоматически закрываем регистрацию для турниров, до старта которых осталось менее 15 минут
-                try:
-                    cur.execute("""
-                        UPDATE t_p91748136_chess_support_world.tournaments
-                        SET status = 'registration_closed'
-                        WHERE status = 'registration_open'
-                        AND start_date IS NOT NULL
-                        AND start_time IS NOT NULL
-                        AND (start_date + start_time) <= (NOW() + INTERVAL '15 minutes')
-                    """)
-                    conn.commit()
-                except psycopg2.Error:
-                    # Если не удалось обновить статусы (например, из-за constraint), продолжаем работу
-                    if conn:
-                        conn.rollback()
-                
                 cur.execute(
                     "SELECT * FROM t_p91748136_chess_support_world.tournaments ORDER BY created_at DESC"
                 )
