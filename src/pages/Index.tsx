@@ -123,28 +123,8 @@ const Index = () => {
           .catch(err => console.error('Tournament events check failed:', err));
       }, 15000); // Проверяем каждые 15 секунд
     }
-    
-    const autoStartInterval = setInterval(() => {
-      // Обновляем список турниров для закрытия регистрации и автостарта
-      loadTournaments();
-      
-      // Проверяем автостарт
-      fetch('https://functions.poehali.dev/03f0763f-eda0-46e1-bd1d-51c46dd1f5a6', { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-          if (data.started_tournaments && data.started_tournaments.length > 0) {
-            loadTournaments();
-            toast({
-              title: "Турнир начался!",
-              description: `Запущено туров: ${data.started_tournaments.length}`,
-            });
-          }
-        })
-        .catch(err => console.error('Auto-start check failed:', err));
-    }, 30000);
 
     return () => {
-      clearInterval(autoStartInterval);
       if (tournamentEventsInterval) {
         clearInterval(tournamentEventsInterval);
       }
