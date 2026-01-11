@@ -71,6 +71,8 @@ const TournamentHall = () => {
   useEffect(() => {
     if (standings.length > 0) {
       loadGames();
+      const interval = setInterval(loadGames, 2000);
+      return () => clearInterval(interval);
     }
   }, [standings]);
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { Chessboard } from 'react-chessboard';
@@ -14,6 +14,16 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
     console.log('🎮 Selected game:', JSON.stringify(game, null, 2));
     setSelectedGame(game);
   };
+
+  useEffect(() => {
+    if (selectedGame) {
+      const updatedGame = games.find(g => g.id === selectedGame.id);
+      if (updatedGame && updatedGame.fen !== selectedGame.fen) {
+        console.log('🔄 Game position updated:', updatedGame.fen);
+        setSelectedGame(updatedGame);
+      }
+    }
+  }, [games, selectedGame]);
 
   return (
     <Card className="p-6">
