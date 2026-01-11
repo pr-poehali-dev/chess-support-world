@@ -58,7 +58,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 g.black_player_id,
                 g.status,
                 g.result,
-                g.created_at
+                g.created_at,
+                g.fen,
+                g.pgn
             FROM t_p91748136_chess_support_world.games g
             WHERE g.tournament_id = {tournament_id}
             ORDER BY g.round_number, g.created_at
@@ -68,7 +70,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         games = []
         for row in games_data:
-            game_id, round_num, white_id, black_id, status, result, created_at = row
+            game_id, round_num, white_id, black_id, status, result, created_at, fen, pgn = row
             
             games.append({
                 'id': game_id,
@@ -77,7 +79,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'black_player_id': black_id,
                 'status': status,
                 'result': result,
-                'created_at': created_at.isoformat() if created_at else None
+                'created_at': created_at.isoformat() if created_at else None,
+                'fen': fen,
+                'pgn': pgn
             })
         
         return {
