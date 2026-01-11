@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import { Chessboard } from 'react-chessboard';
 
 interface GamesViewerProps {
   games: any[];
@@ -67,8 +68,8 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
         <div>
           <h3 className="text-sm font-semibold text-gray-700 mb-2">Детали партии</h3>
           {selectedGame ? (
-            <div className="border border-gray-200 rounded-lg p-4 bg-white">
-              <div className="mb-4">
+            <div className="border border-gray-200 rounded-lg p-4 bg-white space-y-4">
+              <div>
                 <div className="text-lg font-bold text-gray-900 mb-2">
                   Тур {selectedGame.round_number}
                 </div>
@@ -90,16 +91,30 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
                       </span>
                     </div>
                   )}
-                  {selectedGame.pgn && (
-                    <div className="mt-4">
-                      <div className="text-gray-600 mb-1">PGN:</div>
-                      <pre className="text-xs bg-gray-50 p-2 rounded overflow-x-auto">
-                        {selectedGame.pgn}
-                      </pre>
-                    </div>
-                  )}
                 </div>
               </div>
+
+              {selectedGame.fen && (
+                <div>
+                  <div className="text-sm font-semibold text-gray-700 mb-2">Текущая позиция</div>
+                  <div className="border border-gray-300 rounded-lg overflow-hidden">
+                    <Chessboard 
+                      position={selectedGame.fen}
+                      boardWidth={280}
+                      arePiecesDraggable={false}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {selectedGame.pgn && (
+                <div>
+                  <div className="text-sm font-semibold text-gray-700 mb-1">PGN:</div>
+                  <pre className="text-xs bg-gray-50 p-2 rounded overflow-x-auto border border-gray-200">
+                    {selectedGame.pgn}
+                  </pre>
+                </div>
+              )}
             </div>
           ) : (
             <div className="border border-gray-200 rounded-lg p-8 bg-gray-50 text-center text-gray-500">
