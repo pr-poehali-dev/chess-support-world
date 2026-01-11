@@ -9,6 +9,7 @@ interface GamesViewerProps {
 
 const GamesViewer = ({ games }: GamesViewerProps) => {
   const [selectedGame, setSelectedGame] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const handleGameSelect = (game: any) => {
     console.log('🎮 Selected game:', JSON.stringify(game, null, 2));
@@ -118,13 +119,16 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
               {selectedGame.fen && (
                 <div>
                   <div className="text-sm font-semibold text-gray-700 mb-2">Текущая позиция</div>
-                  <div className="border border-gray-300 rounded-lg overflow-hidden">
+                  <button 
+                    onClick={() => setIsModalOpen(true)}
+                    className="border border-gray-300 rounded-lg overflow-hidden hover:border-blue-400 transition-colors cursor-pointer"
+                  >
                     <Chessboard 
                       position={selectedGame.fen}
                       boardWidth={280}
                       arePiecesDraggable={false}
                     />
-                  </div>
+                  </button>
                 </div>
               )}
             </div>
@@ -136,6 +140,76 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
           )}
         </div>
       </div>
+
+      {isModalOpen && selectedGame && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div 
+            className="bg-white rounded-lg shadow-2xl max-w-2xl w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-bold text-gray-900">Тур {selectedGame.round_number}</h3>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <Icon name="X" size={24} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Chessboard 
+                  position={selectedGame.fen}
+                  boardWidth={400}
+                  arePiecesDraggable={false}
+                />
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-8 h-8 bg-white rounded border-2 border-gray-300"></div>
+                    <div>
+                      <div className="font-bold text-gray-900">{selectedGame.white_player_name}</div>
+                      <div className="text-sm text-gray-600">Белые</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-900 rounded"></div>
+                    <div>
+                      <div className="font-bold text-gray-900">{selectedGame.black_player_name}</div>
+                      <div className="text-sm text-gray-600">Черные</div>
+                    </div>
+                  </div>
+                </div>
+
+                {selectedGame.result && (
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <div className="text-sm text-gray-600 mb-1">Результат</div>
+                    <div className="text-lg font-bold text-gray-900">
+                      {selectedGame.result === 'white_win' ? 'Победа белых' : 
+                       selectedGame.result === 'black_win' ? 'Победа черных' : 'Ничья'}
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-sm text-gray-600 mb-1">Статус</div>
+                  <div className="font-semibold text-gray-900">
+                    {selectedGame.status === 'waiting' || selectedGame.status === 'pending' ? 'Ожидает' : 
+                     selectedGame.status === 'active' || selectedGame.status === 'in_progress' ? 'Идёт игра' : 
+                     'Завершена'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 };
