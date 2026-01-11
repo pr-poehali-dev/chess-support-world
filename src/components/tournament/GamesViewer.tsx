@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { Chessboard } from 'react-chessboard';
+import { Chess } from 'chess.js';
 
 interface GamesViewerProps {
   games: any[];
@@ -206,16 +207,52 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
                   </div>
                 </div>
 
-                {selectedGame.pgn && (
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-sm text-gray-600 mb-2">История ходов</div>
-                    <div className="bg-white rounded border border-gray-200 p-3 max-h-64 overflow-y-auto">
-                      <pre className="text-xs text-gray-900 whitespace-pre-wrap font-mono leading-relaxed">
-                        {selectedGame.pgn}
-                      </pre>
-                    </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-sm text-gray-600 mb-2">История ходов</div>
+                  <div className="bg-white rounded border border-gray-200 p-3 max-h-64 overflow-y-auto">
+                    {(() => {
+                      if (!selectedGame.pgn) {
+                        return (
+                          <div className="text-center py-4 text-gray-400">
+                            <Icon name="Clock" size={24} className="mx-auto mb-2 opacity-50" />
+                            <p className="text-xs">Ходы появятся здесь</p>
+                          </div>
+                        );
+                      }
+
+                      try {
+                        const chess = new Chess();
+                        chess.loadPgn(selectedGame.pgn);
+                        const history = chess.history();
+
+                        return (
+                          <div className="space-y-1">
+                            {Array.from({ length: Math.ceil(history.length / 2) }).map((_, pairIndex) => {
+                              const whiteMove = history[pairIndex * 2];
+                              const blackMove = history[pairIndex * 2 + 1];
+                              
+                              return (
+                                <div key={pairIndex} className="flex gap-2 p-1.5 rounded hover:bg-gray-50 transition-colors">
+                                  <span className="font-bold text-gray-500 w-6 text-xs">{pairIndex + 1}.</span>
+                                  <div className="flex gap-2 flex-1">
+                                    <span className="font-mono text-xs font-semibold flex-1">{whiteMove}</span>
+                                    {blackMove && <span className="font-mono text-xs font-semibold flex-1">{blackMove}</span>}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      } catch (error) {
+                        return (
+                          <div className="text-center py-4 text-gray-400">
+                            <p className="text-xs">Нет данных о ходах</p>
+                          </div>
+                        );
+                      }
+                    })()}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
