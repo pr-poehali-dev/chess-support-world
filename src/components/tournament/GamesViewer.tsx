@@ -147,7 +147,7 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
           onClick={() => setIsModalOpen(false)}
         >
           <div 
-            className="bg-white rounded-lg shadow-2xl max-w-4xl w-full p-6"
+            className="bg-white rounded-lg shadow-2xl max-w-6xl w-full p-6 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
@@ -160,8 +160,8 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
+            <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex-shrink-0">
                 <Chessboard 
                   position={selectedGame.fen}
                   boardWidth={550}
@@ -169,7 +169,7 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
                 />
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 flex-1 min-w-[250px]">
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-8 h-8 bg-white rounded border-2 border-gray-300"></div>
