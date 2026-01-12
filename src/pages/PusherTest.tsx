@@ -50,7 +50,14 @@ export default function PusherTest() {
   };
 
   const testGameMove = async () => {
-    setMessages(prev => [...prev, '🎮 Создаю тестовую игру и делаю ход...']);
+    const gameId = prompt('Введи ID игры для теста (или создай игру через /online-chess):');
+    
+    if (!gameId) {
+      setMessages(prev => [...prev, '❌ ID игры не указан']);
+      return;
+    }
+    
+    setMessages(prev => [...prev, `🎮 Тест хода в игре ${gameId}...`]);
     
     try {
       const user = localStorage.getItem('user');
@@ -61,58 +68,19 @@ export default function PusherTest() {
       
       const userId = JSON.parse(user).id;
       
-      // Создаем тестовую игру
-      const createResponse = await fetch('https://functions.poehali.dev/d8bbcf41-6f83-49d6-aa17-3e9d81bfd98f', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': userId.toString()
-        },
-        body: JSON.stringify({
-          time_control: 600,
-          increment: 5
-        })
-      });
-      
-      const createData = await createResponse.json();
-      
-      if (!createData.game_id) {
-        setMessages(prev => [...prev, `❌ Ошибка создания игры: ${JSON.stringify(createData)}`]);
-        return;
-      }
-      
-      const gameId = createData.game_id;
-      setMessages(prev => [...prev, `✅ Игра создана: ${gameId}`]);
-      
       // Подписываемся на события игры
       const gamePusher = new Pusher('6565e7fe3776add566a0', { cluster: 'eu' });
       const gameChannel = gamePusher.subscribe(`game-${gameId}`);
       
+      setMessages(prev => [...prev, `🔌 Подписался на game-${gameId}`]);
+      
       gameChannel.bind('move', (data: any) => {
-        setMessages(prev => [...prev, `♟️ Получен ход через Pusher! FEN: ${data.fen.substring(0, 20)}...`]);
+        setMessages(prev => [...prev, `♟️ ПОЛУЧЕН ХОД ЧЕРЕЗ PUSHER! FEN: ${data.fen?.substring(0, 30)}...`]);
+        setMessages(prev => [...prev, `✅ Этап 4 работает! Backend отправляет события.`]);
         gamePusher.disconnect();
       });
       
-      // Делаем тестовый ход (e2-e4)
-      setTimeout(async () => {
-        const moveResponse = await fetch('https://functions.poehali.dev/668c7b6f-f978-482a-a965-3f91c86ebea3', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-User-Id': userId.toString()
-          },
-          body: JSON.stringify({
-            game_id: gameId,
-            fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
-            pgn: 'e2e4',
-            current_turn: 'b',
-            status: 'active'
-          })
-        });
-        
-        const moveData = await moveResponse.json();
-        setMessages(prev => [...prev, `✅ Ход отправлен: ${moveData.success ? 'успешно' : 'ошибка'}`]);
-      }, 1000);
+      setMessages(prev => [...prev, `📝 Теперь сделай ход в этой игре (/game/${gameId}) — событие придёт сюда!`]);
       
     } catch (error) {
       setMessages(prev => [...prev, `❌ Ошибка: ${error}`]);
@@ -169,8 +137,9 @@ export default function PusherTest() {
           <ol className="list-decimal list-inside space-y-1 text-sm">
             <li>Дождись "✅ Pusher подключен"</li>
             <li><strong>Базовый тест:</strong> Нажми "Отправить тестовое событие" → должно прийти "📩 Получено: Pusher работает!"</li>
-            <li><strong>Этап 4:</strong> Нажми "♟️ Тест хода в игре" → должно появиться "♟️ Получен ход через Pusher!"</li>
-            <li>Если оба теста ✅ — game-move успешно отправляет события в Pusher</li>
+            <li><strong>Этап 4:</strong> Нажми "♟️ Тест хода в игре" → введи ID существующей игры</li>
+            <li>Открой эту игру в другой вкладке (/game/ID) и сделай ход</li>
+            <li>Если здесь появится "♟️ ПОЛУЧЕН ХОД ЧЕРЕЗ PUSHER!" — Этап 4 ✅</li>
           </ol>
         </div>
       </div>
