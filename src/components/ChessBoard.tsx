@@ -70,6 +70,7 @@ const ChessBoard = ({
   const [standings, setStandings] = useState<Standing[]>([]);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loadingStandings, setLoadingStandings] = useState(false);
+  const [isGameFinished, setIsGameFinished] = useState(false);
 
   useEffect(() => {
     console.log('🎨 Color determination:', {
@@ -105,6 +106,11 @@ const ChessBoard = ({
     channel.bind('move', (data: any) => {
       console.log('[PUSHER] Получен ход:', data);
       
+      // Проверяем статус игры
+      if (data.status && ['checkmate', 'stalemate', 'draw', 'resignation', 'timeout'].includes(data.status)) {
+        setIsGameFinished(true);
+      }
+      
       // Обновляем позицию только если это не наш ход
       if (data.fen && data.fen !== position) {
         const newGame = new Chess(data.fen);
@@ -129,12 +135,19 @@ const ChessBoard = ({
       );
       const data = await response.json();
       
-      if (data.success && data.game && data.game.fen && data.game.fen !== position) {
-        const newGame = new Chess(data.game.fen);
-        setGame(newGame);
-        setPosition(data.game.fen);
-        setMoveHistory(newGame.history());
-        updateGameStatus(newGame);
+      if (data.success && data.game) {
+        // Проверяем статус игры из БД
+        if (data.game.status && ['checkmate', 'stalemate', 'draw', 'resignation', 'timeout'].includes(data.game.status)) {
+          setIsGameFinished(true);
+        }
+        
+        if (data.game.fen && data.game.fen !== position) {
+          const newGame = new Chess(data.game.fen);
+          setGame(newGame);
+          setPosition(data.game.fen);
+          setMoveHistory(newGame.history());
+          updateGameStatus(newGame);
+        }
       }
       
       setLoading(false);
@@ -147,12 +160,15 @@ const ChessBoard = ({
     if (currentGame.isCheckmate()) {
       const winner = currentGame.turn() === 'w' ? 'Черные' : 'Белые';
       setGameStatus(`Мат! Победили ${winner}`);
+      setIsGameFinished(true);
       handleGameEnd(currentGame.turn() === 'w' ? 'black_win' : 'white_win');
     } else if (currentGame.isDraw()) {
       setGameStatus('Ничья');
+      setIsGameFinished(true);
       handleGameEnd('draw');
     } else if (currentGame.isStalemate()) {
       setGameStatus('Пат - Ничья');
+      setIsGameFinished(true);
       handleGameEnd('draw');
     } else if (currentGame.isCheck()) {
       setGameStatus('Шах!');
@@ -522,7 +538,7 @@ const ChessBoard = ({
             {gameStatus}
           </div>
           
-          {playerColor && !gameStatus.includes('Мат') && !gameStatus.includes('Ничья') && (
+          {playerColor && !isGameFinished && (
             <div className="flex gap-2 justify-center">
               <Button onClick={handleResign} variant="destructive" size="sm" className="gap-1">
                 <Icon name="Flag" size={16} />
@@ -531,6 +547,19 @@ const ChessBoard = ({
               <Button onClick={handleOfferDraw} variant="outline" size="sm" className="gap-1">
                 <Icon name="Handshake" size={16} />
                 Предложить ничью
+              </Button>
+            </div>
+          )}
+
+          {/* Кнопка возврата в турнир (только после завершения партии) */}
+          {tournamentId && isGameFinished && (
+            <div className="mt-3">
+              <Button 
+                onClick={() => window.location.href = `/tournament/${tournamentId}`}
+                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold"
+              >
+                <Icon name="ArrowLeft" size={18} className="mr-2" />
+                Вернуться в турнирный зал
               </Button>
             </div>
           )}
