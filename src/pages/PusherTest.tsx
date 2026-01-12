@@ -4,22 +4,24 @@ import Pusher from 'pusher-js';
 export default function PusherTest() {
   const [messages, setMessages] = useState<string[]>([]);
   const [connected, setConnected] = useState(false);
+  const [pusher, setPusher] = useState<Pusher | null>(null);
 
   useEffect(() => {
-    const pusher = new Pusher('6565e7fe3776add566a0', {
+    const pusherInstance = new Pusher('6565e7fe3776add566a0', {
       cluster: 'eu'
     });
+    setPusher(pusherInstance);
 
-    pusher.connection.bind('connected', () => {
+    pusherInstance.connection.bind('connected', () => {
       setConnected(true);
       setMessages(prev => [...prev, '✅ Pusher подключен!']);
     });
 
-    pusher.connection.bind('error', (err: any) => {
+    pusherInstance.connection.bind('error', (err: any) => {
       setMessages(prev => [...prev, `❌ Ошибка: ${err.message}`]);
     });
 
-    const channel = pusher.subscribe('test-channel');
+    const channel = pusherInstance.subscribe('test-channel');
 
     channel.bind('test-event', (data: any) => {
       setMessages(prev => [...prev, `📩 Получено: ${data.message}`]);
@@ -27,8 +29,8 @@ export default function PusherTest() {
 
     return () => {
       channel.unbind_all();
-      pusher.unsubscribe('test-channel');
-      pusher.disconnect();
+      pusherInstance.unsubscribe('test-channel');
+      pusherInstance.disconnect();
     };
   }, []);
 
@@ -52,12 +54,16 @@ export default function PusherTest() {
   const testGameMove = async () => {
     const gameId = '2f37d4bf-6c76-4f61-afb9-6851b8bc691b';
     
+    if (!pusher) {
+      setMessages(prev => [...prev, `❌ Pusher не инициализирован`]);
+      return;
+    }
+    
     setMessages(prev => [...prev, `🎮 Подключаюсь к тестовой игре ${gameId}...`]);
     
     try {
-      // Подписываемся на события игры
-      const gamePusher = new Pusher('6565e7fe3776add566a0', { cluster: 'eu' });
-      const gameChannel = gamePusher.subscribe(`game-${gameId}`);
+      // Используем тот же экземпляр Pusher
+      const gameChannel = pusher.subscribe(`game-${gameId}`);
       
       setMessages(prev => [...prev, `🔌 Подписался на game-${gameId}`]);
       
@@ -65,7 +71,6 @@ export default function PusherTest() {
         setMessages(prev => [...prev, `♟️ ПОЛУЧЕН ХОД ЧЕРЕЗ PUSHER!`]);
         setMessages(prev => [...prev, `📦 FEN: ${data.fen?.substring(0, 30)}...`]);
         setMessages(prev => [...prev, `✅ Этап 4 работает! Backend отправляет события.`]);
-        gamePusher.disconnect();
       });
       
       const gameUrl = `${window.location.origin}/game/${gameId}`;
@@ -74,12 +79,16 @@ export default function PusherTest() {
       
       // Добавляем кнопку для быстрого открытия
       setTimeout(() => {
-        const btn = document.createElement('a');
-        btn.href = gameUrl;
-        btn.target = '_blank';
-        btn.className = 'inline-block mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700';
-        btn.textContent = '🎮 Открыть игру';
-        document.getElementById('game-link-container')?.appendChild(btn);
+        const container = document.getElementById('game-link-container');
+        if (container) {
+          container.innerHTML = ''; // Очищаем старые кнопки
+          const btn = document.createElement('a');
+          btn.href = gameUrl;
+          btn.target = '_blank';
+          btn.className = 'inline-block mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700';
+          btn.textContent = '🎮 Открыть игру';
+          container.appendChild(btn);
+        }
       }, 100);
       
     } catch (error) {
