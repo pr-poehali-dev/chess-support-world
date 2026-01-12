@@ -1,4 +1,5 @@
 {
+  "pusher-test": "https://functions.poehali.dev/bb5cdfc3-73c0-434d-816c-2b12d2ca5293",
   "tournament-reset": "https://functions.poehali.dev/06983d60-4ab4-45c8-a6e7-fb8f04c7e618",
   "tournament-add-test-participants": "https://functions.poehali.dev/a316ce0e-733f-43e8-af54-bff8def84ead",
   "tournament-round-pairings": "https://functions.poehali.dev/0c199601-88dd-41ac-8753-0b3dd51d7515",
