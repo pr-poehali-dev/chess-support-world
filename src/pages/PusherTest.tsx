@@ -50,24 +50,11 @@ export default function PusherTest() {
   };
 
   const testGameMove = async () => {
-    const gameId = prompt('Введи ID игры для теста (или создай игру через /online-chess):');
+    const gameId = '2f37d4bf-6c76-4f61-afb9-6851b8bc691b';
     
-    if (!gameId) {
-      setMessages(prev => [...prev, '❌ ID игры не указан']);
-      return;
-    }
-    
-    setMessages(prev => [...prev, `🎮 Тест хода в игре ${gameId}...`]);
+    setMessages(prev => [...prev, `🎮 Подключаюсь к тестовой игре ${gameId}...`]);
     
     try {
-      const user = localStorage.getItem('user');
-      if (!user) {
-        setMessages(prev => [...prev, '❌ Нужно авторизоваться']);
-        return;
-      }
-      
-      const userId = JSON.parse(user).id;
-      
       // Подписываемся на события игры
       const gamePusher = new Pusher('6565e7fe3776add566a0', { cluster: 'eu' });
       const gameChannel = gamePusher.subscribe(`game-${gameId}`);
@@ -75,12 +62,25 @@ export default function PusherTest() {
       setMessages(prev => [...prev, `🔌 Подписался на game-${gameId}`]);
       
       gameChannel.bind('move', (data: any) => {
-        setMessages(prev => [...prev, `♟️ ПОЛУЧЕН ХОД ЧЕРЕЗ PUSHER! FEN: ${data.fen?.substring(0, 30)}...`]);
+        setMessages(prev => [...prev, `♟️ ПОЛУЧЕН ХОД ЧЕРЕЗ PUSHER!`]);
+        setMessages(prev => [...prev, `📦 FEN: ${data.fen?.substring(0, 30)}...`]);
         setMessages(prev => [...prev, `✅ Этап 4 работает! Backend отправляет события.`]);
         gamePusher.disconnect();
       });
       
-      setMessages(prev => [...prev, `📝 Теперь сделай ход в этой игре (/game/${gameId}) — событие придёт сюда!`]);
+      const gameUrl = `${window.location.origin}/game/${gameId}`;
+      setMessages(prev => [...prev, `📝 Открой игру в новой вкладке и сделай ход:`]);
+      setMessages(prev => [...prev, `🔗 ${gameUrl}`]);
+      
+      // Добавляем кнопку для быстрого открытия
+      setTimeout(() => {
+        const btn = document.createElement('a');
+        btn.href = gameUrl;
+        btn.target = '_blank';
+        btn.className = 'inline-block mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700';
+        btn.textContent = '🎮 Открыть игру';
+        document.getElementById('game-link-container')?.appendChild(btn);
+      }, 100);
       
     } catch (error) {
       setMessages(prev => [...prev, `❌ Ошибка: ${error}`]);
@@ -130,6 +130,7 @@ export default function PusherTest() {
               ))
             )}
           </div>
+          <div id="game-link-container" className="mt-4"></div>
         </div>
 
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -137,9 +138,9 @@ export default function PusherTest() {
           <ol className="list-decimal list-inside space-y-1 text-sm">
             <li>Дождись "✅ Pusher подключен"</li>
             <li><strong>Базовый тест:</strong> Нажми "Отправить тестовое событие" → должно прийти "📩 Получено: Pusher работает!"</li>
-            <li><strong>Этап 4:</strong> Нажми "♟️ Тест хода в игре" → введи ID существующей игры</li>
-            <li>Открой эту игру в другой вкладке (/game/ID) и сделай ход</li>
-            <li>Если здесь появится "♟️ ПОЛУЧЕН ХОД ЧЕРЕЗ PUSHER!" — Этап 4 ✅</li>
+            <li><strong>Этап 4:</strong> Нажми "♟️ Тест хода в игре" → появится ссылка на игру</li>
+            <li>Открой игру по ссылке в новой вкладке и сделай ход</li>
+            <li>Вернись сюда — если появится "♟️ ПОЛУЧЕН ХОД ЧЕРЕЗ PUSHER!" — Этап 4 ✅</li>
           </ol>
         </div>
       </div>
