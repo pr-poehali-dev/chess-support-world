@@ -334,9 +334,6 @@ const TournamentHall = () => {
               </div>
             )}
 
-            {/* Статистика */}
-            <TournamentStats standings={standings} />
-
             {/* Две колонки: Партии слева, Турнирная таблица справа */}
             <div className="grid grid-cols-2 gap-6">
               {/* Левая колонка - Просмотр партий */}
