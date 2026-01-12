@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
+import Pusher from 'pusher-js';
 import {
   Dialog,
   DialogContent,
@@ -92,6 +93,32 @@ const ChessBoard = ({
     }
 
     loadGameState();
+
+    // Подключаемся к Pusher для получения обновлений игры
+    const pusher = new Pusher('6565e7fe3776add566a0', {
+      cluster: 'eu'
+    });
+
+    const channel = pusher.subscribe(`game-${gameId}`);
+    
+    channel.bind('move', (data: any) => {
+      console.log('[PUSHER] Получен ход:', data);
+      
+      // Обновляем позицию только если это не наш ход
+      if (data.fen && data.fen !== position) {
+        const newGame = new Chess(data.fen);
+        setGame(newGame);
+        setPosition(data.fen);
+        setMoveHistory(newGame.history());
+        updateGameStatus(newGame);
+      }
+    });
+
+    return () => {
+      channel.unbind_all();
+      pusher.unsubscribe(`game-${gameId}`);
+      pusher.disconnect();
+    };
   }, [gameId]);
 
   const loadGameState = async () => {
