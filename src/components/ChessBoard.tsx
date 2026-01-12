@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 import Pusher from 'pusher-js';
+import { PUSHER_CONFIG } from '@/config/pusher';
 import {
   Dialog,
   DialogContent,
@@ -95,8 +96,8 @@ const ChessBoard = ({
     loadGameState();
 
     // Подключаемся к Pusher для получения обновлений игры
-    const pusher = new Pusher('6565e7fe3776add566a0', {
-      cluster: 'eu'
+    const pusher = new Pusher(PUSHER_CONFIG.key, {
+      cluster: PUSHER_CONFIG.cluster
     });
 
     const channel = pusher.subscribe(`game-${gameId}`);

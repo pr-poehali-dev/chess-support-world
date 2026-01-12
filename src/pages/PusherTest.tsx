@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Pusher from 'pusher-js';
+import { PUSHER_CONFIG } from '@/config/pusher';
 
 export default function PusherTest() {
   const [messages, setMessages] = useState<string[]>([]);
@@ -7,8 +8,8 @@ export default function PusherTest() {
   const [pusher, setPusher] = useState<Pusher | null>(null);
 
   useEffect(() => {
-    const pusherInstance = new Pusher('6565e7fe3776add566a0', {
-      cluster: 'eu'
+    const pusherInstance = new Pusher(PUSHER_CONFIG.key, {
+      cluster: PUSHER_CONFIG.cluster
     });
     setPusher(pusherInstance);
 
