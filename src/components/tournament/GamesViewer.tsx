@@ -14,23 +14,31 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
   const [selectedGame, setSelectedGame] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [gamesState, setGamesState] = useState<any[]>(games);
+  const [selectedRound, setSelectedRound] = useState<number>(1);
   
   const handleGameSelect = (game: any) => {
     console.log('🎮 Selected game:', JSON.stringify(game, null, 2));
     setSelectedGame(game);
   };
 
+  // Получаем уникальные номера туров
+  const rounds = Array.from(new Set(gamesState.map(g => g.round || g.round_number || 1))).sort((a, b) => a - b);
+  
+  // Фильтруем игры по выбранному туру
+  const filteredGames = gamesState.filter(g => (g.round || g.round_number || 1) === selectedRound);
+
   // Обновляем локальное состояние игр при изменении props
   useEffect(() => {
     setGamesState(games);
   }, [games]);
 
-  // Автовыбор первой игры
+  // Автовыбор первой игры в текущем туре
   useEffect(() => {
-    if (!selectedGame && gamesState.length > 0) {
-      setSelectedGame(gamesState[0]);
+    const roundGames = gamesState.filter(g => (g.round || g.round_number || 1) === selectedRound);
+    if (roundGames.length > 0 && (!selectedGame || (selectedGame.round || selectedGame.round_number || 1) !== selectedRound)) {
+      setSelectedGame(roundGames[0]);
     }
-  }, [gamesState, selectedGame]);
+  }, [gamesState, selectedRound]);
 
   // Подписка на Pusher для всех игр турнира
   useEffect(() => {
@@ -97,14 +105,34 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
       <div className="grid md:grid-cols-2 gap-4 h-[500px]">
         <div className="flex flex-col">
           <h3 className="text-sm font-semibold text-gray-700 mb-2">Список партий</h3>
+          
+          {/* Вкладки туров */}
+          {rounds.length > 0 && (
+            <div className="flex gap-1 mb-3 overflow-x-auto pb-2">
+              {rounds.map((round) => (
+                <button
+                  key={round}
+                  onClick={() => setSelectedRound(round)}
+                  className={`px-4 py-2 rounded-lg font-semibold text-sm whitespace-nowrap transition-all ${
+                    selectedRound === round
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Тур {round}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="space-y-2 flex-1 overflow-y-auto pr-2">
-            {gamesState.length === 0 ? (
+            {filteredGames.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <Icon name="Gamepad2" size={40} className="mx-auto mb-2 opacity-50" />
                 <p>Партии еще не сыграны</p>
               </div>
             ) : (
-              gamesState.map((game: any) => (
+              filteredGames.map((game: any) => (
                 <button
                   key={game.id}
                   onClick={() => handleGameSelect(game)}
