@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 import psycopg2
 import uuid
+import pusher
 
 def handler(event: dict, context) -> dict:
     """API для автоматического старта тура и создания партий"""
@@ -126,6 +127,32 @@ def handler(event: dict, context) -> dict:
         conn.commit()
         cur.close()
         conn.close()
+        
+        # Отправляем событие в Pusher о начале нового тура
+        try:
+            print(f'[PUSHER] Отправка события new-round для турнира {tournament_id}')
+            pusher_client = pusher.Pusher(
+                app_id=os.environ['PUSHER_APP_ID'],
+                key=os.environ['PUSHER_KEY'],
+                secret=os.environ['PUSHER_SECRET'],
+                cluster=os.environ['PUSHER_CLUSTER'],
+                ssl=True
+            )
+            
+            # Отправляем событие на канал турнира
+            pusher_client.trigger(
+                f'tournament-{tournament_id}',
+                'new-round',
+                {
+                    'tournament_id': tournament_id,
+                    'round_id': round_id,
+                    'round_number': round_number,
+                    'games': created_games
+                }
+            )
+            print(f'[PUSHER] Событие new-round отправлено')
+        except Exception as e:
+            print(f'[PUSHER] Ошибка отправки: {e}')
         
         return {
             'statusCode': 200,

@@ -10,6 +10,8 @@ import TournamentStats from '@/components/tournament/TournamentStats';
 
 import ChessBoard from '@/components/ChessBoard';
 import { toast } from '@/hooks/use-toast';
+import Pusher from 'pusher-js';
+import { PUSHER_CONFIG } from '@/config/pusher';
 
 interface Tournament {
   id: number;
@@ -74,37 +76,47 @@ const TournamentHall = () => {
     }
   }, [standings]);
 
+  // Подписка на Pusher для автоматического перенаправления на игру
   useEffect(() => {
     if (!user || !tournamentId) return;
 
-    const checkActiveGame = async () => {
-      try {
-        const token = localStorage.getItem('auth_token');
-        if (!token) return;
+    const pusher = new Pusher(PUSHER_CONFIG.key, {
+      cluster: PUSHER_CONFIG.cluster
+    });
 
-        const response = await fetch(
-          `https://functions.poehali.dev/17abc2b2-3993-415b-bc53-681c566702b6?tournament_id=${tournamentId}`,
-          {
-            headers: {
-              'X-User-Id': user.id.toString()
-            }
-          }
-        );
-
-        const data = await response.json();
-
-        if (data.has_game && data.game_id) {
-          navigate(`/game/${data.game_id}`);
-        }
-      } catch (error) {
-        console.error('Failed to check active game:', error);
+    const channel = pusher.subscribe(`tournament-${tournamentId}`);
+    
+    channel.bind('new-round', async (data: any) => {
+      console.log('[PUSHER] Новый тур начался:', data);
+      
+      // Проверяем, есть ли у игрока игра в этом туре
+      const userGame = data.games?.find((g: any) => 
+        g.white_player_id === user.id || g.black_player_id === user.id
+      );
+      
+      if (userGame) {
+        console.log('[PUSHER] Найдена игра игрока:', userGame.game_id);
+        toast({
+          title: "Новый тур начался!",
+          description: `Тур ${data.round_number} - ваша партия готова`,
+        });
+        
+        // Переходим на страницу игры
+        setTimeout(() => {
+          navigate(`/game/${userGame.game_id}`);
+        }, 1000);
+      } else {
+        // Обновляем список игр
+        loadGames();
+        loadStandings();
       }
+    });
+
+    return () => {
+      channel.unbind_all();
+      pusher.unsubscribe(`tournament-${tournamentId}`);
+      pusher.disconnect();
     };
-
-    checkActiveGame();
-    const interval = setInterval(checkActiveGame, 5000);
-
-    return () => clearInterval(interval);
   }, [user, tournamentId, navigate]);
 
   const loadTournamentData = async () => {
