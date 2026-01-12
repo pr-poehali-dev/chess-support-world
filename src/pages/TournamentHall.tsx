@@ -70,9 +70,7 @@ const TournamentHall = () => {
 
   useEffect(() => {
     if (standings.length > 0) {
-      loadGames();
-      const interval = setInterval(loadGames, 2000);
-      return () => clearInterval(interval);
+      loadGames(); // Загружаем игры только один раз при загрузке турнира
     }
   }, [standings]);
 

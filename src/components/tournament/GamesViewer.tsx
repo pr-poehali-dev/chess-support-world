@@ -3,6 +3,8 @@ import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { Chessboard } from 'react-chessboard';
 import { Chess } from 'chess.js';
+import Pusher from 'pusher-js';
+import { PUSHER_CONFIG } from '@/config/pusher';
 
 interface GamesViewerProps {
   games: any[];
@@ -11,27 +13,79 @@ interface GamesViewerProps {
 const GamesViewer = ({ games }: GamesViewerProps) => {
   const [selectedGame, setSelectedGame] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [gamesState, setGamesState] = useState<any[]>(games);
   
   const handleGameSelect = (game: any) => {
     console.log('🎮 Selected game:', JSON.stringify(game, null, 2));
     setSelectedGame(game);
   };
 
+  // Обновляем локальное состояние игр при изменении props
   useEffect(() => {
-    if (!selectedGame && games.length > 0) {
-      setSelectedGame(games[0]);
-    }
-  }, [games, selectedGame]);
+    setGamesState(games);
+  }, [games]);
 
+  // Автовыбор первой игры
+  useEffect(() => {
+    if (!selectedGame && gamesState.length > 0) {
+      setSelectedGame(gamesState[0]);
+    }
+  }, [gamesState, selectedGame]);
+
+  // Подписка на Pusher для всех игр турнира
+  useEffect(() => {
+    if (gamesState.length === 0) return;
+
+    const pusher = new Pusher(PUSHER_CONFIG.key, {
+      cluster: PUSHER_CONFIG.cluster
+    });
+
+    // Подписываемся на каждую игру
+    const channels: any[] = [];
+    gamesState.forEach((game) => {
+      const channel = pusher.subscribe(`game-${game.id}`);
+      channels.push(channel);
+
+      channel.bind('move', (data: any) => {
+        console.log(`[PUSHER] Получен ход для игры ${game.id}:`, data);
+        
+        // Обновляем состояние игр
+        setGamesState((prevGames) => 
+          prevGames.map((g) => 
+            g.id === game.id 
+              ? { ...g, fen: data.fen, status: data.status, winner: data.winner }
+              : g
+          )
+        );
+
+        // Если это выбранная игра, обновляем её отдельно
+        setSelectedGame((prevSelected: any) => 
+          prevSelected && prevSelected.id === game.id
+            ? { ...prevSelected, fen: data.fen, status: data.status, winner: data.winner }
+            : prevSelected
+        );
+      });
+    });
+
+    return () => {
+      channels.forEach((channel) => {
+        channel.unbind_all();
+        pusher.unsubscribe(channel.name);
+      });
+      pusher.disconnect();
+    };
+  }, [gamesState.length]); // Только при изменении количества игр
+
+  // Синхронизация выбранной игры с обновлённым состоянием
   useEffect(() => {
     if (selectedGame) {
-      const updatedGame = games.find(g => g.id === selectedGame.id);
+      const updatedGame = gamesState.find(g => g.id === selectedGame.id);
       if (updatedGame && updatedGame.fen !== selectedGame.fen) {
-        console.log('🔄 Game position updated:', updatedGame.fen);
+        console.log('🔄 Game position updated via state:', updatedGame.fen);
         setSelectedGame(updatedGame);
       }
     }
-  }, [games, selectedGame]);
+  }, [gamesState]);
 
   return (
     <Card className="p-6">
@@ -44,13 +98,13 @@ const GamesViewer = ({ games }: GamesViewerProps) => {
         <div className="flex flex-col">
           <h3 className="text-sm font-semibold text-gray-700 mb-2">Список партий</h3>
           <div className="space-y-2 flex-1 overflow-y-auto pr-2">
-            {games.length === 0 ? (
+            {gamesState.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <Icon name="Gamepad2" size={40} className="mx-auto mb-2 opacity-50" />
                 <p>Партии еще не сыграны</p>
               </div>
             ) : (
-              games.map((game: any) => (
+              gamesState.map((game: any) => (
                 <button
                   key={game.id}
                   onClick={() => handleGameSelect(game)}
