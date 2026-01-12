@@ -10,6 +10,7 @@ import os
 from typing import Dict, Any
 import urllib.request
 import chess
+import pusher
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -193,6 +194,31 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     conn.commit()
     cursor.close()
     conn.close()
+    
+    # Отправляем событие в Pusher о ходе
+    try:
+        pusher_client = pusher.Pusher(
+            app_id=os.environ['PUSHER_APP_ID'],
+            key=os.environ['PUSHER_KEY'],
+            secret=os.environ['PUSHER_SECRET'],
+            cluster=os.environ['PUSHER_CLUSTER'],
+            ssl=True
+        )
+        
+        pusher_client.trigger(
+            f'game-{game_id}',
+            'move',
+            {
+                'fen': new_fen,
+                'pgn': pgn or '',
+                'current_turn': current_turn,
+                'status': status,
+                'winner': winner
+            }
+        )
+    except Exception as e:
+        # Не блокируем запрос если Pusher недоступен
+        print(f'Pusher error: {e}')
     
     if tournament_id and status in ['checkmate', 'stalemate', 'draw', 'resignation', 'timeout']:
         try:
