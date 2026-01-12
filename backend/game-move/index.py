@@ -197,6 +197,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     # Отправляем событие в Pusher о ходе
     try:
+        print(f'[PUSHER] Начинаю отправку события для игры {game_id}')
         pusher_client = pusher.Pusher(
             app_id=os.environ['PUSHER_APP_ID'],
             key=os.environ['PUSHER_KEY'],
@@ -204,8 +205,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cluster=os.environ['PUSHER_CLUSTER'],
             ssl=True
         )
+        print(f'[PUSHER] Клиент создан, отправляю на канал game-{game_id}')
         
-        pusher_client.trigger(
+        result = pusher_client.trigger(
             f'game-{game_id}',
             'move',
             {
@@ -216,9 +218,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'winner': winner
             }
         )
+        print(f'[PUSHER] Событие отправлено! Результат: {result}')
     except Exception as e:
         # Не блокируем запрос если Pusher недоступен
-        print(f'Pusher error: {e}')
+        print(f'[PUSHER] Ошибка отправки: {e}')
+        import traceback
+        print(f'[PUSHER] Traceback: {traceback.format_exc()}')
     
     if tournament_id and status in ['checkmate', 'stalemate', 'draw', 'resignation', 'timeout']:
         try:
