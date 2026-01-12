@@ -25,8 +25,6 @@ export default function OnlineChess() {
   useEffect(() => {
     if (gameId) {
       loadGame();
-      const interval = setInterval(loadGame, 2000);
-      return () => clearInterval(interval);
     }
   }, [gameId]);
 

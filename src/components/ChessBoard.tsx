@@ -92,9 +92,6 @@ const ChessBoard = ({
     }
 
     loadGameState();
-    
-    const interval = setInterval(loadGameState, 2000);
-    return () => clearInterval(interval);
   }, [gameId]);
 
   const loadGameState = async () => {
