@@ -326,53 +326,30 @@ const TournamentHall = () => {
             <p className="text-gray-600">Загрузка результатов...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div className="lg:col-span-2">
-              {tournament?.status === 'finished' && top3.length >= 3 && (
+          <>
+            {/* Подиум для завершённого турнира */}
+            {tournament?.status === 'finished' && top3.length >= 3 && (
+              <div className="mb-8">
                 <PodiumCard top3={top3} />
-              )}
-
-              {user && tournament?.status === 'in_progress' && games.length > 0 && (() => {
-                const userGame = games.find(g => 
-                  (g.white_player_id === user.id || g.black_player_id === user.id) && 
-                  g.status !== 'finished'
-                );
-                
-                if (userGame) {
-                  return (
-                    <div className="mb-6">
-                      <h2 className="text-2xl font-bold text-gray-900 mb-4">Ваша партия</h2>
-                      <ChessBoard
-                        gameId={userGame.id}
-                        userId={user.id}
-                        whitePlayerId={userGame.white_player_id}
-                        blackPlayerId={userGame.black_player_id}
-                        whitePlayerName={userGame.white_player_name}
-                        blackPlayerName={userGame.black_player_name}
-                        whitePlayerRating={userGame.white_player_rating}
-                        blackPlayerRating={userGame.black_player_rating}
-                        onGameEnd={() => {
-                          loadGames();
-                          loadStandings();
-                        }}
-                      />
-                    </div>
-                  );
-                }
-                return null;
-              })()}
-
-              <GamesViewer games={games} />
-
-              <StandingsTable standings={standings} tournament={tournament} />
-            </div>
-
-            {tournament?.status === 'finished' && (
-              <div className="lg:col-span-1">
-                <TournamentStats standings={standings} />
               </div>
             )}
-          </div>
+
+            {/* Статистика */}
+            <TournamentStats standings={standings} />
+
+            {/* Две колонки: Партии слева, Турнирная таблица справа */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* Левая колонка - Просмотр партий */}
+              <div>
+                <GamesViewer games={games} />
+              </div>
+
+              {/* Правая колонка - Турнирная таблица */}
+              <div>
+                <StandingsTable standings={standings} tournament={tournament} />
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>
