@@ -10,6 +10,8 @@ import TopUpModal from '@/components/index-page/TopUpModal';
 import InsufficientBalanceModal from '@/components/index-page/InsufficientBalanceModal';
 import NewsDialog from '@/components/index-page/NewsDialog';
 import { toast } from '@/hooks/use-toast';
+import Pusher from 'pusher-js';
+import { PUSHER_CONFIG } from '@/config/pusher';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -94,41 +96,6 @@ const Index = () => {
     };
 
     loadTournaments();
-    
-    // Polling для проверки событий турнира (начало тура)
-    let tournamentEventsInterval: NodeJS.Timeout | null = null;
-    
-    if (storedUser) {
-      const userId = JSON.parse(storedUser).id;
-      
-      tournamentEventsInterval = setInterval(() => {
-        fetch(`https://functions.poehali.dev/a7dffea0-ae94-48ce-86ff-5c03468c61d1?player_id=${userId}`)
-          .then(res => res.json())
-          .then(data => {
-            if (data.events && data.events.length > 0) {
-              // Берем первое событие (первый начавшийся тур)
-              const event = data.events[0];
-              
-              if (event.type === 'round_started') {
-                // Открываем турнирный зал
-                navigate(`/tournament/${event.tournament_id}`);
-                toast({
-                  title: `Тур ${event.round} начался!`,
-                  description: `${event.tournament_title}. Вы играете ${event.player_color === 'white' ? 'белыми' : 'чёрными'}`,
-                  duration: 5000,
-                });
-              }
-            }
-          })
-          .catch(err => console.error('Tournament events check failed:', err));
-      }, 15000); // Проверяем каждые 15 секунд
-    }
-
-    return () => {
-      if (tournamentEventsInterval) {
-        clearInterval(tournamentEventsInterval);
-      }
-    };
 
     const verifyToken = params.get('verify');
     

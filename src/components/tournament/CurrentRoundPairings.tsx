@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import Pusher from 'pusher-js';
+import { PUSHER_CONFIG } from '@/config/pusher';
 
 interface Pairing {
   id: number;
@@ -22,9 +24,27 @@ const CurrentRoundPairings = ({ tournamentId, roundNumber }: Props) => {
 
   useEffect(() => {
     loadPairings();
-    const interval = setInterval(loadPairings, 10000);
-    return () => clearInterval(interval);
   }, [tournamentId, roundNumber]);
+
+  // Подписка на Pusher для обновления пар при новом туре
+  useEffect(() => {
+    const pusher = new Pusher(PUSHER_CONFIG.key, {
+      cluster: PUSHER_CONFIG.cluster
+    });
+
+    const channel = pusher.subscribe(`tournament-${tournamentId}`);
+    
+    channel.bind('new-round', (data: any) => {
+      console.log('[PUSHER] Новый тур - обновляю пары');
+      loadPairings();
+    });
+
+    return () => {
+      channel.unbind_all();
+      pusher.unsubscribe(`tournament-${tournamentId}`);
+      pusher.disconnect();
+    };
+  }, [tournamentId]);
 
   const loadPairings = async () => {
     try {
