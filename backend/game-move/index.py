@@ -1,6 +1,6 @@
 '''
-Business: Make a move in online chess game
-Args: event with httpMethod, body (game_id, move), headers (X-User-Id); context with request_id
+Business: Make a move in online chess game, update time clocks
+Args: event with httpMethod, body (game_id, move, white_time, black_time), headers (X-User-Id)
 Returns: HTTP response with updated game state
 '''
 
@@ -53,6 +53,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     current_turn = body_data.get('current_turn')
     status = body_data.get('status', 'active')
     winner = body_data.get('winner')
+    white_time = body_data.get('white_time')  # оставшееся время белых в секундах
+    black_time = body_data.get('black_time')  # оставшееся время чёрных в секундах
     
     if not game_id or not new_fen:
         return {
@@ -125,7 +127,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             old_board = chess.Board(old_fen)
             new_board = chess.Board(new_fen)
             
-            # Проверяем что новая позиция достижима из старой одним легальным ходом
             move_found = False
             for legal_move in old_board.legal_moves:
                 test_board = old_board.copy()
@@ -161,11 +162,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         """, (user_id_int, game_id))
         conn.commit()
     
-    cursor.execute("""
-        UPDATE t_p91748136_chess_support_world.games
-        SET fen = %s, pgn = %s, current_turn = %s, status = %s, winner = %s, updated_at = NOW()
-        WHERE id = %s
-    """, (new_fen, pgn or '', current_turn, status, winner, game_id))
+    # Обновляем позицию и время
+    if white_time is not None and black_time is not None:
+        cursor.execute("""
+            UPDATE t_p91748136_chess_support_world.games
+            SET fen = %s, pgn = %s, current_turn = %s, status = %s, winner = %s,
+                white_time = %s, black_time = %s, updated_at = NOW()
+            WHERE id = %s
+        """, (new_fen, pgn or '', current_turn, status, winner, int(white_time), int(black_time), game_id))
+    else:
+        cursor.execute("""
+            UPDATE t_p91748136_chess_support_world.games
+            SET fen = %s, pgn = %s, current_turn = %s, status = %s, winner = %s, updated_at = NOW()
+            WHERE id = %s
+        """, (new_fen, pgn or '', current_turn, status, winner, game_id))
     
     cursor.execute("""
         SELECT tournament_id FROM t_p91748136_chess_support_world.games WHERE id = %s
@@ -195,7 +205,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     cursor.close()
     conn.close()
     
-    # Отправляем событие в Pusher о ходе
+    # Отправляем событие в Pusher о ходе (включая текущее время)
     try:
         print(f'[PUSHER] Начинаю отправку события для игры {game_id}')
         pusher_client = pusher.Pusher(
@@ -207,20 +217,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         )
         print(f'[PUSHER] Клиент создан, отправляю на канал game-{game_id}')
         
-        result = pusher_client.trigger(
-            f'game-{game_id}',
-            'move',
-            {
-                'fen': new_fen,
-                'pgn': pgn or '',
-                'current_turn': current_turn,
-                'status': status,
-                'winner': winner
-            }
-        )
+        pusher_data = {
+            'fen': new_fen,
+            'pgn': pgn or '',
+            'current_turn': current_turn,
+            'status': status,
+            'winner': winner
+        }
+        if white_time is not None and black_time is not None:
+            pusher_data['white_time'] = int(white_time)
+            pusher_data['black_time'] = int(black_time)
+        
+        result = pusher_client.trigger(f'game-{game_id}', 'move', pusher_data)
         print(f'[PUSHER] Событие отправлено! Результат: {result}')
     except Exception as e:
-        # Не блокируем запрос если Pusher недоступен
         print(f'[PUSHER] Ошибка отправки: {e}')
         import traceback
         print(f'[PUSHER] Traceback: {traceback.format_exc()}')
@@ -229,21 +239,26 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         try:
             check_url = os.environ.get('TOURNAMENT_CHECK_URL', 'https://functions.poehali.dev/cb616011-7fdb-4eb7-8e58-948329b28419')
             check_data = json.dumps({'tournament_id': tournament_id}).encode('utf-8')
-            check_req = urllib.request.Request(check_url, data=check_data, headers={'Content-Type': 'application/json'}, method='POST')
-            with urllib.request.urlopen(check_req) as response:
-                check_result = json.loads(response.read().decode('utf-8'))
-                
-                if check_result.get('round_finished') and not check_result.get('tournament_finished'):
-                    auto_next_url = os.environ.get('TOURNAMENT_AUTO_NEXT_URL', 'https://functions.poehali.dev/tournament-auto-next')
-                    auto_next_data = json.dumps({'tournament_id': tournament_id}).encode('utf-8')
-                    auto_next_req = urllib.request.Request(auto_next_url, data=auto_next_data, headers={'Content-Type': 'application/json'}, method='POST')
-                    urllib.request.urlopen(auto_next_req)
-        except Exception:
-            pass
+            check_req = urllib.request.Request(
+                check_url,
+                data=check_data,
+                headers={'Content-Type': 'application/json'},
+                method='POST'
+            )
+            urllib.request.urlopen(check_req, timeout=5)
+        except Exception as e:
+            print(f'[AUTO-CHECK] Ошибка: {e}')
     
     return {
         'statusCode': 200,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'success': True}),
+        'body': json.dumps({
+            'success': True,
+            'game_id': game_id,
+            'status': status,
+            'winner': winner,
+            'white_time': white_time,
+            'black_time': black_time
+        }),
         'isBase64Encoded': False
     }

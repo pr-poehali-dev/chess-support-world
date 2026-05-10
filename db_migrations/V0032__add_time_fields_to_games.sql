@@ -1,0 +1,4 @@
+ALTER TABLE t_p91748136_chess_support_world.games
+ADD COLUMN IF NOT EXISTS time_control VARCHAR(20),
+ADD COLUMN IF NOT EXISTS white_time INTEGER,
+ADD COLUMN IF NOT EXISTS black_time INTEGER;

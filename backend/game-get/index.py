@@ -1,7 +1,7 @@
 '''
-Business: Get chess game state by ID
+Business: Get chess game state by ID including time control data
 Args: event with httpMethod, queryStringParameters (game_id); context with request_id
-Returns: HTTP response with game state (fen, pgn, players, status)
+Returns: HTTP response with game state (fen, pgn, players, status, time)
 '''
 
 import json
@@ -51,7 +51,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         SELECT g.id, g.fen, g.pgn, g.white_player_id, g.black_player_id, 
                g.current_turn, g.status, g.winner, g.tournament_id,
                w.full_name as white_name, w.last_name as white_last_name, w.ms_rating as white_rating,
-               b.full_name as black_name, b.last_name as black_last_name, b.ms_rating as black_rating
+               b.full_name as black_name, b.last_name as black_last_name, b.ms_rating as black_rating,
+               g.time_control, g.white_time, g.black_time
         FROM t_p91748136_chess_support_world.games g
         LEFT JOIN t_p91748136_chess_support_world.users w ON g.white_player_id = w.id
         LEFT JOIN t_p91748136_chess_support_world.users b ON g.black_player_id = b.id
@@ -86,7 +87,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'white_player_name': white_full_name,
         'black_player_name': black_full_name,
         'white_player_rating': row[11],
-        'black_player_rating': row[14]
+        'black_player_rating': row[14],
+        'time_control': row[15],
+        'white_time': row[16],
+        'black_time': row[17]
     }
     
     return {

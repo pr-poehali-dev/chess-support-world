@@ -5,6 +5,17 @@ import psycopg2
 import uuid
 import pusher
 
+def parse_time_control(time_control: str) -> int:
+    """Парсит строку вида '5+3' и возвращает начальное время в секундах"""
+    if not time_control:
+        return 0
+    try:
+        parts = time_control.split('+')
+        minutes = int(parts[0])
+        return minutes * 60
+    except Exception:
+        return 0
+
 def handler(event: dict, context) -> dict:
     """API для автоматического старта тура и создания партий"""
     
@@ -53,6 +64,15 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(dsn)
         cur = conn.cursor()
         
+        # Получаем time_control из настроек турнира
+        cur.execute(f"""
+            SELECT time_control FROM t_p91748136_chess_support_world.tournaments
+            WHERE id = {tournament_id}
+        """)
+        tournament_row = cur.fetchone()
+        time_control = tournament_row[0] if tournament_row else None
+        initial_time = parse_time_control(time_control) if time_control else None
+        
         cur.execute(f"""
             SELECT id, white_player_id, black_player_id
             FROM t_p91748136_chess_support_world.tournament_pairings
@@ -94,15 +114,21 @@ def handler(event: dict, context) -> dict:
                 continue
             
             game_id = str(uuid.uuid4())
-            
             initial_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
             now = datetime.now().isoformat()
             
-            cur.execute(f"""
-                INSERT INTO t_p91748136_chess_support_world.games 
-                (id, fen, pgn, white_player_id, black_player_id, current_turn, status, tournament_id, round_number, created_at, updated_at)
-                VALUES ('{game_id}', '{initial_fen}', '', {white_id}, {black_id}, 'w', 'active', {tournament_id}, {round_number}, '{now}', '{now}')
-            """)
+            if time_control and initial_time:
+                cur.execute("""
+                    INSERT INTO t_p91748136_chess_support_world.games 
+                    (id, fen, pgn, white_player_id, black_player_id, current_turn, status, tournament_id, round_number, time_control, white_time, black_time, created_at, updated_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (game_id, initial_fen, '', white_id, black_id, 'w', 'active', tournament_id, round_number, time_control, initial_time, initial_time, now, now))
+            else:
+                cur.execute("""
+                    INSERT INTO t_p91748136_chess_support_world.games 
+                    (id, fen, pgn, white_player_id, black_player_id, current_turn, status, tournament_id, round_number, created_at, updated_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (game_id, initial_fen, '', white_id, black_id, 'w', 'active', tournament_id, round_number, now, now))
             
             cur.execute(f"""
                 UPDATE t_p91748136_chess_support_world.tournament_pairings
@@ -139,7 +165,6 @@ def handler(event: dict, context) -> dict:
                 ssl=True
             )
             
-            # Отправляем событие на канал турнира
             pusher_client.trigger(
                 f'tournament-{tournament_id}',
                 'new-round',
@@ -147,7 +172,8 @@ def handler(event: dict, context) -> dict:
                     'tournament_id': tournament_id,
                     'round_id': round_id,
                     'round_number': round_number,
-                    'games': created_games
+                    'games': created_games,
+                    'time_control': time_control
                 }
             )
             print(f'[PUSHER] Событие new-round отправлено')
@@ -164,7 +190,8 @@ def handler(event: dict, context) -> dict:
                 'success': True,
                 'round_id': round_id,
                 'created_games': created_games,
-                'total_games': len(created_games)
+                'total_games': len(created_games),
+                'time_control': time_control
             }),
             'isBase64Encoded': False
         }
