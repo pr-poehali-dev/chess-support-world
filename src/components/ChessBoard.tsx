@@ -85,6 +85,9 @@ const ChessBoard = ({
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loadingStandings, setLoadingStandings] = useState(false);
   const [isGameFinished, setIsGameFinished] = useState(false);
+  const [drawOffered, setDrawOffered] = useState(false);          // мы предложили
+  const [incomingDraw, setIncomingDraw] = useState(false);        // нам предложили
+  const drawOfferedRef = useRef(false);
 
   // Контроль времени
   const [timeControl, setTimeControl] = useState<string | null>(null);
@@ -222,6 +225,19 @@ const ChessBoard = ({
           startTimer(turn);
         }
       }
+    });
+
+    channel.bind('draw-offer', (data: { from_player_id: number }) => {
+      // Показываем диалог только тому, кому предложили (не себе)
+      if (data.from_player_id !== userId) {
+        setIncomingDraw(true);
+      }
+    });
+
+    channel.bind('draw-decline', () => {
+      setDrawOffered(false);
+      drawOfferedRef.current = false;
+      toast({ title: "Ничья отклонена", description: "Соперник отказался от ничьей" });
     });
 
     return () => {
@@ -528,8 +544,43 @@ const ChessBoard = ({
     }
   };
 
-  const handleOfferDraw = () => {
-    toast({ title: "Предложение ничьей", description: "Функция в разработке" });
+  const handleOfferDraw = async () => {
+    if (!playerColor || drawOfferedRef.current) return;
+    drawOfferedRef.current = true;
+    setDrawOffered(true);
+    try {
+      await fetch('https://functions.poehali.dev/0e4e09c5-98ce-4f69-8e8c-04ac42cb4418', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': userId.toString() },
+        body: JSON.stringify({ game_id: gameId, action: 'offer' })
+      });
+      toast({ title: "Предложение отправлено", description: "Ждём ответа соперника..." });
+    } catch {
+      drawOfferedRef.current = false;
+      setDrawOffered(false);
+    }
+  };
+
+  const handleDrawResponse = async (accept: boolean) => {
+    setIncomingDraw(false);
+    try {
+      await fetch('https://functions.poehali.dev/0e4e09c5-98ce-4f69-8e8c-04ac42cb4418', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': userId.toString() },
+        body: JSON.stringify({ game_id: gameId, action: accept ? 'accept' : 'decline' })
+      });
+      if (accept) {
+        stopTimer();
+        setIsGameFinished(true);
+        isGameFinishedRef.current = true;
+        setGameStatus('Ничья по соглашению');
+        if (onGameEnd) onGameEnd('draw');
+      } else {
+        toast({ title: "Ничья отклонена", description: "Вы отказались от ничьей" });
+      }
+    } catch (error) {
+      console.error('Draw response failed:', error);
+    }
   };
 
   if (loading) {
@@ -789,15 +840,50 @@ const ChessBoard = ({
           </div>
           
           {playerColor && !isGameFinished && (
-            <div className="flex gap-2 justify-center">
+            <div className="flex gap-2 justify-center flex-wrap">
               <Button onClick={handleResign} variant="destructive" size="sm" className="gap-1">
                 <Icon name="Flag" size={16} />
                 Сдаться
               </Button>
-              <Button onClick={handleOfferDraw} variant="outline" size="sm" className="gap-1">
-                <Icon name="Handshake" size={16} />
-                Предложить ничью
-              </Button>
+              {drawOffered ? (
+                <Button disabled variant="outline" size="sm" className="gap-1 opacity-60">
+                  <Icon name="Clock" size={16} />
+                  Ожидание...
+                </Button>
+              ) : (
+                <Button onClick={handleOfferDraw} variant="outline" size="sm" className="gap-1">
+                  <Icon name="Handshake" size={16} />
+                  Предложить ничью
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Входящее предложение ничьей */}
+          {incomingDraw && !isGameFinished && (
+            <div className="mt-2 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
+              <div className="text-sm font-semibold text-yellow-900 text-center mb-2">
+                Соперник предлагает ничью
+              </div>
+              <div className="flex gap-2 justify-center">
+                <Button
+                  onClick={() => handleDrawResponse(true)}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white gap-1"
+                >
+                  <Icon name="Check" size={16} />
+                  Принять
+                </Button>
+                <Button
+                  onClick={() => handleDrawResponse(false)}
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 border-red-300 text-red-600 hover:bg-red-50"
+                >
+                  <Icon name="X" size={16} />
+                  Отклонить
+                </Button>
+              </div>
             </div>
           )}
 

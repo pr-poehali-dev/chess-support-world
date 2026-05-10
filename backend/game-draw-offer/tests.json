@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "No auth",
+      "method": "POST",
+      "path": "/",
+      "body": {"game_id": "test", "action": "offer"},
+      "expectedStatus": 401
+    },
+    {
+      "name": "Missing game_id",
+      "method": "POST",
+      "path": "/",
+      "headers": {"X-User-Id": "1"},
+      "body": {"action": "offer"},
+      "expectedStatus": 400
+    }
+  ]
+}
