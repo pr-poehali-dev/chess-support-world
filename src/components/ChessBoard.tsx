@@ -55,6 +55,13 @@ const formatTime = (seconds: number): string => {
   return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
+const parseIncrement = (timeControl: string | null): number => {
+  if (!timeControl) return 0;
+  const parts = timeControl.split('+');
+  if (parts.length < 2) return 0;
+  return parseInt(parts[1], 10) || 0;
+};
+
 const ChessBoard = ({
   gameId,
   userId,
@@ -89,6 +96,8 @@ const ChessBoard = ({
   const playerColorRef = useRef<'white' | 'black' | null>(null);
   const whiteTimeRef = useRef<number | null>(null);
   const blackTimeRef = useRef<number | null>(null);
+  const timeControlRef = useRef<string | null>(null);
+  const gameRef = useRef<Chess>(new Chess());
 
   // Синхронизируем ref с state
   useEffect(() => {
@@ -107,6 +116,10 @@ const ChessBoard = ({
     blackTimeRef.current = blackTime;
   }, [blackTime]);
 
+  useEffect(() => {
+    timeControlRef.current = timeControl;
+  }, [timeControl]);
+
   // Запуск/остановка таймера
   const startTimer = useCallback((turn: 'w' | 'b') => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -124,9 +137,9 @@ const ChessBoard = ({
           whiteTimeRef.current = next;
           if (next <= 0) {
             clearInterval(timerRef.current!);
-            // Флаг — только игрок с правом хода фиксирует таймаут
+            // Только сам белый игрок фиксирует истечение своего времени
             if (playerColorRef.current === 'white') {
-              handleTimeout('black');
+              handleTimeout('white');
             }
             return 0;
           }
@@ -139,8 +152,9 @@ const ChessBoard = ({
           blackTimeRef.current = next;
           if (next <= 0) {
             clearInterval(timerRef.current!);
+            // Только сам чёрный игрок фиксирует истечение своего времени
             if (playerColorRef.current === 'black') {
-              handleTimeout('white');
+              handleTimeout('black');
             }
             return 0;
           }
@@ -180,14 +194,23 @@ const ChessBoard = ({
         stopTimer();
       }
       
-      // Синхронизируем время от противника
-      if (data.white_time !== undefined && data.black_time !== undefined) {
+      // Синхронизируем время только если это ход противника (не наш)
+      // Наше время уже обновлено локально с инкрементом
+      const isOpponentMove = data.current_turn !== undefined && (
+        (playerColorRef.current === 'white' && data.current_turn === 'w') ||
+        (playerColorRef.current === 'black' && data.current_turn === 'b') ||
+        playerColorRef.current === null
+      );
+      if (isOpponentMove && data.white_time !== undefined && data.black_time !== undefined) {
         setWhiteTime(data.white_time);
         setBlackTime(data.black_time);
+        whiteTimeRef.current = data.white_time;
+        blackTimeRef.current = data.black_time;
       }
 
       if (data.fen && data.fen !== position) {
         const newGame = new Chess(data.fen);
+        gameRef.current = newGame;
         setGame(newGame);
         setPosition(data.fen);
         setMoveHistory(newGame.history());
@@ -225,6 +248,7 @@ const ChessBoard = ({
         
         if (g.fen) {
           const newGame = new Chess(g.fen);
+          gameRef.current = newGame;
           setGame(newGame);
           setPosition(g.fen);
           setMoveHistory(newGame.history());
@@ -284,8 +308,10 @@ const ChessBoard = ({
     }
   };
 
+  // loserColor — тот, у кого закончилось время
   const handleTimeout = async (loserColor: 'white' | 'black') => {
     if (isGameFinishedRef.current) return;
+    isGameFinishedRef.current = true;
     setIsGameFinished(true);
     stopTimer();
 
@@ -298,18 +324,19 @@ const ChessBoard = ({
     });
 
     try {
+      const currentGame = gameRef.current;
       await fetch('https://functions.poehali.dev/668c7b6f-f978-482a-a965-3f91c86ebea3', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-User-Id': userId.toString() },
         body: JSON.stringify({
           game_id: gameId,
-          fen: game.fen(),
-          pgn: game.pgn(),
-          current_turn: game.turn(),
+          fen: currentGame.fen(),
+          pgn: currentGame.pgn(),
+          current_turn: currentGame.turn(),
           status: 'timeout',
           winner: winnerColor,
-          white_time: whiteTimeRef.current ?? 0,
-          black_time: blackTimeRef.current ?? 0
+          white_time: loserColor === 'white' ? 0 : (whiteTimeRef.current ?? 0),
+          black_time: loserColor === 'black' ? 0 : (blackTimeRef.current ?? 0)
         })
       });
       if (onGameEnd) onGameEnd(winnerColor === 'white' ? 'white_win' : 'black_win');
@@ -368,10 +395,30 @@ const ChessBoard = ({
       const newFen = game.fen();
       const newPgn = game.pgn();
       const newTurn = game.turn() as 'w' | 'b';
+      gameRef.current = game;
       
       setPosition(newFen);
       setMoveHistory(game.history());
       updateGameStatus(game);
+
+      // Добавляем инкремент тому, кто только что ходил
+      const increment = parseIncrement(timeControlRef.current);
+      if (increment > 0) {
+        const movedColor = newTurn === 'w' ? 'b' : 'w'; // кто только что ходил
+        if (movedColor === 'w') {
+          setWhiteTime(prev => {
+            const v = (prev ?? 0) + increment;
+            whiteTimeRef.current = v;
+            return v;
+          });
+        } else {
+          setBlackTime(prev => {
+            const v = (prev ?? 0) + increment;
+            blackTimeRef.current = v;
+            return v;
+          });
+        }
+      }
 
       // Переключаем таймер на противника
       if (!isGameFinishedRef.current) {
