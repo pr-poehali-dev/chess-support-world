@@ -587,7 +587,50 @@ const ChessBoard = ({
             {timeControl && (
               <div>
                 <div className="text-xs text-gray-500 mb-1">Контроль времени</div>
-                <div className="text-sm font-semibold">{timeControl} мин</div>
+                <div className="text-sm font-semibold flex items-center gap-2">
+                  <Icon name="Timer" size={14} className="text-blue-500" />
+                  {timeControl} мин
+                  {parseIncrement(timeControl) > 0 && (
+                    <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold">
+                      +{parseIncrement(timeControl)}с инкремент
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Часы соперника в левой панели — удобно для быстрой проверки */}
+            {(whiteTime !== null || blackTime !== null) && (
+              <div className="border-t pt-3 mt-1">
+                <div className="text-xs text-gray-500 mb-2">Часы</div>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-600 flex items-center gap-1">
+                      <span className="w-3 h-3 rounded-full bg-white border border-gray-400 inline-block" />
+                      {whitePlayerName.split(' ')[0]}
+                    </span>
+                    <span className={`font-mono font-bold text-sm px-2 py-0.5 rounded ${
+                      currentTurnColor === 'w' && !isGameFinished
+                        ? whiteTime !== null && whiteTime <= 30 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                        : 'text-gray-500'
+                    }`}>
+                      {whiteTime !== null ? formatTime(whiteTime) : '—'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-600 flex items-center gap-1">
+                      <span className="w-3 h-3 rounded-full bg-gray-900 inline-block" />
+                      {blackPlayerName.split(' ')[0]}
+                    </span>
+                    <span className={`font-mono font-bold text-sm px-2 py-0.5 rounded ${
+                      currentTurnColor === 'b' && !isGameFinished
+                        ? blackTime !== null && blackTime <= 30 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                        : 'text-gray-500'
+                    }`}>
+                      {blackTime !== null ? formatTime(blackTime) : '—'}
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
