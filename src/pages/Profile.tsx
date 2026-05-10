@@ -7,11 +7,12 @@ import TopUpModal from '@/components/index-page/TopUpModal';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import BalanceCard from '@/components/profile/BalanceCard';
 import ProfileForm from '@/components/profile/ProfileForm';
+import PlayerStats from '@/components/profile/PlayerStats';
 import func2url from '../../backend/func2url.json';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<Record<string, unknown> | null>(null);
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState('');
@@ -236,6 +237,8 @@ const Profile = () => {
             onEmailChange={setEmail}
             onNewPasswordChange={setNewPassword}
           />
+
+          <PlayerStats userId={user.id as number} />
         </Card>
       </main>
 
